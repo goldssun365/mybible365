@@ -557,12 +557,13 @@ function fit(){
     const wd=document.body.classList.contains('wide')?1450:1010;
     z=Math.min(innerWidth/wd,1.25,(innerHeight-12)/770); // 770 = 처음 화면 높이. 모든 고르는 화면이 같은 글씨 크기
   }
-  z=Math.max(.45,Math.min(2.4,z*S.zoom));
+  /* 연습 화면은 먼저 화면에 꼭 맞추고, '가 작게'로 줄인 만큼만 맨 끝에서 줄임 (자판이 화면 밖으로 나가지 않게 키우지는 않음) */
+  z=Math.max(.45,Math.min(2.4,TYPING.includes(SCREEN)?z:z*S.zoom));
   w.style.zoom=z;
   if(TYPING.includes(SCREEN)){ // 실제로 그려진 높이를 재서 빈 곳 없이 꼭 맞게 두 번 고쳐 맞춤
     const last=S.hands===false?$('kb'):$('hands');
     for(let k=0;k<3;k++){
-      const b=last.getBoundingClientRect().bottom,cap=innerWidth/1010*S.zoom;
+      const b=last.getBoundingClientRect().bottom,cap=innerWidth/1010;
       if(b<=0)break;
       const nz=Math.min(cap,z*(innerHeight-10)/b);
       if(Math.abs(nz-z)<.003)break;z=nz;w.style.zoom=z;
@@ -571,6 +572,7 @@ function fit(){
       const extra=(innerHeight-10-last.getBoundingClientRect().bottom)/z;
       $('sky').style.height=Math.round(340+Math.max(0,Math.min(220,extra)))+'px';
     }
+    if(S.zoom<1){z=Math.max(.45,z*S.zoom);w.style.zoom=z} /* 가 작게 (2026-10-07) */
   }
   if(!TYPING.includes(SCREEN)&&$(SCREEN)){ // 그래도 넘치면 한 화면에 들어오도록 조금만 줄임
     const b=$(SCREEN).getBoundingClientRect().bottom;
@@ -799,9 +801,14 @@ const W_ROUND=20;
 const W_START='사랑 예수 감사 믿음 소망 기도 은혜 말씀 찬양 축복 평안 기쁨 아멘 성경 교회 예배 천국 구원 생명 영광'.split(' ');
 const WL=(()=>{const uniq=a=>[...new Set(a)];
   const mid=MW.mid,hard=MW.hard,mi=mid.indexOf('사람이'),hi=hard.indexOf('안식일에');
-  return {two:uniq(W_START.concat(MW.easy.filter(w=>syl(w)===2))).slice(0,300),
-    three:uniq(mid.slice(0,mi<0?mid.length:mi).filter(w=>syl(w)===3)),
-    four:uniq(hard.slice(0,hi<0?hard.length:hi).filter(w=>syl(w)>=4)).sort((a,b)=>syl(a)-syl(b))}})();
+  /* 쉬운 낱말부터: 눌러야 하는 글쇠 수 + 윗글쇠(Shift)가 필요한 글자는 1.5를 더함.
+     겹받침(젊)·겹모음(와)은 글쇠를 두 번 눌러야 해서 저절로 뒤로 감. 같으면 익숙한 순서 그대로 (2026-10-07) */
+  const hardness=w=>{const k=toKeys(w);return k.length+1.5*k.filter(x=>J2K[x.j]&&J2K[x.j].shift).length};
+  const easyFirst=a=>a.map((w,i)=>[w,hardness(w),i]).sort((x,y)=>x[1]-y[1]||x[2]-y[2]).map(x=>x[0]);
+  const two=uniq(W_START.concat(MW.easy.filter(w=>syl(w)===2))).slice(0,300);
+  return {two:W_START.concat(easyFirst(two.slice(W_START.length))), /* 사랑·예수·감사·믿음… 20개는 맨 앞 그대로 */
+    three:easyFirst(uniq(mid.slice(0,mi<0?mid.length:mi).filter(w=>syl(w)===3))),
+    four:easyFirst(uniq(hard.slice(0,hi<0?hard.length:hi).filter(w=>syl(w)>=4)))}})();
 const W_LEVELS=[{id:'two',name:'두 글자 낱말',ex:'사랑, 예수'},{id:'three',name:'세 글자 낱말',ex:'하나님, 십자가'},{id:'four',name:'네 글자 넘게',ex:'할렐루야'}];
 const WL_TOTAL=()=>WL.two.length+WL.three.length+WL.four.length;
 function wdOf(lv){if(!S.wd||typeof S.wd!=='object')S.wd={};if(!S.wd[lv]||typeof S.wd[lv].p!=='number')S.wd[lv]={p:0,done:0,r:1};return S.wd[lv]}
