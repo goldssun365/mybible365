@@ -213,10 +213,10 @@ footer{color:var(--sub);font-size:15px;text-align:center;padding:22px 10px 30px;
 
 /* 집중 필사 */
 .focus{position:fixed;inset:0;background:var(--page);z-index:40;overflow:auto;padding:14px 14px calc(30px + env(safe-area-inset-bottom,0px))}
-.focus-top{max-width:1600px;margin:0 auto 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;background:var(--page);padding:calc(6px + env(safe-area-inset-top,0px)) 0 8px;z-index:2}
+.focus-top{max-width:1248px;margin:0 auto 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;background:var(--page);padding:calc(6px + env(safe-area-inset-top,0px)) 0 8px;z-index:2}
 .focus-top h2{margin:0;font:800 26px/1.2 var(--serif)}
 .focus-top .grp{display:flex;gap:8px;flex-wrap:wrap}
-.papers{max-width:1600px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.papers{max-width:1248px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
 .paper{background:var(--sheet);border:2px solid var(--line);border-radius:18px;padding:22px 24px}
 /* 집중 필사: 원문과 필사 칸을 절마다 같은 높이로 맞춰 나란히 (2026-10-07). 원문 쪽 따로 스크롤 없음.
    원문 글줄 폭과 위아래 여백을 필사 칸과 똑같이 맞춰(fAlign) 줄바꿈 자리가 같게 함 */
@@ -1079,8 +1079,8 @@ function fHighlight(i){$('fOrig').querySelectorAll('.ov').forEach(p=>p.classList
 /* 왼쪽 원문 절과 오른쪽 필사 칸의 높이를 절마다 같게: 같은 절이 늘 같은 줄에서 시작 */
 function fAlign(){
   const L=$('fOrig'),Rr=$('fRows');if($('focus').hidden)return;
-  /* 화면 크기에 맞춰 글씨를 줄임: 24인치(폭 1900)가 기준, 노트북에서는 같은 모양으로 작게 (최소 78%) */
-  const F=$('focus'),k=getComputedStyle(L).display==='none'?1:Math.max(.78,Math.min(1,innerWidth/1900)),fs=(settings().font*k).toFixed(1)+'px';
+  /* 집중 필사의 폭과 글씨는 첫 화면과 같게(1248px). 창이 그보다 좁을 때만 같은 비율로 줄임 (최소 78%) */
+  const F=$('focus'),k=getComputedStyle(L).display==='none'?1:Math.max(.78,Math.min(1,(innerWidth-28)/1248)),fs=(settings().font*k).toFixed(1)+'px';
   if(F.style.getPropertyValue('--fs')!==fs){F.style.setProperty('--fs',fs);Rr.querySelectorAll('.rin').forEach(autoGrow)}
   if(getComputedStyle(L).display==='none')return;
   const pairs=[[L.querySelector('h3'),Rr.querySelector('h3')]];
