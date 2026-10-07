@@ -235,8 +235,9 @@ footer{color:var(--sub);font-size:15px;text-align:center;padding:22px 10px 30px;
 .rst{font-size:15px;color:var(--sub);min-height:22px;margin-top:2px}
 .row.ok .rst{color:var(--ok);font-weight:800}
 /* 다 쓴 절은 글 대신 절 번호 아래 ✓ 하나만 (2026-10-07) */
-.rst:empty{min-height:0;margin:0}
-.row.ok .rn::after{content:"✓";display:block;margin-top:8px;color:var(--ok);font-size:20px}
+.rst:empty{display:none}
+.rn{position:relative}
+.row.ok .rn::after{content:"✓";position:absolute;right:0;top:calc(14px + 1.15em);color:var(--ok);font-size:20px;line-height:1}
 .focus-end{border-top:2px dashed var(--line);margin-top:16px;padding-top:16px;display:flex;flex-direction:column;gap:10px}
 .focus-end button{min-height:60px;font-size:20px}
 
@@ -1069,7 +1070,11 @@ function fSummary(){const n=B[cur.b][cur.c].length,w=chWritten(cur.b,cur.c);$('f
 function fHighlight(i){$('fOrig').querySelectorAll('.ov').forEach(p=>p.classList.toggle('now',+p.dataset.i===i));const p=$('fOrig').querySelector(`.ov[data-i="${i}"]`);if(p){const box=$('fOrig');const top=p.offsetTop;if(top<box.scrollTop+40||top>box.scrollTop+box.clientHeight-120)box.scrollTo({top:top-120,behavior:'smooth'})}}
 /* 왼쪽 원문 절과 오른쪽 필사 칸의 높이를 절마다 같게: 같은 절이 늘 같은 줄에서 시작 */
 function fAlign(){
-  const L=$('fOrig'),Rr=$('fRows');if($('focus').hidden||getComputedStyle(L).display==='none')return;
+  const L=$('fOrig'),Rr=$('fRows');if($('focus').hidden)return;
+  /* 화면 크기에 맞춰 글씨를 줄임: 24인치(폭 1900)가 기준, 노트북에서는 같은 모양으로 작게 (최소 78%) */
+  const F=$('focus'),k=getComputedStyle(L).display==='none'?1:Math.max(.78,Math.min(1,innerWidth/1900)),fs=(settings().font*k).toFixed(1)+'px';
+  if(F.style.getPropertyValue('--fs')!==fs){F.style.setProperty('--fs',fs);Rr.querySelectorAll('.rin').forEach(autoGrow)}
+  if(getComputedStyle(L).display==='none')return;
   const pairs=[[L.querySelector('h3'),Rr.querySelector('h3')]];
   Rr.querySelectorAll('.row').forEach(r=>pairs.push([L.querySelector(`.ov[data-i="${r.dataset.i}"]`),r]));
   /* 원문 글줄 폭 = 필사 칸 글줄 폭, 원문 위아래 여백 = 필사 칸 안쪽 여백 */
