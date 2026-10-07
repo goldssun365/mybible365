@@ -1624,13 +1624,15 @@ boot();
   var APP=document.title;
   /* 1. 카톡 안 브라우저: 설치가 안 되고 기록도 따로 쌓이므로 크롬(기본 브라우저)으로 열도록 안내 */
   var ua=navigator.userAgent||'';
+  var android=/Android/i.test(ua);
+  function toChrome(){location.href='intent://'+location.host+location.pathname+location.search+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent('https://play.google.com/store/apps/details?id=com.android.chrome')+';end'}
   if(/KAKAOTALK/i.test(ua)){
     var d=document.createElement('div');d.className='pw-kakao';
     d.innerHTML='<div class="c"><h2>카카오톡 안에서 열렸어요</h2><p>여기서 쓰시면 <b>기록이 따로 저장되고</b> 바탕화면·홈 화면에 설치할 수도 없어요.<br>아래 단추를 눌러 <b>크롬</b>으로 열어 주세요.</p>'+
       '<button class="p" id="pwOut">크롬으로 열기</button><p style="font-size:15px;color:#5b6577;margin:14px 0 0">단추가 안 되면 오른쪽 위(또는 아래) ⋮ 메뉴에서<br>‘다른 브라우저로 열기’를 눌러 주세요.</p>'+
       '<button id="pwStay" style="border:0;font-weight:400;font-size:15px;color:#5b6577">그냥 여기서 보기</button></div>';
     document.body.appendChild(d);
-    document.getElementById('pwOut').onclick=function(){location.href='kakaotalk://web/openExternal?url='+encodeURIComponent(location.href)};
+    document.getElementById('pwOut').onclick=function(){if(android)toChrome();else location.href='kakaotalk://web/openExternal?url='+encodeURIComponent(location.href)};
     document.getElementById('pwStay').onclick=function(){d.remove()};
     return; /* 카톡 안에서는 설치·오프라인 저장을 하지 않음 */
   }
@@ -1647,6 +1649,20 @@ boot();
   if(Date.now()-later<3*864e5)return;
   var ev=null,box=null;
   var phone=matchMedia('(pointer:coarse)').matches&&innerWidth<820;
+  /* 5. 삼성 인터넷(2026-10-07 밤): 여기서 홈 화면에 추가하면 Play 프로텍트가 '안전하지 않은 앱 차단됨'으로 막음
+     → 설치 단추 대신 '홈 화면에 두실 때는 크롬에서' 안내. 보는 것·쓰는 것은 삼성 인터넷에서도 그대로 됨 */
+  if(android&&/SamsungBrowser/i.test(ua)){
+    var sb=function(){if(box)return;if(busy()){setTimeout(sb,800);return}
+      box=document.createElement('div');box.className='pw-inst top';box.style.flexWrap='wrap';box.style.padding='12px 14px';
+      box.innerHTML='<span style="flex:1 1 100%">홈 화면에 앱으로 두실 때는 <b>크롬</b>에서 해 주세요.<br><small style="opacity:.85">삼성 인터넷에서 추가하면 ‘차단됨’ 창이 뜰 수 있어요.</small></span><button id="pwGo" style="flex:1">크롬으로 열기</button><button class="x" id="pwLater" aria-label="나중에">나중에</button>';
+      document.body.insertBefore(box,document.body.firstChild);
+      document.getElementById('pwGo').onclick=toChrome;
+      document.getElementById('pwLater').onclick=function(){box.remove();try{localStorage.setItem('pw-later:'+location.pathname,Date.now())}catch(e){}};
+    };
+    window.addEventListener('beforeinstallprompt',function(e){e.preventDefault()});
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sb);else sb();
+    return;
+  }
   /* 안내창이 떠 있는 동안에는 설치 단추를 띄우지 않고, 닫힌 뒤에 보여 줌 */
   function busy(){var m=document.querySelectorAll('.modal,#modal,.pw-kakao');for(var i=0;i<m.length;i++){if(!m[i].hidden&&getComputedStyle(m[i]).display!=='none')return true}return false}
   window.addEventListener('beforeinstallprompt',function(e){
