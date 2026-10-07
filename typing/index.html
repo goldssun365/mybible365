@@ -68,7 +68,7 @@ footer .credit{display:inline-block;margin:10px 0 4px;font-weight:700;font-size:
 .pcnote{background:#FFF3D6;color:#4A3A12;border:2px solid var(--gold);border-radius:14px;padding:12px 16px;margin:0 0 14px;font-size:19px}
 
 /* 처음 화면: 세 단계 */
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:6px 0 18px;counter-reset:st}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:6px 0 18px;counter-reset:st}
 .steps button{text-align:left;padding:18px 18px 16px;min-height:150px;display:flex;flex-direction:column;gap:4px;border-width:3px;position:relative}
 .steps .no{font-size:16px;color:var(--soft)}
 .steps b{font-size:27px;font-family:var(--serif);line-height:1.3}
@@ -217,6 +217,15 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
 .seg.cur{background:color-mix(in srgb,var(--gold) 10%,var(--paper));border:2px solid var(--gold)}
 .seg.cur .o{color:var(--ink)}
 .seg.cur .o .nx{border-bottom:4px solid var(--gold)}
+/* 2단계 낱말 쓰기 (2026-10-07) */
+.wbox{text-align:center;margin:10px 0 4px;padding:14px 10px;border-radius:16px;background:color-mix(in srgb,var(--gold) 10%,var(--paper));border:2px solid var(--gold)}
+.wbox .wo{font:700 72px/1.25 var(--serif);letter-spacing:.08em;color:var(--ink)}
+.wbox .wo .nx{border-bottom:6px solid var(--next)}
+.wbox .wo .dn{color:var(--set)}
+.wbox .wt{font:700 48px/1.3 var(--serif);min-height:1.3em;color:var(--set);letter-spacing:.06em}
+.wbox.ok{border-color:var(--set);background:color-mix(in srgb,var(--set) 14%,var(--paper))}
+.wnext{text-align:center;color:var(--soft);font-size:20px;margin:6px 0 0}
+#kbWrap[data-s="word"] .hands{max-width:420px}
 .seg.done .o{color:var(--set)}
 .seg:not(.cur):not(.done) .t{display:none}
 .caret{display:inline-block;width:3px;height:1.1em;background:var(--gold);vertical-align:-3px;margin-left:2px;animation:blink 1s steps(1) infinite}
@@ -306,9 +315,27 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     <p class="msg" id="lMsg" aria-live="polite"></p>
   </section>
 
-  <!-- 2단계 고르기 -->
+  <!-- 2단계 고르기: 낱말 쓰기 -->
+  <section class="card hide" id="wordHome">
+    <p class="ref">2단계 · 낱말 쓰기</p>
+    <p class="guide">자리 익히기를 마치셨으면 이제 말씀에 나오는 낱말을 하나씩 써 봅니다. 화면에 나오는 낱말을 보고 치면 저절로 다음 낱말로 넘어갑니다. 시간 제한은 없습니다. 두 글자 낱말부터 차례로 하시고, 자판이 익숙하시면 이 단계는 건너뛰고 3단계로 가셔도 됩니다.</p>
+    <div class="choices" id="wLevels"></div>
+    <p class="guide" id="wProg"></p>
+    <div class="row"><button class="primary" id="wStart">낱말 쓰기 시작</button><button id="wSkip">건너뛰고 3단계 만나 줍기로</button></div>
+  </section>
+
+  <!-- 2단계 연습: 낱말 쓰기 -->
+  <section class="card hide" id="word">
+    <p class="ref" id="wRef"></p>
+    <div class="wbox" id="wBox"><div class="wo" id="wO"></div><div class="wt" id="wT"></div></div>
+    <p class="wnext" id="wNext"></p>
+    <div class="bar"><i id="wBar" style="width:0"></i></div>
+    <p class="msg" id="wMsg" aria-live="polite"></p>
+  </section>
+
+  <!-- 3단계 고르기 -->
   <section class="card hide" id="mannaHome">
-    <p class="ref">2단계 · 만나 줍기</p>
+    <p class="ref">3단계 · 만나 줍기</p>
     <p class="guide">하늘에서 말씀 낱말이 만나처럼 내려옵니다. 낱말을 치면 바구니에 담깁니다. 땅에 내려앉은 만나는 사라지지 않고 기다리니 서두르지 않으셔도 됩니다. 만나 20개를 담으면 바구니가 가득 찹니다.</p>
     <div class="two"><div class="colL">
     <h2 class="sec">낱말 길이</h2>
@@ -329,7 +356,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     </div></div>
   </section>
 
-  <!-- 2단계 놀이 -->
+  <!-- 3단계 놀이 -->
   <section class="card hide" id="manna">
     <div class="chhud hide" id="chHud" aria-live="polite"></div>
     <div class="sky" id="sky">
@@ -350,9 +377,9 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     </div>
   </section>
 
-  <!-- 3단계 고르기 -->
+  <!-- 4단계 고르기 -->
   <section class="card hide" id="verseHome">
-    <p class="ref">3단계 · 한 절 따라 치기</p>
+    <p class="ref">4단계 · 한 절 따라 치기</p>
     <p class="guide">말씀 한 절을 보고 그대로 칩니다. 윗줄이 말씀, 아랫줄이 치신 글입니다. 긴 말씀은 뜻이 쉬는 곳에서 줄을 나눴습니다. 잘못 친 글자는 빨갛게 보이니, 맞는 글쇠를 다시 치시거나 ← 지움 글쇠(Backspace)로 지우세요. 쉼표는 저절로 들어가고, 줄 끝에서는 띄어쓰기를 안 하셔도 됩니다.</p>
     <div class="two"><div class="colL">
     <div class="choices" id="vLevels"></div>
@@ -365,7 +392,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     </div></div>
   </section>
 
-  <!-- 3단계 놀이 -->
+  <!-- 4단계 놀이 -->
   <section class="card hide" id="verse">
     <p class="ref" id="vRef"></p>
     <div class="lines" id="lines"></div>
@@ -377,7 +404,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     </div>
   </section>
 
-  <!-- 자판 그림 (1~3단계 공통) -->
+  <!-- 자판 그림 (1~4단계 공통) -->
   <div class="kbwrap hide" id="kbWrap">
     <p class="nextk" id="nextk" aria-live="polite"></p>
     <div class="kb" id="kb" aria-hidden="true"></div>
@@ -486,7 +513,7 @@ function compose(js){
 
 /* ---------- 저장 (이 기기 브라우저 안에만) ---------- */
 const SKEY='malsseumTyping:v1';
-const DEF=()=>({fs:28,zoom:1,hint:true,sound:true,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},mLevel:'easy',mSpeed:'s10',vLevel:'easy',vAuto:true,queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{}});
+const DEF=()=>({fs:28,zoom:1,hint:true,sound:true,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},mLevel:'easy',mSpeed:'s10',vLevel:'easy',vAuto:true,queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{},wLevel:'two',wd:{}});
 let S=DEF();
 try{const raw=localStorage.getItem(SKEY);if(raw)S={...S,...JSON.parse(raw)}}catch(e){}
 function normalize(){
@@ -521,7 +548,7 @@ function fit(){
     document.body.classList.toggle('wide',['mannaHome','verseHome'].includes(SCREEN)&&innerWidth/zb>=1300);
   }
   let z;
-  if(['lesson','manna','verse'].includes(SCREEN)){
+  if(TYPING.includes(SCREEN)){
     if(SCREEN==='manna')$('sky').style.height='340px'; // 하늘은 먼저 작게 두고 재고, 남는 높이를 나중에 하늘에 줌
     const last=S.hands===false?$('kb'):$('hands');
     const top=w.getBoundingClientRect().top,bottom=last.getBoundingClientRect().bottom;
@@ -532,7 +559,7 @@ function fit(){
   }
   z=Math.max(.45,Math.min(2.4,z*S.zoom));
   w.style.zoom=z;
-  if(['lesson','manna','verse'].includes(SCREEN)){ // 실제로 그려진 높이를 재서 빈 곳 없이 꼭 맞게 두 번 고쳐 맞춤
+  if(TYPING.includes(SCREEN)){ // 실제로 그려진 높이를 재서 빈 곳 없이 꼭 맞게 두 번 고쳐 맞춤
     const last=S.hands===false?$('kb'):$('hands');
     for(let k=0;k<3;k++){
       const b=last.getBoundingClientRect().bottom,cap=innerWidth/1010*S.zoom;
@@ -545,7 +572,7 @@ function fit(){
       $('sky').style.height=Math.round(340+Math.max(0,Math.min(220,extra)))+'px';
     }
   }
-  if(!['lesson','manna','verse'].includes(SCREEN)&&$(SCREEN)){ // 그래도 넘치면 한 화면에 들어오도록 조금만 줄임
+  if(!TYPING.includes(SCREEN)&&$(SCREEN)){ // 그래도 넘치면 한 화면에 들어오도록 조금만 줄임
     const b=$(SCREEN).getBoundingClientRect().bottom;
     if(b>innerHeight-8)w.style.zoom=Math.max(.6,z*(innerHeight-8)/b);
   }
@@ -555,24 +582,26 @@ $('bigger').onclick=()=>{S.zoom=Math.min(1.8,+(S.zoom*1.1).toFixed(3));save();fi
 $('smaller').onclick=()=>{S.zoom=Math.max(.6,+(S.zoom/1.1).toFixed(3));save();fit()};
 
 let SCREEN='home';
+const TYPING=['lesson','word','manna','verse']; // 자판 그림이 나오는 연습 화면
 function show(id){
   SCREEN=id;
 
-  $('foot').classList.toggle('hide',id!=='home'); /* 맨 아래 안내는 처음 화면에만 (2026-10-07) */  for(const s of ['home','lessonHome','lesson','mannaHome','manna','verseHome','verse','result'])$(s).classList.toggle('hide',s!==id);
-  $('kbWrap').classList.toggle('hide',!['lesson','manna','verse'].includes(id));document.body.classList.toggle('typing',['lesson','manna','verse'].includes(id));$('kbWrap').dataset.s=id;
+  $('foot').classList.toggle('hide',id!=='home'); /* 맨 아래 안내는 처음 화면에만 (2026-10-07) */  for(const s of ['home','lessonHome','lesson','wordHome','word','mannaHome','manna','verseHome','verse','result'])$(s).classList.toggle('hide',s!==id);
+  $('kbWrap').classList.toggle('hide',!TYPING.includes(id));document.body.classList.toggle('typing',TYPING.includes(id));$('kbWrap').dataset.s=id;
   if(id!=='manna')stopManna();
-  if(['lesson','manna','verse'].includes(id)&&document.activeElement)document.activeElement.blur(); // 띄어쓰기가 단추를 누르지 않도록
-  $('backBtn').classList.toggle('hide',!['lesson','manna','verse','result'].includes(id)); // 처음 화면과 같은 곳으로 갈 때는 숨김
+  if(TYPING.includes(id)&&document.activeElement)document.activeElement.blur(); // 띄어쓰기가 단추를 누르지 않도록
+  $('backBtn').classList.toggle('hide',![...TYPING,'result'].includes(id)); // 처음 화면과 같은 곳으로 갈 때는 숨김
   window.scrollTo(0,0);fit();
-  if(['lesson','manna','verse'].includes(id)){clearTimeout(show.t);show.t=setTimeout(fit,90)} // 자판·안내가 다 그려진 뒤 한 번 더 맞춤
+  if(TYPING.includes(id)){clearTimeout(show.t);show.t=setTimeout(fit,90)} // 자판·안내가 다 그려진 뒤 한 번 더 맞춤
 }
 /* 전 화면: 연습 → 고르는 화면 → 처음 화면 차례로 한 칸씩 돌아감 */
 let FROM='home'; // 결과 화면이 어느 단계에서 왔는지
 function goBack(){
   if(!$('party').classList.contains('hide'))return;
-  const up={lessonHome:'home',mannaHome:'home',verseHome:'home',lesson:'lessonHome',manna:'mannaHome',verse:'verseHome',
-    result:FROM==='lesson'?'lessonHome':FROM==='manna'?'mannaHome':FROM==='verse'?'verseHome':'home'}[SCREEN]||'home';
-  ({home:renderHome,lessonHome:renderLessons,mannaHome:renderMannaHome,verseHome:renderVerseHome})[up]();
+  const up={lessonHome:'home',wordHome:'home',mannaHome:'home',verseHome:'home',lesson:'lessonHome',word:'wordHome',manna:'mannaHome',verse:'verseHome',
+    result:FROM==='lesson'?'lessonHome':FROM==='word'?'wordHome':FROM==='manna'?'mannaHome':FROM==='verse'?'verseHome':'home'}[SCREEN]||'home';
+  if(SCREEN==='word'&&WD)WD.done=true;
+  ({home:renderHome,lessonHome:renderLessons,wordHome:renderWordHome,mannaHome:renderMannaHome,verseHome:renderVerseHome})[up]();
 }
 $('backBtn').onclick=goBack;
 
@@ -661,10 +690,11 @@ function renderHome(){
   const ld=LESSONS.filter(l=>S.lessons[l.id]).length,vd=V.filter(x=>S.verses[keyOf(x)]).length,jd=JW.V.filter(x=>S.verses[keyOf(x)]).length;
   const steps=[
     {id:'lessonHome',no:'1단계',name:'자리 익히기',d:'손가락마다 맡은 글쇠를 하나씩 익힙니다.',p:`${ld} / ${LESSONS.length} 마침`},
-    {id:'mannaHome',no:'2단계',name:'만나 줍기',d:'하늘에서 내려오는 말씀 낱말을 쳐서 바구니에 담습니다.',p:`지금까지 채운 바구니 ${fmt(S.baskets||0)}개 · 담은 만나 ${fmt(S.manna||0)}개`},
-    {id:'verseHome',no:'3단계',name:'한 절 따라 치기',d:'말씀 한 절을 보고 그대로 칩니다. 성경필사로 가는 다리입니다.',p:`따라 친 말씀 ${vd}개 / ${V.length}개 · 예수님 말씀 ${jd} / ${JW.V.length}`}];
+    {id:'wordHome',no:'2단계',name:'낱말 쓰기',d:'말씀 낱말을 두 글자부터 하나씩 써 봅니다. 익숙하시면 건너뛰셔도 됩니다.',p:`쓴 낱말 ${fmt(wordsDone())} / ${fmt(WL_TOTAL())}개`},
+    {id:'mannaHome',no:'3단계',name:'만나 줍기',d:'하늘에서 내려오는 말씀 낱말을 쳐서 바구니에 담습니다.',p:`지금까지 채운 바구니 ${fmt(S.baskets||0)}개 · 담은 만나 ${fmt(S.manna||0)}개`},
+    {id:'verseHome',no:'4단계',name:'한 절 따라 치기',d:'말씀 한 절을 보고 그대로 칩니다. 성경필사로 가는 다리입니다.',p:`따라 친 말씀 ${vd}개 / ${V.length}개 · 예수님 말씀 ${jd} / ${JW.V.length}`}];
   $('steps').innerHTML=steps.map(s=>`<button data-go="${s.id}"><span class="no">${s.no}</span><b>${s.name}</b><span class="d">${s.d}</span><span class="prog">${s.p}</span></button>`).join('');
-  $('steps').querySelectorAll('button').forEach(b=>b.onclick=()=>({lessonHome:renderLessons,mannaHome:renderMannaHome,verseHome:renderVerseHome})[b.dataset.go]());
+  $('steps').querySelectorAll('button').forEach(b=>b.onclick=()=>({lessonHome:renderLessons,wordHome:renderWordHome,mannaHome:renderMannaHome,verseHome:renderVerseHome})[b.dataset.go]());
   $('hintOpt').checked=S.hint;$('handsOpt').checked=S.hands!==false;$('soundOpt').checked=S.sound!==false;
   renderStat();show('home');
 }
@@ -753,12 +783,93 @@ function keyLesson(code,shift){
   }
 }
 
-/* ---------- 2단계: 만나 줍기 ---------- */
+
+/* ---------- 3단계: 만나 줍기 ---------- */
 const MW={"easy": "목자 아들 자녀 자식 부모 어미 형제 이웃 백성 사람 노인 아이 처녀 아내 남편 친구 종 제자 왕 의인 양 여인 여자 소년 장정 청년 어른 신부 신랑 목동 손 발 눈 귀 입 마음 영혼 머리 얼굴 몸 혀 품 입술 무릎 팔 가슴 백발 이마 음성 호흡 날개 빛 달 별 하늘 바다 물 산 바람 비 이슬 나무 열매 과실 풀 반석 초장 돌 강 샘 구름 가지 곡식 시내 물가 동산 들판 진주 바위 언덕 사랑 믿음 소망 평안 평강 감사 진리 생명 명철 능력 힘 영광 구원 복 위로 인자 긍휼 자비 의 정의 겸손 온유 찬송 기도 율법 약속 언약 축복 은총 인애 선 화평 희락 충성 절제 양선 소원 응답 도움 용서 자유 안식 성실 공의 찬양 지식 교훈 증거 상급 기업 소식 칭찬 평화 나음 인내 연단 은사 영생 유익 전심 높임 자랑 소생 정직 순종 경외 부귀 장수 집 성전 딸 뼈 땅 꽃 뿌리 씨 땅끝 기쁨 은혜 지혜 말씀 계명 훈계 명예 문 길 잔 상 처소 방패 산성 요새 보좌 떡 양식 옷 기름 노래 나라 세상 등불 그늘 장막 성 거처 터 보물 재물 멍에 갑옷 투구 띠 빗장 촛대 제단 마을 고향 세계 열방 동네 족속 구유 사관 강보 곳 이름 뜻 행사 비유 근본 값 삯 경영 자리 회중 날 아침 저녁 밤 낮 평생 영원 오늘 내일 때 세대 대대 영영 시절 장래 끝 처음 태초 년수 이전 평일 새벽 노년 오라 울라 주님 아멘 부활 교회 예배 성경 성도 전도 선교 주일 만나 광야 시온 다윗 모세 노아 방주 바울 요한 요셉 해 숲 들 밭 벗 새 소 말 배 금 은 꿀 젖 불 향 등 책 벽 뜰 탑 굴 섬 못 쌀 콩 잎 숨 꿈 잠 맛 글 춤 북 활 덕 정 삶 봄 볕 흙 뿔 털 알 낯 곁 목사 권사 집사 성가 헌금 축도 설교 성찬 심방 구역 예수 성탄 교인 신앙 가정 손주 할미 아담 하와 사라 야곱 이삭 라헬 레아 아론 갈렙 룻기 시편 잠언 욥기 누가 마가 마태 도마 빌립 애굽 로마 에덴 소돔 자손 무리 대답 소리 생각 기록 가족 성령 예물 기억 장로 주인 남자 천사 예비 명령 조상 예언 민족 나귀 고기 그릇 기둥 염소 용사 수고 나팔 의지 복음 포도 간구 손자 희생 소유 경배 구별 사방 성문 화목 사도 세례 존귀 권능 영접 허락 전파 역사 분향 아우 형상 영화 시작 나이 진실 의복 생물 법도 서편 문안 증인 동편 허리 옛적 편지 가루 모양 공중 잉태 직분 전능 서원 침상 구속 왕궁 성벽 선생 향기 인생 금식 심령 번성 사모 복종 표적 천하 산지 갈대 공평 티끌 준비 잔치 절기 누이 후손 만물 염려 청종 회개 우물 고리 절반 의논 대접 선포 평지 여종 그물 위엄 창조 지면 감찰 임금 보호 육신 연기 동생 소문 기한 좌우 보석 비밀 어깨 천지 완전 발견 해석 총명 애통 안수 조금 하루 시대 목숨 보리 사흘 추수 마당 판결 바깥 부자 곳간 눈물 수금 수풀 남녀 자매 종류 실과 수레 바퀴 촌락 부인 국민 강림 생존 본래 등대 가축 음식 광대 겉옷 증손 만족 천국 주야 진흙 공경 봉사 광명 기념 피부 나중 만국 동방 보존 번개 선물 냄새 해변 기운 보배 기초 모래 출입 회복 수염 육지 중심 종일 가시 걸음 양심 정월 본토 감동 슬기 열심 사냥 경고 지붕 근원 소금 불꽃 누룩 묵시 슬픔 농부 행실 왕후 양털 장인 혼인 장가 감당 고을 석류 왕자 사슴 저울 무죄 기회 아기 권면 왕래 물품 당일 박사 자루 무궁 신실 총회 채소 동행 홍수 여름 안전 묵상 연합 유명 대면 유월 소고 광채 수건 향로 명절 소녀 줄기 기력 꼬리 성물 구제 물결 감람 속담 양육 겸비 다리 측량 성곽 왕위 확신 다락 궁궐 떨기 동족 분별 밤중 속옷 가옥 성품 조심 도끼 정신 결국 장자 전국 평탄 후일 관리 친족 맷돌 혼자 파종 밤낮 귀족 이레 근처 암소 사위 등잔 덮개 엄지 모태 노루 성취 랍비 생기 하인 생활 송이 선조 재료 파도 층계 재목 노동 행동 인간 시간 본성 고생 벽돌 친척 샘물 생전 처자 엿새 초막 태양 명성 으뜸 옛날 승리 찬미 향유 계획 횃불 이사 안심 이틀 넓이 단장 서약 피리 광장 환상 즉시 중앙 갑절 분량 가을 겨울 봄비 단비 햇빛 달빛 별빛 꽃밭 들꽃 새싹 씨앗 나비 참새 제비 백합", "mid": "젊은이 나그네 자녀들 맏아들 선지자 오른손 시냇가 독수리 잎사귀 백합화 무지개 감사함 지팡이 막대기 피난처 면류관 날마다 오늘날 젊은때 믿으라 구하라 찾으라 맡기라 행하라 바라라 지키라 들으라 섬기라 하나님 예수님 여호와 십자가 찬송가 성탄절 부활절 요단강 갈릴리 엘리야 베드로 마리아 포도원 겨자씨 달란트 감람산 주님께 성령님 구세주 메시야 어린양 아버지 어머니 할머니 목사님 장로님 권사님 집사님 성가대 찬양대 기도회 예배당 성경책 감사절 부흥회 성찬식 세례식 교회당 주기도 십일조 안식일 십계명 생명수 생명책 구원자 인도자 보호자 창조자 조물주 비둘기 포도주 무화과 시온산 나사렛 바벨론 가나안 여리고 골고다 베다니 벳새다 다메섹 솔로몬 엘리사 요나단 사무엘 이사야 다니엘 에스더 기드온 나오미 리브가 야고보 바나바 디모데 안드레 미리암 나사로 마르다 스데반 삭개오 드보라 고넬료 아굴라 다비다 창세기 레위기 민수기 신명기 사사기 열왕기 에스라 전도서 아가서 에스겔 호세아 아모스 오바댜 요나서 미가서 하박국 스바냐 스가랴 말라기 로마서 디도서 유다서 요엘서 제사장 송아지 목소리 즐거움 꼭대기 모퉁이 문지기 손가락 마지막 광주리 숟가락 그림자 물고기 밀가루 항아리 이야기 바닷가 발바닥 손바닥 주머니 가르침 청지기 개구리 며느리 뽕나무 까마귀 보자기 건포도 거문고 울타리 바닷물 옷자락 부지런 시냇물 저녁때 다락방 외양간 일평생 머릿돌 지도자 기념물 길거리 바구니 하룻밤 눈동자 언약궤 자물쇠 오른발 향기름 발자취 아궁이 호산나 여주인 가락지 덩어리 목마름 소나기 깨달음 바늘귀 포도즙 살구꽃 갈매기 등잔불 대장부 이웃집 나팔수 거미줄 은신처 소낙비 외아들 생명길 물방울 허리띠 향나무 소나무 다음날 팔꿈치 물소리 발가락 기지개 세베대 생활비 여드레 감람유 가운데 서기관 이튿날 머리털 맞은편 외삼촌 재판장 메뚜기 세마포 나머지 건너편 백향목 지성소 잣나무 초하루 옆구리 오른편 외국인 눈꺼풀 피조물 순식간 상수리 상속자 감람원 어금니 발꿈치 안식년 테두리 목구멍 젖먹이 오메가 십이월 십일월 일요일 월요일 화요일 수요일 목요일 금요일 토요일 사랑해 감사해 축복해 고마워 반가워 사람이 사람을 이름을 말씀을 백성이 다윗이 자손이 백성을 모세가 마음이 마음을 말씀이 무리가 자손의 아들을 다윗의 예수를 얼굴을 영광을 생명을 소리를 예수의 언약을 구원을 진실로 은혜를 기름을 머리에 아내를 나라를 하늘에 야곱이 모세와 야곱의 무리를 아들이 머리를 요셉이 명령을 영혼을 세상에 예물을 영광이 소리가 율법을 여자가 아론의 이름이 아론과 족속의 족속과 여인이 나라가 아침에 기업을 바울이 자녀를 고기를 가족과 하늘의 나팔을 천사가 형제를 열매를 세례를 주인이 요셉의 지혜를 계명을 지혜가 형제와 나무를 증거를 재물을 양식을 아내가 복음을 직분을 세상의 광야에 애굽에 희생을 성령이 기업이 공중의 장막에 아이가 인자가 이삭이 법도를 의인의 구름이 회중이 아이를 생명의 믿음이 교훈을 장막을 기름과 평강이 사랑을 여자를 애굽의 멍에를 공의를 진리를 요한이 바다에 대대로 구원의 소망이 이웃을 소유를 지식을 영혼이 남편이 주인의 음성을 성령의 율법의 옛적에 남자가 긍휼을 희생의 열방의 성전에 믿음을 여인의 바다의 기도를 겉옷을 가지를 어미의 목숨을 능력을 그릇을 조상의 자식을 의복을 언약의 증거가 이삭을 의인이 요한의 사방에 능력이 노래를 나무가 곡식을 은총을 역사를 가지가 자리에 소식을 보좌에 바울을 은혜와 얼굴에 시온의 소망을 민족이 광야로 지면에 자녀가 인자를 이웃의 예물로 제자가 열방이 어미가 남편을 나귀를 평강을 사랑이 바람을 목자가 그물을 그릇에 과실을 가루를 허리를 진리의 성벽을 뿌리가 비유로 부모를 민족을 남자를 기쁨이 곡식과 회중의 허리에 해석을 지식이 성문에 기쁨을 행사를 표적을 포도를 처소에 절기를 용사의 시온에 소유가 모양이 대대에 고기와 평생에 티끌을 처소를 영생을 연기가 실과를 방패를 명령과 당일에 날개를 기둥이 권능을 주야로 잔치를 위로를 예언을 어깨에 소문이 소문을 서원을 바람이 만물을 곳간에 형상을 성물을 등불을 눈물을 교회의 화평을 피부에 편지를 침상에 음식을 성전을 사라가 비유를 부모가 무릎을 나귀에 기한이 훈계를 증인이 자리를 약속을 시대에 생각이 비밀을 방패와 물품을 만물이 라헬이 날개가 기회를 공의로 제비를 임금이 위엄을 심령이 시내를 소돔과 소년이 생각을 보물을 법도와 권능이 향로를 찬송을 자식이 입술을 이전에 음성이 왕궁에 열매가 심령을 성품을 새벽에 기초를 기운이 평안을 재물이 용사가 안식을 세계를 동네에 노아가 기둥을 천지를 천사의 존귀와 잔치에 육신의 염소의 여종의 수금을 선물을 복음의 보석을 도움을 기도와 구름을 간구를 가족을 천하에 중심에 제자를 제단을 입술의 아우를 수금과 소원을 소고와 성문을 성경에 생물이 생물의 밤중에 대접을 계명과 걸음을 갈렙이 후일에 총명이 종류와 장자의 장로와 이마에 유익이 염소를 아담이 성도를 빌립이 반석을 명철을 만국을 누룩을 노래로 기한에 그늘에 국민이 교회를 공중에 가슴을 형상이 표적이 친구가 처음과 처녀를 장자를 자유를 아우가 수레를 산지와 빗장을 레아가 등대와 대답이 그물에 광채가 곳간을 행실을 행사가 평지에 총명을 좌우에 인생의 이슬이 육지에 육신에 유익을 오늘과 양식이 시내에 수풀에 소금을 세대가 성도의 성경을 산지에 사도와 뿌리를 불꽃이 목자의 냄새가 남녀와 기력이 그늘이 평지와 판결을 칭찬을 침상을 친구를 총회에 청년이 천지의 채소를 중심이 줄기와 절기에 저녁이 은사를 영화를 열심이 여종을 아침이 슬픔을 수염을 수고를 속옷을 성벽이 생전에 보물과 만나를 동산에 도움이 노인이 노아의 국민을 공평과 거처가 갈렙의 가루에 후손을 향유를 평안이 지붕에 중앙에 주야를 조상이 인생이", "hard": "어린아이 포도나무 기뻐하라 감사하라 기도하라 사랑하라 찬양하라 두드리라 송축하라 경외하라 공경하라 순종하라 대접하라 찬송하라 즐거워하라 노래하라 용서하라 위로하라 깨어있으라 일어나라 부르짖으라 할렐루야 임마누엘 추수감사절 새벽기도 베들레헴 예루살렘 아브라함 오병이어 이스라엘 엘리사벳 여호수아 예레미야 느헤미야 사마리아 겟세마네 가버나움 에덴동산 시내산에서 므두셀라 멜기세덱 에브라임 나다나엘 아리마대 세례요한 사도바울 솔로몬왕 출애굽기 예레미야애가 마태복음 마가복음 누가복음 요한복음 사도행전 고린도전서 고린도후서 갈라디아서 에베소서 빌립보서 골로새서 데살로니가 디모데전서 디모데후서 빌레몬서 히브리서 야고보서 베드로전서 베드로후서 요한일서 요한이서 요한삼서 요한계시록 주일학교 사도신경 주기도문 성경공부 구역예배 수요예배 부활주일 맥추감사절 송구영신 하나님나라 예수그리스도 그리스도 성령충만 마라나타 감사합니다 사랑합니다 축복합니다 고맙습니다 반갑습니다 평안하세요 종려나무 가시나무 두루마리 수수께끼 보금자리 산꼭대기 머리카락 버드나무 살구나무 사과나무 무화과나무 아름다움 산비둘기 집비둘기 회리바람 하루살이 고슴도치 백향목숲 생명나무 겨자씨만한 감람나무 떨기나무 안식일에 십자가에서 하나님의 하나님께 하나님이 예수께서 주께서는 여호와께서 여호와는 여호와의 성령께서 말씀하시되 가라사대 아버지께 우리아버지 하늘아버지 선한목자 어린양의 생명의떡 세상의빛 땅의소금 참포도나무 부활생명 인도하여 사랑하는 아름다운 거룩하게 인자하심이 믿음으로 들으시고 기뻐하는 노래하는 영원함이로다 기뻐하며 찬송하리로다 거룩하신 노래하며 찬양하며 사랑하고 기도하여 인자하심을 즐거워하며 들으소서 기뻐하고 기뻐하여 감사하며 구원하소서 기억하고 구원하여 기억하라 의지하여 경배하고 즐거워하는 거룩하고 의지하고 기다리라 기도하고 사랑하며 영원토록 찬송하며 사랑하시는 거룩함을 영광으로 의지하는 축복하고 경배하며 인도하는 생명으로 거룩하다 구하옵나니 섬기리라 사랑하여 감사함으로 기다리는 즐거워하고 기도하는 찬송하는 기뻐하시는 거룩하니 사랑하사 인도하시고 구하오니 기도하며 감사제를 감사하고 즐거움을 아름다움을 찾으리라 들으니라 인도하사 지키리이다 구원하리라 구원하라 들으시옵소서 기억하옵소서 영원부터 들으시며 찬송하리이다 축복하여 바라보고 구원으로 보호하여 거룩하리라 즐거워할 찬양하리이다 즐거움이 즐거워하게 인자하심과 구하노니 위로하고 사랑하나이다 기억하여 거룩한즉 기억하소서 거룩함이니라 사랑하기를 들으리라 노래하여 평안함을 구원하며 기다리며 노래하고 사랑으로 사랑하면 위로부터 축복하게 구원하게 기억함이 기다리다가 기도하기를 경배하는 즐거움으로 구하노라 위로하는 사랑하신 바라보라 바라보며 지키시고 즐거움과 경배하니라 기다리고 사랑하므로 구원하시고 위로하여 기뻐하사 영원하신 구원하고 구원하셨도다 기도하거든 구원하는 은혜로우시며 감사하는 구원하시며 기뻐하리로다 구원하리니 구하여도 영광이요 기뻐하노라 인도하고 평안하고 구원하시려고 섬기리니 들으리니 인도하라 기도하니 거룩함에 구원하신 지키리라 기뻐하시고 사랑하심을 구원하시는 보호하시고 찬송하고 사랑함이 즐거워하여 감사하게 찬송하여 기뻐하게 평안하여 구하기를 지키시는 평안하게 기억하시며 인자함으로 감사하리이다 인도함을 아름다움이 송축하며 기억하시고 영원하다 영광스러운 경배하리라 거룩함과 구원하였으니 영광스럽게 믿음에서 생명책에 축복하는 찾으시면 사랑하였으니 축복하소서 기다리나이다 따르리니 찬송하리니 기다리게 거룩하니라 아름다운고 사랑하시고 사랑하시므로 평안하리라 섬기겠나이다 기뻐하니라 섬기므로 경배하게 구하였으니 구원하시리라 섬기리이다 섬기는데 노래하리니 감사제물을 은혜대로 즐거워하나니 보호하소서 송축하리이다 인도하소서 평안함이 인자함을 구하시는 즐거워하리니 들으시는 찬양하고 감사함은 구원하실 감사하리로다 인도하며 보호하며 사랑하느니라 기뻐하심을 영광이니라 아름다우니라 들으려고 경배하라 구원자가 기뻐하리라 감사하나이다 구원코자 지키었나이다 기뻐하노니 거룩하며 긍휼하심을 감사하노니 감사하노라 경배하여 찾으리니 기억하리라 섬기다가 들으시므로 들으셨으므로 축복하기를 평안하니라 인도하니 섬기리로다 구하는대로 노래하니 바라보니 축복하였도다 기뻐하시리라 찬송하리라 기뻐하신 보호하시며 생명이니 구원하셨으니 구원자를 섬기니라 기다리리라 섬기리요 의지하게 지키나이다 아름다움이라 기뻐하므로 지키다가 찾으려고 아름다우나 사랑하시며 자비하심을 인도하시며 구하다가 구하옵소서 들으시사 의지하면 보호하리라 찬양하게 자비하심이 지키기로 감사하오며 찬양하나이다 찬송하니라 노래하게 찬송하게 은혜로우시고 지키시며 들으시리로다 들으셨도다 찬양하리로다 구하소서 인자하심으로 들으셨나이다 즐거워함이여 구원이라 기도하리로다 즐거움의 의지하며 의지하리이다 기뻐하나니 높이리라 거룩하시도다 영원하고 자비로우시며 기억하셨으니 구원하사 의지하라 구하였사오니 지키시리로다 생명이니라 생명이나 기뻐하느니라 아름다움은 즐거워하리라 구원하시리니 기뻐하리니 소망이신 아름다우며 축복하시고 기도하시고 기도하실 기뻐하니 믿으니라 믿으므로 위로하게 기뻐함은 기억하게 생명나무의 기억하리니 기도하리니 들으시오 축복하기 축복하리라 사랑함을 구하는지라 들으므로 기억하사 기억하노라 들으리이까 축복하라 지키고자 노래시며 들으셨음이라 구원하심을 거룩하게하여 거룩하리니 기뻐하시면 인도하리니 찬송이시요 따르는데 기뻐하시리니 사랑하게 구원하였다 들으시리라 구원하니라 들으시니라 평안하니 위로하시고 사랑함이라 따르리이다 구원하심이 사랑하나니 평안하려니와 의지하였고 사랑보다 따르는데서 아름다움으로 평안하뇨 들으심이여 바라보다가 즐거워하므로 구하시나이까"};
 for(const k in MW)MW[k]=MW[k].split(' ');
 const syl=w=>[...w].length;
 const hasShift=w=>toKeys(w).some(k=>J2K[k.j]&&J2K[k.j].shift);
 const M_POOL=MW; // 짧은 낱말 700 · 보통 700 · 긴 낱말 500. 익숙한 낱말이 앞쪽에 오도록 순서를 정해 둠
+
+/* ---------- 2단계: 낱말 쓰기 (2026-10-07) ----------
+   자리 익히기와 만나 줍기 사이의 다리. 낱말 하나를 보고 치면 저절로 다음 낱말로.
+   두 글자 300개 → 세 글자 → 네 글자 이상. 낱말은 만나 줍기 낱말(MW)에서 익숙한 순서대로 가져옴.
+   차례는 섞지 않고 S.wd[단계]에 어디까지 썼는지 남김. 한 판 20낱말 */
+const W_ROUND=20;
+const W_START='사랑 예수 감사 믿음 소망 기도 은혜 말씀 찬양 축복 평안 기쁨 아멘 성경 교회 예배 천국 구원 생명 영광'.split(' ');
+const WL=(()=>{const uniq=a=>[...new Set(a)];
+  const mid=MW.mid,hard=MW.hard,mi=mid.indexOf('사람이'),hi=hard.indexOf('안식일에');
+  return {two:uniq(W_START.concat(MW.easy.filter(w=>syl(w)===2))).slice(0,300),
+    three:uniq(mid.slice(0,mi<0?mid.length:mi).filter(w=>syl(w)===3)),
+    four:uniq(hard.slice(0,hi<0?hard.length:hi).filter(w=>syl(w)>=4)).sort((a,b)=>syl(a)-syl(b))}})();
+const W_LEVELS=[{id:'two',name:'두 글자 낱말',ex:'사랑, 예수'},{id:'three',name:'세 글자 낱말',ex:'하나님, 십자가'},{id:'four',name:'네 글자 넘게',ex:'할렐루야'}];
+const WL_TOTAL=()=>WL.two.length+WL.three.length+WL.four.length;
+function wdOf(lv){if(!S.wd||typeof S.wd!=='object')S.wd={};if(!S.wd[lv]||typeof S.wd[lv].p!=='number')S.wd[lv]={p:0,done:0,r:1};return S.wd[lv]}
+const wordsDone=()=>W_LEVELS.reduce((n,l)=>n+Math.min(WL[l.id].length,wdOf(l.id).done||0),0);
+let WD=null;
+function renderWordHome(){
+  if(!S.wLevel||!WL[S.wLevel])S.wLevel='two';
+  const list=W_LEVELS.map(l=>{const d=Math.min(WL[l.id].length,wdOf(l.id).done);return {id:l.id,name:l.name,desc:`${l.ex} · ${fmt(d)} / ${fmt(WL[l.id].length)}개${d>=WL[l.id].length?' ✓':''}`}});
+  choiceRow($('wLevels'),list,S.wLevel,v=>{S.wLevel=v;save();renderWordHome()});
+  const q=wdOf(S.wLevel),n=WL[S.wLevel].length;
+  $('wProg').textContent=q.done>=n?`이 단계 낱말 ${fmt(n)}개를 모두 쓰셨어요. 다시 하시면 처음부터 한 번 더 씁니다.`:`다음 낱말은 ${fmt(q.p+1)}번째 ‘${WL[S.wLevel][q.p%n]}’부터입니다. 한 번에 ${W_ROUND}개씩 씁니다.`;
+  renderStat();show('wordHome');$('wStart').focus();
+}
+$('wStart').onclick=()=>startWords();
+$('wSkip').onclick=()=>renderMannaHome();
+function startWords(){
+  const lv=S.wLevel||'two',list=WL[lv],q=wdOf(lv);
+  if(q.p>=list.length){q.p=0;q.r=(q.r||1)+1}
+  const words=[];for(let k=0;k<W_ROUND&&q.p+k<list.length;k++)words.push(list[q.p+k]);
+  WD={lv,words,k:0,keys:toKeys(words[0]),pos:0,wrong:null,m:Meter(),streak:0,done:false,pts:0};
+  show('word');renderWord();fit();
+}
+function renderWord(){
+  const w=WD.words[WD.k],ks=WD.keys,nx=WD.pos<ks.length?ks[WD.pos].ci:-1;
+  $('wRef').textContent=`2단계 · ${(W_LEVELS.find(l=>l.id===WD.lv)||W_LEVELS[0]).name} · ${WD.k+1} / ${WD.words.length}`;
+  $('wO').innerHTML=[...w].map((ch,ci)=>`<span class="${ci===nx?'nx':ci<nx||nx<0?'dn':''}">${esc(ch)}</span>`).join('');
+  const typed=compose(ks.slice(0,WD.pos).map(k=>k.j));
+  $('wT').innerHTML=esc(typed)+(WD.wrong!=null?`<span class="wrongc">${esc(WD.wrong)}</span>`:'')+'<span class="caret"></span>';
+  $('wNext').textContent=WD.k+1<WD.words.length?`다음 낱말: ${WD.words[WD.k+1]}`:'마지막 낱말이에요';
+  $('wBar').style.width=(WD.k/WD.words.length*100)+'%';
+  hint(WD.pos<ks.length?ks[WD.pos].j:null);
+}
+function keyWord(code,shift){
+  if(!WD||WD.done||WD.wait)return;
+  if(code==='Backspace'){flash('Backspace',true);if(WD.wrong!=null)WD.wrong=null;else if(WD.pos>0)WD.pos--;$('wMsg').className='msg';$('wMsg').textContent='';renderWord();return}
+  const want=WD.keys[WD.pos].j,got=jamoOf(code,shift);
+  if(got===null)return;
+  if(got===want){
+    WD.wrong=null;tick(WD.m);WD.m.ok++;WD.pos++;WD.streak=0;flash(code,true);$('wMsg').className='msg';$('wMsg').textContent='';
+    if(WD.pos>=WD.keys.length){ // 낱말 하나 다 씀
+      const q=wdOf(WD.lv);q.p++;q.done=Math.max(q.done||0,q.p);addScore(1);WD.pts++;save();renderStat();chime();
+      renderWord();$('wBox').classList.add('ok');WD.wait=true;hint(null);
+      setTimeout(()=>{if(!WD||WD.done)return;$('wBox').classList.remove('ok');WD.wait=false;WD.k++;
+        if(WD.k>=WD.words.length)return finishWords();
+        WD.keys=toKeys(WD.words[WD.k]);WD.pos=0;renderWord()},450);
+      return;
+    }
+    renderWord();
+  }else{
+    WD.m.bad++;WD.streak++;flash(code,false);WD.wrong=got;renderWord();
+    $('wMsg').className='msg miss';
+    $('wMsg').textContent='빨간 글자는 잘못 치신 글자예요. '+`${want}${josa(want)} ${ro(FNAME[FING[J2K[want].code]])} 치시거나`+' ← 지움 글쇠로 지우세요.';
+    if(WD.streak>=2)hint(want,true);
+  }
+}
+function finishWords(){
+  WD.done=true;hint(null);
+  const lv=WD.lv,list=WL[lv],q=wdOf(lv),rec=record('word:'+lv,WD.m),lvName=(W_LEVELS.find(l=>l.id===lv)||W_LEVELS[0]).name;
+  const allDone=q.p>=list.length,firstAll=allDone&&!q.cleared;if(firstAll)q.cleared=1;
+  const nextLv=lv==='two'?'three':lv==='three'?'four':null;
+  let pts=10;const parts=[`낱말 ${WD.words.length}개 ${WD.pts}`,'한 판 마침 10'];if(firstAll){pts+=30;parts.push('단계를 다 마침 30')}
+  showResult({title:`낱말 ${WD.words.length}개를 다 쓰셨어요!`,ref:`${lvName} ${fmt(Math.min(q.p,list.length))} / ${fmt(list.length)}개`,m:WD.m,pts,parts:[...parts],rec,
+    party:firstAll?`${lvName} <em>${fmt(list.length)}개</em>를 모두 쓰셨어요!`+(nextLv?'<br>이제 한 글자 더 긴 낱말로 가 볼까요?':'<br>이제 3단계 만나 줍기로 가 볼까요?'):null,bigParty:firstAll,
+    again:allDone?'처음 화면으로':`낱말 ${W_ROUND}개 더`,
+    next:allDone?(nextLv?`${(W_LEVELS.find(l=>l.id===nextLv)).name}로`:'3단계 만나 줍기로'):'계속 쓰기',
+    onAgain:allDone?renderHome:startWords,
+    onNext:allDone?(nextLv?()=>{S.wLevel=nextLv;save();startWords()}:renderMannaHome):startWords});
+}
 /* 꾸러미 이어 쓰기: 끝까지 다 쓴 뒤에야 다시 섞음. 첫 바퀴는 익숙한 낱말부터 */
 function seqOf(lv){
   const pool=M_POOL[lv]||M_POOL.easy,n=pool.length;
@@ -936,7 +1047,7 @@ function gather(w){
   if(MN.got>=ROUND)setTimeout(finishManna,600);
 }
 
-/* ---------- 3단계: 한 절 따라 치기 ---------- */
+/* ---------- 4단계: 한 절 따라 치기 ---------- */
 let VG=null;
 function wc(x){return x[3].split(/\s+/).length}
 function vList(){const lv=S.vLevel;return V.map((_,i)=>i).filter(i=>{const n=wc(V[i]);return lv==='easy'?n<=8:lv==='mid'?n>8&&n<=14:n>14})}
@@ -1089,9 +1200,9 @@ function finishLesson(){
   const rec=record('lesson',L.m),parts=['연습 마침 10'];let pts=10;if(first){pts+=5;parts.push('처음 마친 연습 5')}
   hint(null);
   showResult({title:`${L.i+1}. ${eulReul(l.name)} 마치셨어요!`,ref:'',m:L.m,pts,parts,rec,
-    again:'한 번 더',next:L.i<LESSONS.length-1?`다음 연습 (${LESSONS[L.i+1].name})`:'2단계 만나 줍기로',
-    party:first&&L.i===LESSONS.length-1?'자판 자리를 <em>모두</em> 익히셨어요. 이제 만나를 주우러 가요!':null,bigParty:true,
-    onAgain:()=>startLesson(L.i),onNext:()=>L.i<LESSONS.length-1?startLesson(L.i+1):renderMannaHome()});
+    again:'한 번 더',next:L.i<LESSONS.length-1?`다음 연습 (${LESSONS[L.i+1].name})`:'2단계 낱말 쓰기로',
+    party:first&&L.i===LESSONS.length-1?'자판 자리를 <em>모두</em> 익히셨어요. 이제 말씀 낱말을 하나씩 써 봐요!':null,bigParty:true,
+    onAgain:()=>startLesson(L.i),onNext:()=>L.i<LESSONS.length-1?startLesson(L.i+1):renderWordHome()});
 }
 function finishManna(){
   stopManna();hint(null);
@@ -1208,19 +1319,21 @@ document.addEventListener('keydown',e=>{
   if(e.ctrlKey||e.altKey||e.metaKey)return;
   const code=e.code;
   if(code==='ShiftLeft'||code==='ShiftRight'||code==='CapsLock'||code==='Tab')return;
-  const typing=['lesson','manna','verse'].includes(SCREEN);
+  const typing=TYPING.includes(SCREEN);
   if(typing&&e.target.tagName==='BUTTON'&&(code==='Enter'||code==='NumpadEnter'))return;
   if(typing){
     if(code.startsWith('Key')||code==='Space'||code==='Backspace'||code==='Escape'||code==='Enter')e.preventDefault();
     if(e.repeat)return;
     if(code==='Escape'&&SCREEN!=='manna'){goBack();return}
     if(SCREEN==='lesson'){if(code.startsWith('Key'))keyLesson(code,e.shiftKey)}
+    else if(SCREEN==='word'){if(code.startsWith('Key')||code==='Backspace')keyWord(code,e.shiftKey)}
     else if(SCREEN==='manna')keyManna(code,e.shiftKey);
     else if(SCREEN==='verse'){if(code.startsWith('Key')||code==='Space'||code==='Backspace')keyVerse(code,e.shiftKey)}
     return;
   }
   if(code==='Enter'&&e.target.tagName!=='BUTTON'){
     if(SCREEN==='result')$('rNext').click();
+    else if(SCREEN==='wordHome')startWords();
     else if(SCREEN==='mannaHome')startManna();
     else if(SCREEN==='verseHome')nextVerse();
   }
