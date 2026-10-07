@@ -607,9 +607,17 @@ function align(T,U,full){
   for(let j=0;j<=m;j++)D[j]=j;
   for(let i=1;i<=n;i++){const t=T[i-1],r=i*W,p=r-W;D[r]=i;
     for(let j=1;j<=m;j++){let v=D[p+j-1]+(t===U[j-1]?0:2);const a=D[p+j]+1,b=D[r+j-1]+1;if(a<v)v=a;if(b<v)v=b;D[r+j]=v}}
-  let ei=n;
-  if(!full&&m<n*2+40){let best=1e9;for(let i=0;i<=n;i++){const v=D[i*W+m];if(v<=best){best=v;ei=i}}}
+  let ei=n,endSub=false;
+  if(!full&&m<n*2+40){
+    /* 쓰는 중: 조합 중인 글자는 typedNorm에서 이미 빠지므로 마지막 글자도 다 친 글자.
+       마지막 글자가 원문 다음 자리와 다르면 '덧붙인 글자'보다 '다르게 쓴 글자'로 보아 바로 노란색 (2026-10-07) */
+    let best=1e9;
+    for(let i=0;i<=n;i++){let v=D[i*W+m],sub=false;
+      if(i>0&&m>0){const c=D[(i-1)*W+m-1]+(T[i-1]===U[m-1]?0:1);if(c<=v){v=c;sub=true}}
+      if(v<=best){best=v;ei=i;endSub=sub}}
+  }
   const hit=new Array(n).fill(false),uhit=new Array(m).fill(false),tj=new Array(n).fill(-1);let i=ei,j=m,k=0,last=-1;
+  if(endSub){if(T[i-1]===U[j-1]){hit[i-1]=true;k++}uhit[j-1]=true;tj[i-1]=j-1;last=i-1;i--;j--}
   while(i>0&&j>0){const v=D[i*W+j],same=T[i-1]===U[j-1];
     if(v===D[(i-1)*W+j-1]+(same?0:2)){if(same){hit[i-1]=true;k++}uhit[j-1]=true;tj[i-1]=j-1;if(last<0)last=i-1;i--;j--}
     else if(v===D[i*W+j-1]+1)j--;
