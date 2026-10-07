@@ -26,6 +26,7 @@
   --wood:#EAD6AE; --woodEdge:#B89660; --woodInk:#3A2914;
   --set:#2E5B47; --setInk:#FFFFFF; --gold:#C4952B; --miss:#B5562F;
   --fs:26px;
+  --vbg:#FFF5DA;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -34,9 +35,11 @@
     --bg:#141A22; --paper:#1C2430; --ink:#E7ECF2; --soft:#A3AEBE; --line:#33404F;
     --wood:#5A4628; --woodEdge:#8C6E3E; --woodInk:#F6E9CC;
     --set:#3E7A5F; --setInk:#FFFFFF; --gold:#E0B44E; --miss:#E08A64;
+    --vbg:#2C2717;
   }
 }
 :root[data-theme="dark"]{
+  --vbg:#2C2717;
   --bg:#141A22; --paper:#1C2430; --ink:#E7ECF2; --soft:#A3AEBE; --line:#33404F;
   --wood:#5A4628; --woodEdge:#8C6E3E; --woodInk:#F6E9CC;
   --set:#3E7A5F; --setInk:#FFFFFF; --gold:#E0B44E; --miss:#E08A64;
@@ -55,7 +58,7 @@ button.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);
 .stat{color:var(--soft);font-size:19px;margin:0 0 14px}
 .stat b{color:var(--ink)}
 .card{background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:22px 22px 26px}
-.ref{font-family:var(--serif);font-size:30px;font-weight:700;margin:0 0 4px}
+.ref{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--soft);margin:0 0 4px}
 .guide{color:var(--soft);margin:0 0 16px;font-size:19px}
 /* 조판대: 맞춘 조각이 문장으로 쌓이는 곳 */
 .tray{min-height:120px;border:2px dashed var(--line);border-radius:14px;padding:16px;font-family:var(--serif);font-size:var(--fs);line-height:1.9;display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
@@ -71,7 +74,7 @@ button.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);
 .msg{min-height:32px;margin:16px 0 0;text-align:center;font-size:20px}
 .msg.miss{color:var(--miss)}
 .row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:18px}
-.verse{font-family:var(--serif);font-size:calc(var(--fs) + 2px);line-height:1.9;margin:8px 0 6px;max-width:30em}
+.verse{font-family:var(--serif);font-size:calc(var(--fs) + 6px);font-weight:800;color:var(--ink);line-height:1.75;margin:8px 0 14px;max-width:30em;background:var(--vbg);border-left:6px solid var(--gold);border-radius:12px;padding:14px 18px}
 .done-title{font-family:var(--serif);font-size:28px;color:var(--set);margin:0 0 6px;font-weight:700}
 .levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:18px 0}
 .levels button{text-align:left;padding:18px;min-height:110px}
@@ -688,6 +691,30 @@ applyFace();
   /* 3. 오프라인 저장: 인터넷이 되면 늘 새 판을, 안 되면 저장해 둔 판을 엶 (sw.js) */
   if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
   /* 4. 설치 단추: 크롬·엣지가 설치를 허락할 때만 보임. 이미 설치해서 앱 창으로 열면 안 보임 */
+  /* 4-1. 휴대폰에서 컴퓨터용 앱(타자 연습·필사노트)을 열면(2026-10-07 밤): 설치 단추 대신 '컴퓨터에서 쓰는 앱' 안내
+     + [내 컴퓨터로 보내기] + 휴대폰용 순서 맞추기 안내. 태블릿(안드로이드 UA에 Mobile 없음)은 자판을 붙여 쓸 수 있어 제외. '닫기'는 3일 쉼 */
+  var pcOnly=/\/(typing|bible-note)\//.test(location.pathname);
+  var phoneUA=/Android.+Mobile|iPhone|iPod/i.test(ua);
+  if(pcOnly&&phoneUA){
+    window.addEventListener('beforeinstallprompt',function(e){e.preventDefault()});
+    var pcLater=0;try{pcLater=+localStorage.getItem('pw-pc:'+location.pathname)||0}catch(e){}
+    if(Date.now()-pcLater<3*864e5)return;
+    var pb=null,pcShow=function(){if(pb)return;if(busy()){setTimeout(pcShow,800);return}
+      pb=document.createElement('div');pb.className='pw-inst top';pb.style.flexWrap='wrap';pb.style.padding='12px 14px';
+      pb.innerHTML='<span style="flex:1 1 100%">이 앱은 <b>컴퓨터</b>에서 쓰는 앱이에요.<br><small style="opacity:.85">휴대폰에는 설치하지 마시고, 주소를 내 컴퓨터로 보내 두세요.</small></span>'+
+        '<button id="pwSend" style="flex:1">📨 내 컴퓨터로 보내기</button><button class="x" id="pwClose" aria-label="닫기">닫기</button>'+
+        '<a href="../order/" style="flex:1 1 100%;color:#ffd34d;font-size:15px;text-decoration:underline">📱 휴대폰에서는 ‘말씀 순서 맞추기’ →</a>';
+      document.body.insertBefore(pb,document.body.firstChild);
+      document.getElementById('pwSend').onclick=async function(){
+        var u=location.origin+location.pathname;
+        if(navigator.share){try{await navigator.share({title:APP,text:'컴퓨터에서 열어 보세요',url:u});return}catch(e){if(e&&e.name==='AbortError')return}}
+        try{await navigator.clipboard.writeText(u);alert('주소를 복사했어요.\n카톡 ‘나와의 채팅’에 붙여넣어 보내 두세요.\n\n'+u)}catch(e){prompt('이 주소를 복사해 보내 두세요',u)}
+      };
+      document.getElementById('pwClose').onclick=function(){pb.remove();try{localStorage.setItem('pw-pc:'+location.pathname,Date.now())}catch(e){}};
+    };
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',pcShow);else pcShow();
+    return;
+  }
   var standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
   if(standalone)return;
   var later=0;try{later=+localStorage.getItem('pw-later:'+location.pathname)||0}catch(e){}
