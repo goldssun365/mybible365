@@ -788,8 +788,16 @@ function saveDraftSoon(){clearTimeout(draftTimer);draftTimer=setTimeout(saveDraf
 function saveDraft(){draftTimer=null;const o=chGet(cur.b,cur.c),e=o.v[cur.v]||{};if(!typing.value&&!e.w){if(o.v[cur.v]){delete o.v[cur.v];chSave(cur.b,cur.c,o)}return}
   o.v[cur.v]={t:typing.value,ok:normStr(typing.value)===Tn,w:!!e.w};chSave(cur.b,cur.c,o)}
 function flushDraft(){if(draftTimer){clearTimeout(draftTimer);saveDraft()}}
+/* 띄어쓰기를 두 번 이상 눌러도 한 칸만 남김 (커서 자리는 그대로). 한글 조합 중에는 건드리지 않음 (2026-10-07) */
+function oneSpace(ta){
+  if(!/\s\s/.test(ta.value))return;
+  const c=ta.selectionStart,before=ta.value.slice(0,c).replace(/\s{2,}/g,' ');
+  ta.value=before+ta.value.slice(c).replace(/\s{2,}/g,' ').replace(/^\s/,/\s$/.test(before)?'':' ');
+  ta.selectionStart=ta.selectionEnd=before.length;
+}
 function onType(){
   if(locked)return;
+  if(!composing)oneSpace(typing);
   spaceAck=false;
   if(typing.value.includes('\n'))typing.value=typing.value.replace(/\n/g,'');
   if(/^\s/.test(typing.value))typing.value=typing.value.replace(/^\s+/,'');
@@ -1096,6 +1104,7 @@ const fDraft={};
 function fRowUpdate(i,ta,final){
   const b=cur.b,c=cur.c,t=B[b][c][i],Tn2=normStr(t);
   if(ta.value.includes('\n'))ta.value=ta.value.replace(/\n/g,'');
+  if(!fComp)oneSpace(ta);
   autoGrow(ta);
   let U=normStr(fComp&&!final&&ta.value.length?ta.value.slice(0,-1):ta.value);
   const row=ta.closest('.row'),st=row.querySelector('.rst'),o=chGet(b,c),e=o.v[i]||{};
