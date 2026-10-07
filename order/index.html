@@ -692,14 +692,20 @@ applyFace();
   if(Date.now()-later<3*864e5)return;
   var ev=null,box=null;
   var phone=matchMedia('(pointer:coarse)').matches&&innerWidth<820;
+  /* 안내창이 떠 있는 동안에는 설치 단추를 띄우지 않고, 닫힌 뒤에 보여 줌 */
+  function busy(){var m=document.querySelectorAll('.modal,#modal,.pw-kakao');for(var i=0;i<m.length;i++){if(!m[i].hidden&&getComputedStyle(m[i]).display!=='none')return true}return false}
   window.addEventListener('beforeinstallprompt',function(e){
     e.preventDefault();ev=e;if(box)return;
+    if(busy()){var t=setInterval(function(){if(!busy()){clearInterval(t);show()}},800);return}
+    show();
+  });
+  function show(){if(box)return;
     box=document.createElement('div');box.className='pw-inst';
     box.innerHTML='<span>'+(phone?'홈 화면에 앱으로 두면 더 편해요':'바탕화면에 앱으로 두면 더 편해요')+'</span><button id="pwGo">📌 '+(phone?'홈 화면에 추가':'바탕화면에 설치')+'</button><button class="x" id="pwLater" aria-label="나중에">나중에</button>';
     if(phone){box.classList.add('top');document.body.insertBefore(box,document.body.firstChild)}else document.body.appendChild(box);
     document.getElementById('pwGo').onclick=function(){box.remove();ev.prompt();ev.userChoice.then(function(r){if(r&&r.outcome==='accepted')alert(APP+'을(를) 설치했어요.\n이제 '+(phone?'홈 화면':'바탕화면')+'의 아이콘을 눌러 여시면 됩니다.')})};
     document.getElementById('pwLater').onclick=function(){box.remove();try{localStorage.setItem('pw-later:'+location.pathname,Date.now())}catch(e){}};
-  });
+  }
   window.addEventListener('appinstalled',function(){if(box)box.remove()});
 })();
 </script>

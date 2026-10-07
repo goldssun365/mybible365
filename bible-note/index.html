@@ -596,18 +596,29 @@ function bookDone(b){for(let c=0;c<B[b].length;c++)if(!chDone(b,c))return false;
 const SKIP=/[\s.,!?;:'"“”‘’·…―\-–—()\[\]{}<>「」『』〈〉《》~\u3131-\u318E\u1100-\u11FF]/;
 function normStr(s){let r='';for(const ch of s)if(!SKIP.test(ch))r+=ch;return r}
 function mapOf(raw){const m=[];let n=0;for(let i=0;i<raw.length;i++)m.push(SKIP.test(raw[i])?-1:n++);return m}
-/* 가장 긴 공통 부분(LCS)으로 맞춰 보기: 한 글자 빠져도 뒤 글자가 다 틀리지 않음 */
-function align(T,U){
+/* 맞춰 보기 (2026-10-07 바꿈): 글자 하나를 다르게 쓰면 그 글자만 노란색.
+   예전 방식(가장 긴 공통 부분)은 '하며'를 '하면'으로 쓰면 '면'을 뒤쪽 '수면'의 '면'에 맞춰
+   그 사이 글자를 모두 빠뜨린 것으로 칠했음. 이제는 고치는 횟수가 가장 적은 맞춤을 고름:
+   같은 글자 0, 빠뜨림 1, 원문에 없는 글자 1, 다른 글자로 씀 2(빠뜨림+덧붙임과 같게 쳐서, 낱말을 건너뛴 것을 엉뚱한 글자들로 잘못 맞추지 않게).
+   쓰는 중(full=false)에는 쓴 데까지만 견주고, 끝이 애매하면 마지막 글자를 '아직 쓰는 중'으로 봄 */
+function align(T,U,full){
   const n=T.length,m=Math.min(U.length,n*2+40);U=U.slice(0,m);
-  const dp=[];for(let i=0;i<=n;i++)dp.push(new Uint16Array(m+1));
-  for(let i=1;i<=n;i++){const r=dp[i],p=dp[i-1],t=T[i-1];for(let j=1;j<=m;j++)r[j]=t===U[j-1]?p[j-1]+1:(p[j]>r[j-1]?p[j]:r[j-1])}
-  const hit=new Array(n).fill(false),uhit=new Array(m).fill(false),tj=new Array(n).fill(-1);let i=n,j=m,k=0;
-  while(i>0&&j>0){if(dp[i-1][j]===dp[i][j])i--;else if(dp[i][j-1]===dp[i][j])j--;else{hit[i-1]=true;uhit[j-1]=true;tj[i-1]=j-1;k++;i--;j--}}
-  return{hit,uhit,tj,matches:k,extra:U.length-k,typed:U.length};
+  const W=m+1,D=new Uint16Array((n+1)*W);
+  for(let j=0;j<=m;j++)D[j]=j;
+  for(let i=1;i<=n;i++){const t=T[i-1],r=i*W,p=r-W;D[r]=i;
+    for(let j=1;j<=m;j++){let v=D[p+j-1]+(t===U[j-1]?0:2);const a=D[p+j]+1,b=D[r+j-1]+1;if(a<v)v=a;if(b<v)v=b;D[r+j]=v}}
+  let ei=n;
+  if(!full&&m<n*2+40){let best=1e9;for(let i=0;i<=n;i++){const v=D[i*W+m];if(v<=best){best=v;ei=i}}}
+  const hit=new Array(n).fill(false),uhit=new Array(m).fill(false),tj=new Array(n).fill(-1);let i=ei,j=m,k=0,last=-1;
+  while(i>0&&j>0){const v=D[i*W+j],same=T[i-1]===U[j-1];
+    if(v===D[(i-1)*W+j-1]+(same?0:2)){if(same){hit[i-1]=true;k++}uhit[j-1]=true;tj[i-1]=j-1;if(last<0)last=i-1;i--;j--}
+    else if(v===D[i*W+j-1]+1)j--;
+    else i--}
+  return{hit,uhit,tj,matches:k,extra:uhit.filter(x=>!x).length,typed:U.length,last,ei};
 }
 function statesFor(T,U,full){
-  const a=align(T,U);let last=-1;a.hit.forEach((h,i)=>{if(h)last=i});
-  const st=a.hit.map((h,i)=>h?'ink':(full||i<last)?'miss':'todo');
+  const a=align(T,U,full);const end=full?T.length:a.ei;
+  const st=a.hit.map((h,i)=>h?'ink':(i<end&&(full||i<=a.last))?'miss':'todo');
   a.states=st;a.missing=st.filter(s=>s==='miss').length;return a;
 }
 /* 원문에 없는 글자가 어디 있는지 알려 주기: "‘동산’ 뒤에 원문에 없는 ‘ㄴ’ 글자가 있어요" */
@@ -754,7 +765,7 @@ function evaluate(check){
     $('btnAccept').hidden=false;
   }else{
     $('btnAccept').hidden=true;
-    say((a.missing?`잘 쓰고 계세요. 건너뛴 글자 ${a.missing}개가 노란색으로 표시됐어요.`:`잘 쓰고 계세요 · ${a.matches} / ${Tn.length} 글자`)+spaceNote(sp),sp.count?'check':'');
+    say((a.missing?`잘 쓰고 계세요. 빠뜨리거나 다르게 쓴 글자 ${a.missing}개가 노란색으로 표시됐어요.`:`잘 쓰고 계세요 · ${a.matches} / ${Tn.length} 글자`)+spaceNote(sp),sp.count?'check':'');
   }
 }
 function saveDraftSoon(){clearTimeout(draftTimer);draftTimer=setTimeout(saveDraft,400)}
@@ -901,10 +912,10 @@ let shareEnd=0;
 function shareRange(){const vs=B[cur.b][cur.c];return [cur.v,Math.max(groupEnd(cur.b,cur.c,cur.v),Math.min(shareEnd,vs.length-1))]}
 function shareText(){
   const l=signLine(Store.get('sign','')),vs=B[cur.b][cur.c],[s0,e0]=shareRange();
-  const head=`📖 ${BOOKS[cur.b]} ${cur.c+1}${U(cur.b)} ${s0+1}${e0>s0?`~${e0+1}`:''}절`;
+  const head=`📖 ${BOOKS[cur.b]} ${cur.c+1}${U(cur.b)} ${s0+1}${e0>s0?`~${e0+1}`:''}절 (개역한글)`; /* 번역 이름 표기 (대한성서공회 확인, 2026-10-07) */
   const real=[];for(let i=s0;i<=e0;i++)if(!isMerged(cur.b,cur.c,i))real.push(i);
   const body=real.length>1?real.map(i=>`${vLabel(cur.b,cur.c,i)} ${vs[i]}`).join('\n'):vs[s0];
-  return `${head}\n\n${body}\n(개역한글 © 대한성서공회)`+(l?`\n\n- ${l}`:'');
+  return `${head}\n\n${body}`+(l?`\n\n- ${l}`:'');
 }
 function fillShareEnd(){
   const sel=$('shareEnd');if(!sel)return;const vs=B[cur.b][cur.c];
@@ -1587,14 +1598,20 @@ boot();
   if(Date.now()-later<3*864e5)return;
   var ev=null,box=null;
   var phone=matchMedia('(pointer:coarse)').matches&&innerWidth<820;
+  /* 안내창이 떠 있는 동안에는 설치 단추를 띄우지 않고, 닫힌 뒤에 보여 줌 */
+  function busy(){var m=document.querySelectorAll('.modal,#modal,.pw-kakao');for(var i=0;i<m.length;i++){if(!m[i].hidden&&getComputedStyle(m[i]).display!=='none')return true}return false}
   window.addEventListener('beforeinstallprompt',function(e){
     e.preventDefault();ev=e;if(box)return;
+    if(busy()){var t=setInterval(function(){if(!busy()){clearInterval(t);show()}},800);return}
+    show();
+  });
+  function show(){if(box)return;
     box=document.createElement('div');box.className='pw-inst';
     box.innerHTML='<span>'+(phone?'홈 화면에 앱으로 두면 더 편해요':'바탕화면에 앱으로 두면 더 편해요')+'</span><button id="pwGo">📌 '+(phone?'홈 화면에 추가':'바탕화면에 설치')+'</button><button class="x" id="pwLater" aria-label="나중에">나중에</button>';
     if(phone){box.classList.add('top');document.body.insertBefore(box,document.body.firstChild)}else document.body.appendChild(box);
     document.getElementById('pwGo').onclick=function(){box.remove();ev.prompt();ev.userChoice.then(function(r){if(r&&r.outcome==='accepted')alert(APP+'을(를) 설치했어요.\n이제 '+(phone?'홈 화면':'바탕화면')+'의 아이콘을 눌러 여시면 됩니다.')})};
     document.getElementById('pwLater').onclick=function(){box.remove();try{localStorage.setItem('pw-later:'+location.pathname,Date.now())}catch(e){}};
-  });
+  }
   window.addEventListener('appinstalled',function(){if(box)box.remove()});
 })();
 </script>
