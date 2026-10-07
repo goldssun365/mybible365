@@ -4,17 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="말씀 앱">
-<meta property="og:title" content="말씀 앱">
-<meta property="og:description" content="성경필사노트 · 말씀 타자 연습 · 말씀 순서 맞추기 — 가입 없이 무료로 쓰는 말씀 앱">
+<meta property="og:site_name" content="mybible365">
+<meta property="og:title" content="mybible365 · 마이바이블 365">
+<meta property="og:description" content="말씀 순서 맞추기 · 말씀 타자 연습 · 성경필사노트 — 가입 없이 무료로 쓰는 mybible365">
 <meta property="og:url" content="https://mybible365.pages.dev/">
-<meta property="og:image" content="https://mybible365.pages.dev/og-image.png">
+<meta property="og:image" content="https://mybible365.pages.dev/og-image.png?v=2">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 
-<title>말씀 앱 · 성경필사노트</title>
-<meta name="description" content="성경필사노트 · 말씀 타자 연습 · 말씀 순서 맞추기. 가입 없이 무료로 쓰는 말씀 앱">
+<title>mybible365 · 마이바이블 365</title>
+<meta name="description" content="말씀 순서 맞추기 · 말씀 타자 연습 · 성경필사노트. 가입 없이 무료로 쓰는 mybible365">
 <link rel="icon" href="bible-note/icon-192.png">
 <meta name="theme-color" content="#22344f">
 <style>
@@ -23,18 +23,21 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.7 "Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif}
 .wrap{max-width:880px;margin:0 auto;padding:28px 16px 40px}
-h1{font:700 34px/1.3 "Batang","AppleMyungjo","Noto Serif KR",serif;margin:6px 0 6px}
+h1 small{font:700 18px/1 "Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:var(--soft);margin-left:10px;letter-spacing:0}
+h1{font:800 36px/1.3 "Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;letter-spacing:-.01em;margin:6px 0 6px}
 .lead{color:var(--soft);margin:0 0 24px}
 .q{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:20px 22px;margin-bottom:22px}
 .q h2{font-size:21px;margin:0 0 10px}
 .q ul{margin:0;padding-left:20px}
 .q li{margin:4px 0}
+.stair{margin:0 0 12px;color:var(--soft);font-size:16px}
 .cards{display:grid;gap:16px}
 .card{display:grid;grid-template-columns:72px 1fr auto;gap:18px;align-items:center;background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:18px 20px;text-decoration:none;color:inherit;transition:border-color .15s,transform .15s}
 .card:hover,.card:focus-visible{border-color:var(--navy);transform:translateY(-2px);outline:none}
 .card img{width:72px;height:72px;border-radius:16px}
 .card h3{margin:0;font:700 24px/1.35 "Batang","AppleMyungjo","Noto Serif KR",serif}
 .card p{margin:2px 0 0;color:var(--soft);font-size:16px}
+.step{display:block;font:700 14px/1.4 "Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:var(--soft);margin-bottom:2px}
 .dev{display:inline-block;font-size:14px;font-weight:700;border-radius:99px;padding:2px 10px;margin-top:6px;background:color-mix(in srgb,var(--navy) 14%,transparent);color:var(--navy)}
 .dev.pc{background:color-mix(in srgb,var(--gold) 20%,transparent);color:var(--gold)}
 .go{font-weight:700;color:var(--navy);white-space:nowrap}
@@ -49,38 +52,39 @@ footer b{color:var(--ink)}
 </head>
 <body>
 <div class="wrap">
-  <h1>말씀 앱</h1>
-  <p class="lead">가입도 비용도 없이 쓰는 말씀 앱 세 가지입니다. 기록은 각자의 기기에만 저장됩니다.</p>
+  <h1>mybible365 <small>마이바이블 365</small></h1>
+  <p class="lead">가입도 비용도 없이 쓰는 말씀 앱 세 가지를 모았습니다. 기록은 각자의 기기에만 저장됩니다.</p>
 
   <div class="q">
     <h2>어디서 시작할까요?</h2>
     <ul>
-      <li>자판으로 한글을 막힘없이 치시면 → <b>성경필사노트</b></li>
-      <li>조금 치지만 느리시면 → <b>말씀 타자 연습</b></li>
       <li>컴퓨터가 낯설거나 휴대폰만 쓰시면 → <b>말씀 순서 맞추기</b></li>
+      <li>조금 치지만 느리시면 → <b>말씀 타자 연습</b></li>
+      <li>자판으로 한글을 막힘없이 치시면 → <b>성경필사노트</b></li>
     </ul>
   </div>
 
+  <p class="stair">순서 맞추기 → 타자 연습 → 필사노트, 한 계단씩 올라가요.</p>
   <div class="cards">
-    <a class="card" href="bible-note/">
-      <img src="bible-note/icon-192.png" alt="">
-      <div><h3>성경필사노트</h3><p>PC 자판으로 열 손가락을 써서 말씀을 새기는 필사노트</p><span class="dev pc">컴퓨터에서</span></div>
+    <a class="card" href="order/">
+      <img src="order/icon-192.png" alt="">
+      <div><h3><span class="step">1단계</span>말씀 순서 맞추기</h3><p>섞인 말씀 조각을 순서대로 눌러 완성해요. 마우스나 손가락만 있으면 됩니다</p><span class="dev">휴대폰 · 컴퓨터</span></div>
       <span class="go">열기 →</span>
     </a>
     <a class="card" href="typing/">
       <img src="typing/icon-192.png" alt="">
-      <div><h3>말씀 타자 연습</h3><p>말씀으로 한글 자판 자리를 익히고, 만나 줍기 놀이로 손을 풀어요</p><span class="dev pc">컴퓨터에서</span></div>
+      <div><h3><span class="step">2단계</span>말씀 타자 연습</h3><p>말씀으로 한글 자판 자리를 익히고, 만나 줍기 놀이로 손을 풀어요</p><span class="dev pc">컴퓨터에서</span></div>
       <span class="go">열기 →</span>
     </a>
-    <a class="card" href="order/">
-      <img src="order/icon-192.png" alt="">
-      <div><h3>말씀 순서 맞추기</h3><p>섞인 말씀 조각을 순서대로 눌러 완성해요. 마우스나 손가락만 있으면 됩니다</p><span class="dev">휴대폰 · 컴퓨터</span></div>
+    <a class="card" href="bible-note/">
+      <img src="bible-note/icon-192.png" alt="">
+      <div><h3><span class="step">3단계</span>성경필사노트</h3><p>PC 자판으로 열 손가락을 써서 말씀을 새기는 필사노트</p><span class="dev pc">컴퓨터에서</span></div>
       <span class="go">열기 →</span>
     </a>
   </div>
 
   <div class="send phone-only">
-    <p style="color:var(--soft);font-size:16px;margin:0 0 10px">필사노트와 타자 연습은 컴퓨터에서 쓰는 앱이에요.<br>이 주소를 카톡 ‘나와의 채팅’으로 보내 두고 컴퓨터에서 열어 보세요.</p>
+    <p style="color:var(--soft);font-size:16px;margin:0 0 10px">타자 연습과 필사노트는 컴퓨터에서 쓰는 앱이에요.<br>이 주소를 카톡 ‘나와의 채팅’으로 보내 두고 컴퓨터에서 열어 보세요.</p>
     <button id="share">📨 이 주소를 내 컴퓨터로 보내기</button>
   </div>
 
@@ -93,7 +97,7 @@ footer b{color:var(--ink)}
 <script>
 document.getElementById('share').onclick=async function(){
   var u=location.origin+location.pathname;
-  if(navigator.share){try{await navigator.share({title:'말씀 앱',text:'컴퓨터에서 열어 보세요',url:u});return}catch(e){if(e&&e.name==='AbortError')return}}
+  if(navigator.share){try{await navigator.share({title:'mybible365',text:'컴퓨터에서 열어 보세요',url:u});return}catch(e){if(e&&e.name==='AbortError')return}}
   try{await navigator.clipboard.writeText(u);alert('주소를 복사했어요.\n카톡 ‘나와의 채팅’에 붙여넣어 보내 두세요.\n\n'+u)}catch(e){prompt('이 주소를 복사해 보내 두세요',u)}
 };
 </script>
