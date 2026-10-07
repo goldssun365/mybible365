@@ -429,7 +429,7 @@ footer{color:var(--sub);font-size:15px;text-align:center;padding:22px 10px 30px;
   </main>
 
   <footer>
-    본문: 성경전서 개역한글판(1961), 대한성서공회<br>
+    성경 본문: 성경전서 개역한글판 · 저작권 © 대한성서공회 1961<br>
     이 앱은 무료로 나누는 것이며, 기록은 각자의 기기에만 저장됩니다.<br>
     기기 고장이나 브라우저 정리로 기록이 사라질 수 있으니 ‘⚙ 더보기 → 백업’을 해 두세요.<br>
     함께 쓰면 좋은 말씀 앱: 말씀 순서 맞추기 → 말씀 타자 연습 → 성경필사노트<br>
@@ -904,7 +904,7 @@ function shareText(){
   const head=`📖 ${BOOKS[cur.b]} ${cur.c+1}${U(cur.b)} ${s0+1}${e0>s0?`~${e0+1}`:''}절`;
   const real=[];for(let i=s0;i<=e0;i++)if(!isMerged(cur.b,cur.c,i))real.push(i);
   const body=real.length>1?real.map(i=>`${vLabel(cur.b,cur.c,i)} ${vs[i]}`).join('\n'):vs[s0];
-  return `${head}\n\n${body}`+(l?`\n\n- ${l}`:'');
+  return `${head}\n\n${body}\n(개역한글 © 대한성서공회)`+(l?`\n\n- ${l}`:'');
 }
 function fillShareEnd(){
   const sel=$('shareEnd');if(!sel)return;const vs=B[cur.b][cur.c];
@@ -1105,7 +1105,10 @@ function chapterPrint(b,c,kind,onlyWritten){
 }
 /* 인쇄·PDF 저장 시 파일 이름: '김명구집사의 성경필사-창세기' */
 function printTitle(what){const n=baseName(Store.get('sign',''));return `${n?n+'의 ':''}성경필사-${what}_${today()}`.replace(/[\\/:*?"<>|]/g,'')}
+/* 성경 본문이 든 인쇄물 끝에 저작권 표기 (대한성서공회 요청, 2026-10-07) */
+const COPY_LINE='성경 본문: 성경전서 개역한글판 · 저작권 © 대한성서공회 1961';
 function doPrint(html,title){
+  if(!/감사일기/.test(title||''))html+=`<p style="margin:10mm 0 0;text-align:center;font:10pt/1.6 sans-serif;color:#444">${COPY_LINE}</p>`;
   $('printArea').innerHTML=html;$('more').hidden=true;
   if(title)document.title=title;
   const back=()=>{window.removeEventListener('afterprint',back);renderTitle()};
@@ -1219,7 +1222,7 @@ async function printForShop(){
   const range=pick.length>1?`${BOOKS[pick[0]]}~${BOOKS[pick[pick.length-1]]}`:BOOKS[pick[0]];
   const name=baseName(Store.get('sign',''));
   const d=new Date(),dl=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
-  const cover=`<div class="t1">${esc(name?name+'의 ':'')}성경필사</div><div class="t2">${range}</div><div class="t3">개역한글판(1961), 대한성서공회<br>${dl} 인쇄</div>`;
+  const cover=`<div class="t1">${esc(name?name+'의 ':'')}성경필사</div><div class="t2">${range}</div><div class="t3">성경 본문: 성경전서 개역한글판<br>저작권 © 대한성서공회 1961<br>${dl} 인쇄</div>`;
   const n=pages.length;
   const go2=await modal(`<h2>모두 ${n.toLocaleString()}쪽입니다</h2>
     <p>양면으로 인쇄하면 종이 <b>${Math.ceil(n/2).toLocaleString()}장</b>입니다. (${range})</p>
