@@ -598,7 +598,7 @@ function show(id){
   $('kbWrap').classList.toggle('hide',!TYPING.includes(id));document.body.classList.toggle('typing',TYPING.includes(id));$('kbWrap').dataset.s=id;
   if(id!=='manna')stopManna();
   if(TYPING.includes(id)&&document.activeElement)document.activeElement.blur(); // 띄어쓰기가 단추를 누르지 않도록
-  $('backBtn').classList.toggle('hide',![...TYPING,'result'].includes(id)); // 처음 화면과 같은 곳으로 갈 때는 숨김
+  $('backBtn').classList.toggle('hide',id==='home'); // '← 전 화면'은 처음 화면을 뺀 모든 화면에서 늘 같은 자리에 (2026-10-07)
   window.scrollTo(0,0);fit();
   if(TYPING.includes(id)){clearTimeout(show.t);show.t=setTimeout(fit,90)} // 자판·안내가 다 그려진 뒤 한 번 더 맞춤
 }
@@ -1344,6 +1344,7 @@ document.addEventListener('keydown',e=>{
     else if(SCREEN==='verse'){if(code.startsWith('Key')||code==='Space'||code==='Backspace')keyVerse(code,e.shiftKey)}
     return;
   }
+  if(code==='Escape'&&SCREEN!=='home'){e.preventDefault();goBack();return} /* 고르는 화면·결과 화면에서도 Esc = 전 화면 */
   if(code==='Enter'&&e.target.tagName!=='BUTTON'){
     if(SCREEN==='result')$('rNext').click();
     else if(SCREEN==='wordHome')startWords();
