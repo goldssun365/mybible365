@@ -163,11 +163,9 @@ h2.sec{font-family:var(--serif);font-size:24px;margin:28px 0 4px}
   <div class="bline hide" id="bline" aria-live="polite"></div>
 
   <section class="card" id="home">
-    <p class="ref">어떻게 해 볼까요?</p>
-    <p class="guide">섞여 있는 말씀 조각을 앞에서부터 차례대로 눌러 말씀을 완성합니다. 시간 제한은 없고, 틀려도 점수가 깎이지 않으니 천천히 하세요.</p>
-
-    <h2 class="sec step"><span class="sn">1</span>어떤 단계로 할까요?</h2>
-    <p class="guide"><b>쉬움</b>은 잘 아는 짧은 말씀만 차례대로 나오고, <b>보통</b>과 <b>어려움</b>은 더 긴 말씀을 섞어서 냅니다. 처음이시면 쉬움부터 하세요.</p>
+    <!-- 2026-10-09: '어떻게 해 볼까요?' 설명 상자 삭제 (처음 화면 글 줄이기). 안심 문장은 맞추는 화면(pGuide)으로 옮김 -->
+    <h2 class="sec step" style="margin-top:0"><span class="sn">1</span>어떤 단계로 할까요?</h2>
+    <p class="guide">처음이시면 <b>쉬움</b>부터 하세요.</p>
     <div class="levels" id="levels"></div>
     <p class="lvlmsg hide" id="lvlMsg" aria-live="polite"></p>
 
@@ -461,7 +459,7 @@ function where(){
 }
 function play(){
   $('pRef').textContent=refOf(G.x);
-  $('pGuide').textContent=`조각 ${G.parts.length}개를 말씀 순서대로 눌러 주세요.${where()}`;
+  $('pGuide').textContent=`조각 ${G.parts.length}개를 말씀 순서대로 눌러 주세요. 천천히 하세요, 틀려도 괜찮아요.${where()}`;
   $('msg').textContent='';$('msg').className='msg';
   $('skipBtn').classList.toggle('hide',MODE.type==='pass');
   renderPlay();show('play');
