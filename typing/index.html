@@ -218,7 +218,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
 .seg.cur .o{color:var(--ink)}
 .seg.cur .o .nx{border-bottom:4px solid var(--gold)}
 /* 2단계 낱말 쓰기 (2026-10-07) */
-.wsay{margin-top:6px}.wsay button{min-height:46px;padding:6px 14px;font-size:18px}
+.wsay{margin-top:6px}#kb .key{cursor:pointer}.wsay button{min-height:46px;padding:6px 14px;font-size:18px}
 .wbox{text-align:center;margin:10px 0 4px;padding:14px 10px;border-radius:16px;background:color-mix(in srgb,var(--gold) 10%,var(--paper));border:2px solid var(--gold)}
 .wbox .wo{font:700 calc(var(--fs) * 2.15)/1.25 var(--serif);letter-spacing:.08em;color:var(--ink)}
 .wbox .wo .nx{border-bottom:6px solid var(--next)}
@@ -312,6 +312,8 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     <p class="ref" id="lName"></p>
     <p class="guide" id="lGuide"></p>
     <div class="drill" id="drill" aria-live="polite"></div>
+    <div class="row wsay"><button class="sayAgain">🔊 다시 듣기</button><button class="sayAuto"></button><button class="sayVoice"></button></div>
+    <p class="note hide sayNote"></p>
     <div class="bar"><i id="lBar" style="width:0"></i></div>
     <p class="msg" id="lMsg" aria-live="polite"></p>
   </section>
@@ -330,8 +332,8 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     <p class="ref" id="wRef"></p>
     <div class="wbox" id="wBox"><div class="wo" id="wO"></div><div class="wt" id="wT"></div></div>
     <p class="wnext" id="wNext"></p>
-    <div class="row wsay"><button id="wSayBtn">🔊 다시 듣기</button><button id="wSayAuto"></button></div>
-    <p class="note hide" id="wSayNote">이 컴퓨터에서는 한국어 목소리를 찾지 못했어요. 크롬이나 엣지에서 인터넷에 연결된 상태로 열면 대부분 소리가 납니다.</p>
+    <div class="row wsay"><button class="sayAgain">🔊 다시 듣기</button><button class="sayAuto"></button><button class="sayVoice"></button></div>
+    <p class="note hide sayNote"></p>
     <div class="bar"><i id="wBar" style="width:0"></i></div>
     <p class="msg" id="wMsg" aria-live="polite"></p>
   </section>
@@ -516,7 +518,7 @@ function compose(js){
 
 /* ---------- 저장 (이 기기 브라우저 안에만) ---------- */
 const SKEY='malsseumTyping:v1';
-const DEF=()=>({wSay:true,fs:28,zoom:1,hint:true,sound:true,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},mLevel:'easy',mSpeed:'s10',vLevel:'easy',vAuto:true,queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{},wLevel:'two',wd:{},tx:1});
+const DEF=()=>({wSay:true,voice:'f',fs:28,zoom:1,hint:true,sound:true,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},mLevel:'easy',mSpeed:'s10',vLevel:'easy',vAuto:true,queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{},wLevel:'two',wd:{},tx:1});
 let S=DEF();
 try{const raw=localStorage.getItem(SKEY);if(raw)S={...S,...JSON.parse(raw)}}catch(e){}
 function normalize(){
@@ -720,7 +722,7 @@ $('soundOpt').onchange=e=>{S.sound=e.target.checked;save()};
 $('homeBtn').onclick=renderHome;
 $('resetBtn').onclick=()=>{
   if(!confirm(`모은 점수 ${fmt(S.score)}점과 연습 기록이 모두 지워집니다.\n글씨 크기와 소리 같은 설정은 그대로 둡니다.\n\n정말 처음부터 하시겠어요?`))return;
-  S={wSay:S.wSay,fs:S.fs,zoom:S.zoom,tx:S.tx,hint:S.hint,sound:S.sound,hands:S.hands,face:S.face,vAuto:S.vAuto,mLevel:S.mLevel,mSpeed:S.mSpeed,vLevel:S.vLevel,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{}};
+  S={wSay:S.wSay,voice:S.voice,fs:S.fs,zoom:S.zoom,tx:S.tx,hint:S.hint,sound:S.sound,hands:S.hands,face:S.face,vAuto:S.vAuto,mLevel:S.mLevel,mSpeed:S.mSpeed,vLevel:S.vLevel,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{}};
   save();renderHome();alert('기록을 지웠어요. 처음부터 시작하세요!');
 };
 
@@ -771,7 +773,7 @@ function startLesson(i){
   $('lName').textContent=`${i+1}. ${l.name}`;
   $('lGuide').textContent=`노란 칸의 글자를 치세요. 모두 ${LEN}글자입니다.`;
   $('lMsg').textContent='';$('lMsg').className='msg';
-  show('lesson');renderLesson();fit();
+  show('lesson');renderLesson();renderSayBtns();fit();setTimeout(()=>sayNow(),250);
 }
 function renderLesson(){
   const from=Math.max(0,L.pos-3),to=Math.min(L.seq.length,from+9);
@@ -785,7 +787,7 @@ function keyLesson(code,shift){
     tick(L.m);L.m.ok++;L.pos++;L.streak=0;flash(code,true);
     $('lMsg').className='msg';$('lMsg').textContent='';
     if(L.pos>=L.seq.length)return finishLesson();
-    renderLesson();
+    renderLesson();sayNow();
   }else{
     L.m.bad++;L.streak++;flash(code,false);
     $('lMsg').className='msg miss';
@@ -1324,26 +1326,48 @@ function confetti(){
   })(performance.now());
 }
 function stopConfetti(){cancelAnimationFrame(confRAF);const cv=$('confetti');cv.getContext('2d').clearRect(0,0,cv.width,cv.height)}
-function koVoice(){try{return speechSynthesis.getVoices().find(v=>/^ko/i.test(v.lang))||null}catch(e){return null}}
+/* ---------- 소리 (2026-10-09) ----------
+   1단계: 노란 칸 글자가 나올 때마다 이름을 읽어 줌(기역, 어…). 화면 자판 글쇠를 눌러도 이름을 읽어 줌.
+   2단계: 낱말이 나올 때마다 읽어 줌. 자동 소리는 S.wSay(기본 켬), 목소리는 S.voice('f' 여성 / 'm' 남성).
+   목소리는 브라우저에 깔린 것만 쓸 수 있음: 크롬은 대개 여성 하나, 엣지(Edge)는 남녀 목소리가 있는 경우가 많음 */
+const JNAME={ㄱ:'기역',ㄲ:'쌍기역',ㄴ:'니은',ㄷ:'디귿',ㄸ:'쌍디귿',ㄹ:'리을',ㅁ:'미음',ㅂ:'비읍',ㅃ:'쌍비읍',ㅅ:'시옷',ㅆ:'쌍시옷',ㅇ:'이응',ㅈ:'지읒',ㅉ:'쌍지읒',ㅊ:'치읓',ㅋ:'키읔',ㅌ:'티읕',ㅍ:'피읖',ㅎ:'히읗',
+  ㅏ:'아',ㅐ:'애',ㅑ:'야',ㅒ:'얘',ㅓ:'어',ㅔ:'에',ㅕ:'여',ㅖ:'예',ㅗ:'오',ㅛ:'요',ㅜ:'우',ㅠ:'유',ㅡ:'으',ㅣ:'이'};
+const MALE=/injoon|hyunsu|bongjin|gookmin|minsu|male|남성/i;
+function koVoices(){try{return speechSynthesis.getVoices().filter(v=>/^ko/i.test(v.lang))}catch(e){return []}}
+function koVoice(){const vs=koVoices();if(!vs.length)return null;
+  if(S.voice==='m'){const m=vs.find(v=>MALE.test(v.name));if(m)return m}
+  return vs.find(v=>!MALE.test(v.name))||vs[0]}
+const hasMale=()=>koVoices().some(v=>MALE.test(v.name));
 function speak(t,rate,quiet){
   try{if(!('speechSynthesis'in window)){if(!quiet)alert('이 기기에서는 읽어주기를 쓸 수 없어요.');return}
     speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ko-KR';const v=koVoice();if(v)u.voice=v;u.rate=rate||0.85;speechSynthesis.speak(u)}catch(e){}
 }
-/* 2단계 낱말 소리 (2026-10-09): 낱말이 나오면 소리로 읽어 줌. 시니어·어린이·한국어를 배우는 외국인·선교지용.
-   자동 소리는 기본 켬, 교실처럼 여러 대가 함께 쓸 때는 [자동 소리 끔]. 한국어 목소리가 없으면 안내 */
-function sayWord(force){
-  if(!WD)return;const w=WD.words[WD.k];if(!w)return;
-  if(force||S.wSay)speak(w,0.75,true);
+function sayNow(force){
+  if(!force&&S.wSay===false)return;
+  if(SCREEN==='word'&&WD){const w=WD.words[WD.k];if(w)speak(w,0.75,true)}
+  else if(SCREEN==='lesson'&&L){const j=L.seq[L.pos];if(j)speak(JNAME[j]||j,0.85,true)}
 }
+const sayWord=f=>sayNow(f);
 function renderSayBtns(){
-  $('wSayAuto').textContent=S.wSay!==false?'자동 소리 켬 ✓':'자동 소리 끔';
-  $('wSayAuto').classList.toggle('primary',S.wSay!==false);
-  const none=!('speechSynthesis'in window)||(speechSynthesis.getVoices().length>0&&!koVoice());
-  $('wSayNote').classList.toggle('hide',!none);
+  const auto=S.wSay!==false,male=S.voice==='m',vs=koVoices(),loaded='speechSynthesis'in window&&speechSynthesis.getVoices().length>0;
+  document.querySelectorAll('.sayAuto').forEach(b=>{b.textContent=auto?'자동 소리 켬 ✓':'자동 소리 끔';b.classList.toggle('primary',auto)});
+  document.querySelectorAll('.sayVoice').forEach(b=>b.textContent=male?'목소리: 남성 👨':'목소리: 여성 👩');
+  let note='';
+  if(!('speechSynthesis'in window)||(loaded&&!vs.length))note='이 컴퓨터에서는 한국어 목소리를 찾지 못했어요. 크롬이나 엣지에서 인터넷에 연결된 상태로 열면 대부분 소리가 납니다.';
+  else if(male&&loaded&&!hasMale())note='이 브라우저에는 남성 목소리가 없어 여성 목소리로 읽어요. 엣지(Edge)로 열면 남성 목소리가 있는 경우가 많아요.';
+  document.querySelectorAll('.sayNote').forEach(n=>{n.textContent=note;n.classList.toggle('hide',!note)});
 }
-if('speechSynthesis'in window){try{speechSynthesis.onvoiceschanged=()=>{if(SCREEN==='word')renderSayBtns()}}catch(e){}}
-$('wSayBtn').onclick=e=>{sayWord(true);e.currentTarget.blur()};
-$('wSayAuto').onclick=e=>{S.wSay=S.wSay===false;save();renderSayBtns();if(S.wSay)sayWord(true);e.currentTarget.blur()};
+if('speechSynthesis'in window){try{speechSynthesis.onvoiceschanged=()=>renderSayBtns()}catch(e){}}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('.sayAgain,.sayAuto,.sayVoice');
+  if(b){if(b.classList.contains('sayAuto')){S.wSay=S.wSay===false;save();renderSayBtns();if(S.wSay)sayNow(true)}
+    else if(b.classList.contains('sayVoice')){S.voice=S.voice==='m'?'f':'m';save();renderSayBtns();sayNow(true)}
+    else sayNow(true);
+    b.blur();return}
+  /* 화면 자판 글쇠를 누르면 그 글자 이름을 읽어 줌 (배우는 분이 자판을 둘러볼 때) */
+  const k=e.target.closest('#kb .key');
+  if(k){const m=KEYMAP[k.dataset.code];if(m&&m[0])speak(JNAME[m[0]]||m[0],0.85,true)}
+});
 
 /* ---------- 자판 입력: 한/영 상태와 상관없이 글쇠 자리로 알아들음 ---------- */
 document.addEventListener('keydown',e=>{
