@@ -218,6 +218,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
 .seg.cur .o{color:var(--ink)}
 .seg.cur .o .nx{border-bottom:4px solid var(--gold)}
 /* 2단계 낱말 쓰기 (2026-10-07) */
+.wsay{margin-top:6px}.wsay button{min-height:46px;padding:6px 14px;font-size:18px}
 .wbox{text-align:center;margin:10px 0 4px;padding:14px 10px;border-radius:16px;background:color-mix(in srgb,var(--gold) 10%,var(--paper));border:2px solid var(--gold)}
 .wbox .wo{font:700 calc(var(--fs) * 2.15)/1.25 var(--serif);letter-spacing:.08em;color:var(--ink)}
 .wbox .wo .nx{border-bottom:6px solid var(--next)}
@@ -329,6 +330,8 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     <p class="ref" id="wRef"></p>
     <div class="wbox" id="wBox"><div class="wo" id="wO"></div><div class="wt" id="wT"></div></div>
     <p class="wnext" id="wNext"></p>
+    <div class="row wsay"><button id="wSayBtn">🔊 다시 듣기</button><button id="wSayAuto"></button></div>
+    <p class="note hide" id="wSayNote">이 컴퓨터에서는 한국어 목소리를 찾지 못했어요. 크롬이나 엣지에서 인터넷에 연결된 상태로 열면 대부분 소리가 납니다.</p>
     <div class="bar"><i id="wBar" style="width:0"></i></div>
     <p class="msg" id="wMsg" aria-live="polite"></p>
   </section>
@@ -444,7 +447,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     컴퓨터 고장이나 브라우저 정리로 기록이 사라질 수 있으니 처음 화면 아래 ‘💾 기록 백업 받기’를 가끔 해 두세요.<br>
     함께 쓰면 좋은 말씀 앱: 말씀 순서 맞추기 → 말씀 타자 연습 → 성경필사노트<br>
     <span class="credit">오직 하나님께 영광 · 만든 이 김명구 집사</span><br>
-    <span style="font-size:13px">말씀 타자 연습 · 2026년 10월 8일 판</span>
+    <span style="font-size:13px">말씀 타자 연습 · 2026년 10월 9일 판</span>
   </footer>
 </div>
 <script>
@@ -513,7 +516,7 @@ function compose(js){
 
 /* ---------- 저장 (이 기기 브라우저 안에만) ---------- */
 const SKEY='malsseumTyping:v1';
-const DEF=()=>({fs:28,zoom:1,hint:true,sound:true,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},mLevel:'easy',mSpeed:'s10',vLevel:'easy',vAuto:true,queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{},wLevel:'two',wd:{},tx:1});
+const DEF=()=>({wSay:true,fs:28,zoom:1,hint:true,sound:true,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},mLevel:'easy',mSpeed:'s10',vLevel:'easy',vAuto:true,queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{},wLevel:'two',wd:{},tx:1});
 let S=DEF();
 try{const raw=localStorage.getItem(SKEY);if(raw)S={...S,...JSON.parse(raw)}}catch(e){}
 function normalize(){
@@ -717,7 +720,7 @@ $('soundOpt').onchange=e=>{S.sound=e.target.checked;save()};
 $('homeBtn').onclick=renderHome;
 $('resetBtn').onclick=()=>{
   if(!confirm(`모은 점수 ${fmt(S.score)}점과 연습 기록이 모두 지워집니다.\n글씨 크기와 소리 같은 설정은 그대로 둡니다.\n\n정말 처음부터 하시겠어요?`))return;
-  S={fs:S.fs,zoom:S.zoom,tx:S.tx,hint:S.hint,sound:S.sound,hands:S.hands,face:S.face,vAuto:S.vAuto,mLevel:S.mLevel,mSpeed:S.mSpeed,vLevel:S.vLevel,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{}};
+  S={wSay:S.wSay,fs:S.fs,zoom:S.zoom,tx:S.tx,hint:S.hint,sound:S.sound,hands:S.hands,face:S.face,vAuto:S.vAuto,mLevel:S.mLevel,mSpeed:S.mSpeed,vLevel:S.vLevel,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{}};
   save();renderHome();alert('기록을 지웠어요. 처음부터 시작하세요!');
 };
 
@@ -835,7 +838,7 @@ function startWords(){
   if(q.p>=list.length){q.p=0;q.r=(q.r||1)+1}
   const words=[];for(let k=0;k<W_ROUND&&q.p+k<list.length;k++)words.push(list[q.p+k]);
   WD={lv,words,k:0,keys:toKeys(words[0]),pos:0,wrong:null,m:Meter(),streak:0,done:false,pts:0};
-  show('word');renderWord();fit();
+  show('word');renderWord();renderSayBtns();fit();setTimeout(()=>sayWord(),250);
 }
 function renderWord(){
   const w=WD.words[WD.k],ks=WD.keys,nx=WD.pos<ks.length?ks[WD.pos].ci:-1;
@@ -859,7 +862,7 @@ function keyWord(code,shift){
       renderWord();$('wBox').classList.add('ok');WD.wait=true;hint(null);
       setTimeout(()=>{if(!WD||WD.done)return;$('wBox').classList.remove('ok');WD.wait=false;WD.k++;
         if(WD.k>=WD.words.length)return finishWords();
-        WD.keys=toKeys(WD.words[WD.k]);WD.pos=0;renderWord()},450);
+        WD.keys=toKeys(WD.words[WD.k]);WD.pos=0;renderWord();sayWord()},450);
       return;
     }
     renderWord();
@@ -1321,10 +1324,26 @@ function confetti(){
   })(performance.now());
 }
 function stopConfetti(){cancelAnimationFrame(confRAF);const cv=$('confetti');cv.getContext('2d').clearRect(0,0,cv.width,cv.height)}
-function speak(t){
-  try{if(!('speechSynthesis'in window)){alert('이 기기에서는 읽어주기를 쓸 수 없어요.');return}
-    speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ko-KR';u.rate=0.85;speechSynthesis.speak(u)}catch(e){}
+function koVoice(){try{return speechSynthesis.getVoices().find(v=>/^ko/i.test(v.lang))||null}catch(e){return null}}
+function speak(t,rate,quiet){
+  try{if(!('speechSynthesis'in window)){if(!quiet)alert('이 기기에서는 읽어주기를 쓸 수 없어요.');return}
+    speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ko-KR';const v=koVoice();if(v)u.voice=v;u.rate=rate||0.85;speechSynthesis.speak(u)}catch(e){}
 }
+/* 2단계 낱말 소리 (2026-10-09): 낱말이 나오면 소리로 읽어 줌. 시니어·어린이·한국어를 배우는 외국인·선교지용.
+   자동 소리는 기본 켬, 교실처럼 여러 대가 함께 쓸 때는 [자동 소리 끔]. 한국어 목소리가 없으면 안내 */
+function sayWord(force){
+  if(!WD)return;const w=WD.words[WD.k];if(!w)return;
+  if(force||S.wSay)speak(w,0.75,true);
+}
+function renderSayBtns(){
+  $('wSayAuto').textContent=S.wSay!==false?'자동 소리 켬 ✓':'자동 소리 끔';
+  $('wSayAuto').classList.toggle('primary',S.wSay!==false);
+  const none=!('speechSynthesis'in window)||(speechSynthesis.getVoices().length>0&&!koVoice());
+  $('wSayNote').classList.toggle('hide',!none);
+}
+if('speechSynthesis'in window){try{speechSynthesis.onvoiceschanged=()=>{if(SCREEN==='word')renderSayBtns()}}catch(e){}}
+$('wSayBtn').onclick=e=>{sayWord(true);e.currentTarget.blur()};
+$('wSayAuto').onclick=e=>{S.wSay=S.wSay===false;save();renderSayBtns();if(S.wSay)sayWord(true);e.currentTarget.blur()};
 
 /* ---------- 자판 입력: 한/영 상태와 상관없이 글쇠 자리로 알아들음 ---------- */
 document.addEventListener('keydown',e=>{
