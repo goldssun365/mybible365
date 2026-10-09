@@ -312,7 +312,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     <p class="ref" id="lName"></p>
     <p class="guide" id="lGuide"></p>
     <div class="drill" id="drill" aria-live="polite"></div>
-    <div class="row wsay"><button class="sayAgain">🔊 다시 듣기</button><button class="sayAuto"></button><button class="sayVoice"></button></div>
+    <div class="row wsay"><button class="sayAgain">🔊 다시 듣기</button><button class="sayAuto"></button></div>
     <p class="note hide sayNote"></p>
     <div class="bar"><i id="lBar" style="width:0"></i></div>
     <p class="msg" id="lMsg" aria-live="polite"></p>
@@ -332,7 +332,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     <p class="ref" id="wRef"></p>
     <div class="wbox" id="wBox"><div class="wo" id="wO"></div><div class="wt" id="wT"></div></div>
     <p class="wnext" id="wNext"></p>
-    <div class="row wsay"><button class="sayAgain">🔊 다시 듣기</button><button class="sayAuto"></button><button class="sayVoice"></button></div>
+    <div class="row wsay"><button class="sayAgain">🔊 다시 듣기</button><button class="sayAuto"></button></div>
     <p class="note hide sayNote"></p>
     <div class="bar"><i id="wBar" style="width:0"></i></div>
     <p class="msg" id="wMsg" aria-live="polite"></p>
@@ -1328,14 +1328,14 @@ function confetti(){
 function stopConfetti(){cancelAnimationFrame(confRAF);const cv=$('confetti');cv.getContext('2d').clearRect(0,0,cv.width,cv.height)}
 /* ---------- 소리 (2026-10-09) ----------
    1단계: 노란 칸 글자가 나올 때마다 이름을 읽어 줌(기역, 어…). 화면 자판 글쇠를 눌러도 이름을 읽어 줌.
-   2단계: 낱말이 나올 때마다 읽어 줌. 자동 소리는 S.wSay(기본 켬), 목소리는 S.voice('f' 여성 / 'm' 남성).
-   목소리는 브라우저에 깔린 것만 쓸 수 있음: 크롬은 대개 여성 하나, 엣지(Edge)는 남녀 목소리가 있는 경우가 많음 */
+   2단계: 낱말이 나올 때마다 읽어 줌. 자동 소리는 S.wSay(기본 켬).
+   목소리는 여성 하나로(2026-10-09 결정): 남녀 고르기는 크롬에 남성 목소리가 없어 엣지 안내가 필요해 복잡해서 뺌.
+   나중에 남녀 목소리를 넣으려면 AI 음성 파일로(배포 허락 요금제 확인 후) */
 const JNAME={ㄱ:'기역',ㄲ:'쌍기역',ㄴ:'니은',ㄷ:'디귿',ㄸ:'쌍디귿',ㄹ:'리을',ㅁ:'미음',ㅂ:'비읍',ㅃ:'쌍비읍',ㅅ:'시옷',ㅆ:'쌍시옷',ㅇ:'이응',ㅈ:'지읒',ㅉ:'쌍지읒',ㅊ:'치읓',ㅋ:'키읔',ㅌ:'티읕',ㅍ:'피읖',ㅎ:'히읗',
   ㅏ:'아',ㅐ:'애',ㅑ:'야',ㅒ:'얘',ㅓ:'어',ㅔ:'에',ㅕ:'여',ㅖ:'예',ㅗ:'오',ㅛ:'요',ㅜ:'우',ㅠ:'유',ㅡ:'으',ㅣ:'이'};
 const MALE=/injoon|hyunsu|bongjin|gookmin|minsu|male|남성/i;
 function koVoices(){try{return speechSynthesis.getVoices().filter(v=>/^ko/i.test(v.lang))}catch(e){return []}}
 function koVoice(){const vs=koVoices();if(!vs.length)return null;
-  if(S.voice==='m'){const m=vs.find(v=>MALE.test(v.name));if(m)return m}
   return vs.find(v=>!MALE.test(v.name))||vs[0]}
 const hasMale=()=>koVoices().some(v=>MALE.test(v.name));
 function speak(t,rate,quiet){
@@ -1349,19 +1349,16 @@ function sayNow(force){
 }
 const sayWord=f=>sayNow(f);
 function renderSayBtns(){
-  const auto=S.wSay!==false,male=S.voice==='m',vs=koVoices(),loaded='speechSynthesis'in window&&speechSynthesis.getVoices().length>0;
+  const auto=S.wSay!==false,vs=koVoices(),loaded='speechSynthesis'in window&&speechSynthesis.getVoices().length>0;
   document.querySelectorAll('.sayAuto').forEach(b=>{b.textContent=auto?'자동 소리 켬 ✓':'자동 소리 끔';b.classList.toggle('primary',auto)});
-  document.querySelectorAll('.sayVoice').forEach(b=>b.textContent=male?'목소리: 남성 👨':'목소리: 여성 👩');
   let note='';
   if(!('speechSynthesis'in window)||(loaded&&!vs.length))note='이 컴퓨터에서는 한국어 목소리를 찾지 못했어요. 크롬이나 엣지에서 인터넷에 연결된 상태로 열면 대부분 소리가 납니다.';
-  else if(male&&loaded&&!hasMale())note='이 브라우저에는 남성 목소리가 없어 여성 목소리로 읽어요. 엣지(Edge)로 열면 남성 목소리가 있는 경우가 많아요.';
   document.querySelectorAll('.sayNote').forEach(n=>{n.textContent=note;n.classList.toggle('hide',!note)});
 }
 if('speechSynthesis'in window){try{speechSynthesis.onvoiceschanged=()=>renderSayBtns()}catch(e){}}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('.sayAgain,.sayAuto,.sayVoice');
+  const b=e.target.closest('.sayAgain,.sayAuto');
   if(b){if(b.classList.contains('sayAuto')){S.wSay=S.wSay===false;save();renderSayBtns();if(S.wSay)sayNow(true)}
-    else if(b.classList.contains('sayVoice')){S.voice=S.voice==='m'?'f':'m';save();renderSayBtns();sayNow(true)}
     else sayNow(true);
     b.blur();return}
   /* 화면 자판 글쇠를 누르면 그 글자 이름을 읽어 줌 (배우는 분이 자판을 둘러볼 때) */
