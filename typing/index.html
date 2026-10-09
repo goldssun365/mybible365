@@ -218,7 +218,20 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
 .seg.cur .o{color:var(--ink)}
 .seg.cur .o .nx{border-bottom:4px solid var(--gold)}
 /* 2단계 낱말 쓰기 (2026-10-07) */
-.wsay{margin-top:6px}#kb .key{cursor:pointer}.wsay button{min-height:46px;padding:6px 14px;font-size:18px}
+.wsay{margin-top:6px}
+.arkbox{display:flex;align-items:center;gap:16px;margin:4px 0 16px;padding:10px 16px;border-radius:16px;background:linear-gradient(160deg,#FFF8E6,#FBF3DD);border:2px solid #E2C46F;color:#3A2914}
+.arkbox .arkpic{flex:0 0 200px}.arkbox .arktxt b{font-family:var(--serif);font-size:23px}.arkbox .arktxt{flex:1}.arkbox .arktxt p{margin:4px 0 6px;font-size:18px;line-height:1.6}
+.arklist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;font-size:16px}
+.arklist li{display:flex;gap:8px;align-items:center}.arklist li span:first-child{flex:1}.arklist .dots{color:#C4952B;letter-spacing:1px}.arklist .st{min-width:74px;text-align:right;color:#7A5A1A}.arklist li.ok{font-weight:700}
+@media (max-width:620px){.arklist{grid-template-columns:1fr;text-align:left}}
+.arkmini{display:flex;align-items:center;gap:14px;text-align:left}.arkmini .ark{width:150px;flex:0 0 150px}.arkmini b{display:block}
+@media (max-width:620px){.arkbox{flex-direction:column;text-align:center}.arkbox .arkpic{flex-basis:auto;width:220px}}
+.ark{display:block;width:100%;height:auto}.ark .p{transition:opacity .5s}.ark .p.off{opacity:.12;filter:grayscale(1)}
+.ark .p.new{animation:arkIn 1.3s ease-out both}.ark .p2.new,.ark .p7.new{animation:arkFade 1.6s ease-out both}
+@keyframes arkIn{0%{opacity:0;transform:translateY(-40px)}60%{opacity:1;transform:translateY(5px)}100%{opacity:1;transform:none}}
+@keyframes arkFade{0%{opacity:0}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.ark .p.new{animation:none}}
+.pArk:empty{display:none}.pArk{max-width:340px;margin:4px auto 0}.pArk .ref{display:block;font-size:17px;color:#6B4E12;margin-top:2px}#kb .key{cursor:pointer}.wsay button{min-height:46px;padding:6px 14px;font-size:18px}
 .wbox{text-align:center;margin:10px 0 4px;padding:14px 10px;border-radius:16px;background:color-mix(in srgb,var(--gold) 10%,var(--paper));border:2px solid var(--gold)}
 .wbox .wo{font:700 calc(var(--fs) * 2.15)/1.25 var(--serif);letter-spacing:.08em;color:var(--ink)}
 .wbox .wo .nx{border-bottom:6px solid var(--next)}
@@ -304,6 +317,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
   <section class="card hide" id="lessonHome">
     <p class="ref">1단계 · 자리 익히기</p>
     <p class="guide">연습을 고르면 화면에 나오는 글자를 차례대로 칩니다. 연습 화면 아래 자판과 손 그림은 색이 같은 것끼리 짝입니다. 분홍 글쇠는 분홍 손가락으로 치세요.</p>
+    <div class="arkbox" id="arkHome"><div class="arkpic" id="arkHomePic"></div><div class="arktxt"><b>황금 언약궤 만들기</b><p id="arkHomeTxt"></p><ul class="arklist" id="arkHomeList"></ul></div></div>
     <div class="lessons" id="lessons"></div>
   </section>
 
@@ -437,6 +451,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
       <div class="ribbon" aria-hidden="true"></div>
       <p class="emo" aria-hidden="true">🎺🎉🌸🕊️</p>
       <p class="big" id="pBig">축하합니다!</p>
+      <div class="pArk" id="pArk"></div>
       <p class="what" id="pWhat"></p>
       <p class="bless" id="pBless"></p>
       <button class="primary" id="pClose">아멘, 감사합니다</button>
@@ -752,11 +767,40 @@ function choiceRow(el,list,cur,set){
 
 /* ---------- 1단계: 자리 익히기 ---------- */
 let L=null;
+
+/* ---------- 1단계 선물: 황금 언약궤 (2026-10-09) ----------
+   자리 익히기 6단계(기본 자리~모두 복습)를 각각 ARK_REPS(5)번 마치면 조각이 하나씩 붙음. 할 때마다 그 조각이 금빛으로 차오름.
+   조각 이름은 단계 이름 그대로(타자 연습의 목표가 분명하도록, 출애굽기 조각 이름은 쓰지 않음). 따로 저장하지 않고 S.lessons(마친 횟수)로 셈.
+   그림은 SVG 한 장(조각 p1~p6, 완성 빛 p7). 아직 안 받은 조각은 흐리게 보여 목표가 보이게 함 */
+const ARK_SVG="<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -26 560 426\" class=\"ark\" role=\"img\" aria-label=\"언약궤\"><defs><linearGradient id=\"akW\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#A9743F\"/><stop offset=\"1\" stop-color=\"#6E4522\"/></linearGradient><linearGradient id=\"akWs\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#7A4D27\"/><stop offset=\"1\" stop-color=\"#55341A\"/></linearGradient><linearGradient id=\"akWt\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#C08A52\"/><stop offset=\"1\" stop-color=\"#9A6837\"/></linearGradient><linearGradient id=\"akG\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#FFE9A3\"/><stop offset=\".35\" stop-color=\"#F2C24E\"/><stop offset=\".7\" stop-color=\"#D49A1E\"/><stop offset=\"1\" stop-color=\"#A9740F\"/></linearGradient><linearGradient id=\"akGs\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#C98F18\"/><stop offset=\"1\" stop-color=\"#8E5F0B\"/></linearGradient><linearGradient id=\"akGt\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#FFF1BF\"/><stop offset=\".5\" stop-color=\"#F5CF68\"/><stop offset=\"1\" stop-color=\"#D9A630\"/></linearGradient><linearGradient id=\"akGw\" x1=\"0\" y1=\"1\" x2=\"0\" y2=\"0\"><stop offset=\"0\" stop-color=\"#C98F18\"/><stop offset=\".6\" stop-color=\"#F5CF68\"/><stop offset=\"1\" stop-color=\"#FFF4C8\"/></linearGradient><radialGradient id=\"akGlow\" cx=\".5\" cy=\".5\" r=\".5\"><stop offset=\"0\" stop-color=\"#FFE9A3\" stop-opacity=\".95\"/><stop offset=\".6\" stop-color=\"#FFF3C4\" stop-opacity=\".35\"/><stop offset=\"1\" stop-color=\"#FFF3C4\" stop-opacity=\"0\"/></radialGradient></defs><ellipse class=\"p p7\" cx=\"300\" cy=\"200\" rx=\"285\" ry=\"200\" fill=\"url(#akGlow)\"/><g class=\"p p4\"><rect x=\"164\" y=\"268\" width=\"330\" height=\"11\" rx=\"5.5\" fill=\"url(#akG)\" stroke=\"#8E5F0B\" stroke-width=\"1.5\"/></g><g class=\"p p1\"><polygon points=\"140,190 390,190 454,150 204,150\" fill=\"url(#akWt)\" stroke=\"#4A2C14\" stroke-width=\"2\"/><polygon points=\"390,190 454,150 454,300 390,340\" fill=\"url(#akWs)\" stroke=\"#4A2C14\" stroke-width=\"2\"/><rect x=\"140\" y=\"190\" width=\"250\" height=\"150\" fill=\"url(#akW)\" stroke=\"#4A2C14\" stroke-width=\"2\"/><g stroke=\"#5A371A\" stroke-width=\"1.2\" opacity=\".55\" fill=\"none\"><path d=\"M148 218 C220 212 290 224 382 216\"/><path d=\"M148 246 C220 240 290 252 382 244\"/><path d=\"M148 274 C220 268 290 280 382 272\"/><path d=\"M148 302 C220 296 290 308 382 300\"/><path d=\"M148 330 C220 324 290 336 382 328\"/><path d=\"M400 220 L446 186\"/><path d=\"M400 254 L446 220\"/><path d=\"M400 288 L446 254\"/><path d=\"M400 322 L446 288\"/></g></g><g class=\"p p2\"><polygon points=\"140,190 390,190 454,150 204,150\" fill=\"url(#akGt)\" stroke=\"#8E5F0B\" stroke-width=\"2\"/><polygon points=\"390,190 454,150 454,300 390,340\" fill=\"url(#akGs)\" stroke=\"#8E5F0B\" stroke-width=\"2\"/><rect x=\"140\" y=\"190\" width=\"250\" height=\"150\" fill=\"url(#akG)\" stroke=\"#8E5F0B\" stroke-width=\"2\"/><rect x=\"158\" y=\"220\" width=\"214\" height=\"88\" rx=\"6\" fill=\"none\" stroke=\"#B07A12\" stroke-width=\"2.5\" opacity=\".7\"/><rect x=\"170\" y=\"232\" width=\"190\" height=\"64\" rx=\"4\" fill=\"none\" stroke=\"#B07A12\" stroke-width=\"1.5\" opacity=\".5\"/><path d=\"M404 214 L442 180 L442 278 L404 322 Z\" fill=\"none\" stroke=\"#7A520A\" stroke-width=\"2\" opacity=\".55\"/><rect x=\"134\" y=\"186\" width=\"262\" height=\"15\" rx=\"3\" fill=\"url(#akGt)\" stroke=\"#8E5F0B\" stroke-width=\"1.6\"/><polygon points=\"396,186 460,146 460,161 396,201\" fill=\"#D9A630\" stroke=\"#8E5F0B\" stroke-width=\"1.6\"/><path d=\"M138 194 H392\" stroke=\"#FFF6D6\" stroke-width=\"2\" opacity=\".8\"/></g><g class=\"p p3\" fill=\"none\" stroke=\"url(#akG)\" stroke-width=\"6\"><ellipse cx=\"160\" cy=\"314\" rx=\"10\" ry=\"13\" stroke=\"#8E5F0B\" stroke-width=\"9\"/><ellipse cx=\"160\" cy=\"314\" rx=\"10\" ry=\"13\"/><ellipse cx=\"370\" cy=\"314\" rx=\"10\" ry=\"13\" stroke=\"#8E5F0B\" stroke-width=\"9\"/><ellipse cx=\"370\" cy=\"314\" rx=\"10\" ry=\"13\"/><ellipse cx=\"406\" cy=\"306\" rx=\"7\" ry=\"11\" stroke=\"#8E5F0B\" stroke-width=\"9\"/><ellipse cx=\"406\" cy=\"306\" rx=\"7\" ry=\"11\"/><ellipse cx=\"440\" cy=\"284\" rx=\"7\" ry=\"11\" stroke=\"#8E5F0B\" stroke-width=\"9\"/><ellipse cx=\"440\" cy=\"284\" rx=\"7\" ry=\"11\"/></g><g class=\"p p4\"><rect x=\"50\" y=\"308\" width=\"430\" height=\"13\" rx=\"6.5\" fill=\"url(#akG)\" stroke=\"#8E5F0B\" stroke-width=\"1.6\"/><path d=\"M56 312 H474\" stroke=\"#FFF6D6\" stroke-width=\"2\" opacity=\".7\"/></g><g class=\"p p5\"><polygon points=\"132,174 398,174 466,132 200,132\" fill=\"url(#akGt)\" stroke=\"#8E5F0B\" stroke-width=\"2\"/><rect x=\"132\" y=\"174\" width=\"266\" height=\"16\" fill=\"url(#akG)\" stroke=\"#8E5F0B\" stroke-width=\"2\"/><polygon points=\"398,174 466,132 466,148 398,190\" fill=\"url(#akGs)\" stroke=\"#8E5F0B\" stroke-width=\"2\"/><path d=\"M206 142 L456 142\" stroke=\"#FFF6D6\" stroke-width=\"2\" opacity=\".6\"/></g><g class=\"p p6\" stroke=\"#8E5F0B\" stroke-width=\"2\" stroke-linejoin=\"round\"><path d=\"M186 98 C178 42 230 2 308 2 C282 18 260 34 246 56 C266 52 282 48 294 48 C260 66 226 86 186 98 Z\" fill=\"url(#akGw)\"/><path d=\"M196 90.0 C220 56 250 34.0 286 24.0\" fill=\"none\" stroke=\"#B07A12\" stroke-width=\"1.3\" opacity=\".8\"/><path d=\"M206 84.0 C230 46 260 31.0 286 21.5\" fill=\"none\" stroke=\"#B07A12\" stroke-width=\"1.3\" opacity=\".8\"/><path d=\"M216 78.0 C240 36 270 28.0 286 19.0\" fill=\"none\" stroke=\"#B07A12\" stroke-width=\"1.3\" opacity=\".8\"/><path d=\"M174 152 C170 122 180 100 194 96 C206 102 212 122 216 138 L224 152 Z\" fill=\"url(#akG)\"/><path d=\"M200 106 C214 112 224 118 230 126\" fill=\"none\" stroke=\"#B07A12\" stroke-width=\"5\" stroke-linecap=\"round\"/><ellipse cx=\"202\" cy=\"82\" rx=\"12\" ry=\"13\" fill=\"url(#akGt)\"/><path d=\"M210 80 l6 3\" stroke=\"#8E5F0B\" stroke-width=\"2\"/><path d=\"M412 98 C420 42 368 2 290 2 C316 18 338 34 352 56 C332 52 316 48 304 48 C338 66 372 86 412 98 Z\" fill=\"url(#akGw)\"/><path d=\"M402 90.0 C378 56 348 34.0 312 24.0\" fill=\"none\" stroke=\"#B07A12\" stroke-width=\"1.3\" opacity=\".8\"/><path d=\"M392 84.0 C368 46 338 31.0 312 21.5\" fill=\"none\" stroke=\"#B07A12\" stroke-width=\"1.3\" opacity=\".8\"/><path d=\"M382 78.0 C358 36 328 28.0 312 19.0\" fill=\"none\" stroke=\"#B07A12\" stroke-width=\"1.3\" opacity=\".8\"/><path d=\"M424 152 C428 122 418 100 404 96 C392 102 386 122 382 138 L374 152 Z\" fill=\"url(#akG)\"/><path d=\"M398 106 C384 112 374 118 368 126\" fill=\"none\" stroke=\"#B07A12\" stroke-width=\"5\" stroke-linecap=\"round\"/><ellipse cx=\"396\" cy=\"82\" rx=\"12\" ry=\"13\" fill=\"url(#akGt)\"/><path d=\"M388 80 l-6 3\" stroke=\"#8E5F0B\" stroke-width=\"2\"/></g></svg>";
+const ARK_REPS=5; /* 한 단계를 5번 마치면 조각 하나 (2026-10-09: 한 번으로는 자리가 익지 않음) */
+const ARK_BLESS='한 글자 한 글자 반복하신 손끝에 하나님의 복이 함께하시길 기도합니다.';
+const ARK_BLESS_DONE='끝까지 반복하신 인내로 황금 언약궤를 완성하셨어요. 이제 그 손으로 말씀을 마음껏 쓰시길 기도합니다.';
+let ARK_N=0;
+function arkCnt(){return LESSONS.map(l=>Math.min(ARK_REPS,S.lessons[l.id]||0))}
+function arkGot(){return arkCnt().map(c=>c>=ARK_REPS)}
+function arkSvg(got,newK){ /* newK: 방금 완성된 조각 번호(1~6). 덜 찬 조각은 횟수만큼 금빛이 차오름 */
+  const cnt=arkCnt();
+  const pf='k'+(ARK_N++)+'_',d=document.createElement('div');
+  d.innerHTML=ARK_SVG.replace(/\b(ak[A-Z][A-Za-z]*)/g,pf+'$1'); /* 그림이 여러 장 있어도 색이 섞이지 않게 이름을 따로 */
+  const all=got.every(Boolean);
+  d.querySelectorAll('.p').forEach(g=>{const k=+[...g.classList].find(c=>/^p\d$/.test(c)).slice(1);
+    const on=k===7?all:got[k-1];g.classList.toggle('off',!on);if(on&&(k===newK||(k===7&&all&&newK)))g.classList.add('new');
+    if(!on&&k<7&&cnt[k-1]>0){g.classList.remove('off');g.style.opacity=(.22+.13*cnt[k-1]).toFixed(2);g.style.filter=`grayscale(${(1-cnt[k-1]/ARK_REPS).toFixed(2)})`}});
+  return d.innerHTML;
+}
+function renderArkHome(){
+  const got=arkGot(),n=got.filter(Boolean).length,next=got.indexOf(false);
+  $('arkHomePic').innerHTML=arkSvg(got,0);
+  $('arkHomeTxt').innerHTML=n>=6?'자리 익히기 6단계를 모두 마쳐 황금 언약궤를 <b>완성</b>하셨어요! 🎉'
+    :`자리 익히기 6단계를 <b>${ARK_REPS}번씩</b> 마치면 언약궤가 완성돼요. <b>${n} / 6 조각</b>`;
+  $('arkHomeList').innerHTML=LESSONS.map((l,i)=>{const c=arkCnt()[i];return `<li class="${c>=ARK_REPS?'ok':''}"><span>${i+1}. ${l.name}</span><span class="dots">${'●'.repeat(c)}${'○'.repeat(ARK_REPS-c)}</span><span class="st">${c>=ARK_REPS?'조각 완성 ✓':c+' / '+ARK_REPS}</span></li>`}).join('');
+}
 function renderLessons(){
   $('lessons').innerHTML=LESSONS.map((l,i)=>{const n=S.lessons[l.id]||0;
     return `<button data-i="${i}" class="${n?'full':''}"><b>${i+1}. ${l.name}</b><span class="k">${l.keys||'전체'}</span><span style="color:var(--soft);font-size:17px">${l.desc}</span><span class="prog">${n?`✓ ${n}번 마침`:'아직 안 함'}</span></button>`}).join('');
   $('lessons').querySelectorAll('button').forEach(b=>b.onclick=()=>startLesson(+b.dataset.i));
-  renderStat();show('lessonHome');
+  renderArkHome();renderStat();show('lessonHome');
 }
 function startLesson(i){
   const l=LESSONS[i],nw=[...(l.keys||ALLJ)],old=[...LESSONS.slice(0,i).map(x=>x.keys).join('')];
@@ -1207,7 +1251,7 @@ function showResult(o){
   show('result');$('rNext').focus();
   if(o.party||hit)celebrate({title:o.partyTitle||(hit&&!o.party?`${fmt(hit)}점 돌파!`:'축하합니다!'),
     what:(o.party?[o.party]:[]).concat(hit?[`모은 점수가 <em>${fmt(hit)}점</em>을 넘었어요!`]:[]),
-    bless:o.partyBless||(o.party?BLESS_DONE:BLESS_SCORE),confetti:o.rec.better||!!hit||o.bigParty});
+    bless:o.partyBless||(o.party?BLESS_DONE:BLESS_SCORE),ark:o.ark,confetti:o.rec.better||!!hit||o.bigParty});
 }
 $('rAgain').onclick=()=>LAST.onAgain();
 $('rNext').onclick=()=>LAST.onNext();
@@ -1215,11 +1259,17 @@ $('rSpeak').onclick=()=>LAST&&LAST.verse&&speak(LAST.verse);
 
 function finishLesson(){
   const l=L.l,first=!S.lessons[l.id];S.lessons[l.id]=(S.lessons[l.id]||0)+1;
+  const arkC=S.lessons[l.id],arkNow=arkC===ARK_REPS,arkAll=arkNow&&arkGot().every(Boolean);
+  const arkCheer=arkC<ARK_REPS?[`<div class="arkmini">${arkSvg(arkGot(),0)}<div><b>언약궤 ${L.i+1}번째 조각 ${arkC} / ${ARK_REPS}</b>${'●'.repeat(arkC)}${'○'.repeat(ARK_REPS-arkC)} ${ARK_REPS-arkC===1?'한 번만 더 하시면 조각이 완성돼요!':(ARK_REPS-arkC)+'번 더 하시면 조각이 완성돼요.'}</div></div>`]:[];
   const rec=record('lesson',L.m),parts=['연습 마침 10'];let pts=10;if(first){pts+=5;parts.push('처음 마친 연습 5')}
   hint(null);
   showResult({title:`${L.i+1}. ${eulReul(l.name)} 마치셨어요!`,ref:'',m:L.m,pts,parts,rec,
     again:'한 번 더',next:L.i<LESSONS.length-1?`다음 연습 (${LESSONS[L.i+1].name})`:'2단계 낱말 쓰기로',
-    party:first&&L.i===LESSONS.length-1?'자판 자리를 <em>모두</em> 익히셨어요. 이제 말씀 낱말을 하나씩 써 봐요!':null,bigParty:true,
+    party:arkNow?(arkAll?'자리 익히기 6단계를 모두 마쳐 <em>황금 언약궤</em>가 완성되었어요!'+(L.i===LESSONS.length-1?'<br>이제 말씀 낱말을 하나씩 써 봐요!':''):`${L.i+1}. ${l.name} <em>${ARK_REPS}번</em>을 모두 마치셨어요!<br>언약궤 <em>${L.i+1}번째 조각</em>을 받으셨어요. (${arkGot().filter(Boolean).length} / 6)`):null,
+    partyTitle:arkNow?(arkAll?'황금 언약궤 완성!':`${l.name} 완성!`):null,
+    partyBless:arkNow?(arkAll?ARK_BLESS_DONE:ARK_BLESS):null,
+    ark:arkNow?arkSvg(arkGot(),L.i+1):null,bigParty:true,
+    cheersBefore:arkCheer,
     onAgain:()=>startLesson(L.i),onNext:()=>L.i<LESSONS.length-1?startLesson(L.i+1):renderWordHome()});
 }
 function finishManna(){
@@ -1280,7 +1330,7 @@ function showSession(){
 let PENDING_NEXT=false;
 /* ---------- 축하: 나팔 소리 + 꽃가루 ---------- */
 function celebrate(o){
-  $('pBig').textContent=o.title;$('pWhat').innerHTML=o.what.join('<br>');$('pBless').textContent=o.bless;
+  $('pBig').textContent=o.title;$('pArk').innerHTML=o.ark||'';$('pWhat').innerHTML=o.what.join('<br>');$('pBless').textContent=o.bless;
   $('party').classList.remove('hide');$('pClose').focus();
   if(S.sound!==false)fanfare();
   if(o.confetti)confetti();
