@@ -555,15 +555,22 @@ function certSpaced(c,t,x,y,sp,align){ /* 글자 사이를 띄워 쓰기 */
 }
 function certWrap(c,t,maxW){const out=[];let line='';for(const w of t.split(' ')){const tt=line?line+' '+w:w;if(c.measureText(tt).width>maxW&&line){out.push(line);line=w}else line=tt}if(line)out.push(line);return out}
 function drawCert(cv,o){
-  const c=cv.getContext('2d'),W=cv.width,H=cv.height,NAVY='#1E2A46',GOLD='#B07F22',GOLD2='#D9B25A',INK='#2A2436';
+  const c=cv.getContext('2d'),W=cv.width,H=cv.height,GOLD='#B07F22',GOLD2='#D9B25A',INK='#2A2436';
+  /* 금메달 수에 따라 세 단계 (2026-10-10): 1~2개 인증서(남색), 3~4개 명예 인증서(금박), 5개부터 으뜸 인증서(진홍·금) */
+  const T=o.n>=5?{k:2,title:'말씀 암송 으뜸 인증서',fs:74,sp:8,frame:'#7A1426',ink:'#5A0F1C',paper:['#FDF7EA','#F9EDD6','#F0DDB8']}
+         :o.n>=3?{k:1,title:'말씀 암송 명예 인증서',fs:74,sp:8,frame:'#9A6A12',ink:'#3A2A0C',paper:['#FEF9EA','#FAF0D6','#F2E2BC']}
+         :{k:0,title:'말씀 암송 인증서',fs:88,sp:14,frame:'#1E2A46',ink:'#1E2A46',paper:['#FCF8EC','#F8F0DC','#F1E5C8']};
+  const NAVY=T.frame;
   let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
   c.save();c.clearRect(0,0,W,H);
   /* 한지 */
-  let g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,'#FCF8EC');g.addColorStop(.5,'#F8F0DC');g.addColorStop(1,'#F1E5C8');c.fillStyle=g;c.fillRect(0,0,W,H);
+  let g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,T.paper[0]);g.addColorStop(.5,T.paper[1]);g.addColorStop(1,T.paper[2]);c.fillStyle=g;c.fillRect(0,0,W,H);
   for(let i=0;i<1400;i++){const x=rnd()*W,y=rnd()*H,l=8+rnd()*34,a=rnd()*Math.PI;c.strokeStyle=`rgba(150,115,60,${.025+rnd()*.05})`;c.lineWidth=.6+rnd()*1.1;c.beginPath();c.moveTo(x,y);c.quadraticCurveTo(x+Math.cos(a)*l/2+rnd()*6,y+Math.sin(a)*l/2+rnd()*6,x+Math.cos(a)*l,y+Math.sin(a)*l);c.stroke()}
   g=c.createRadialGradient(W/2,H/2,H*.25,W/2,H/2,H*.75);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(150,105,40,.16)');c.fillStyle=g;c.fillRect(0,0,W,H);
   /* 겹테두리 */
   c.strokeStyle=NAVY;c.lineWidth=12;c.strokeRect(34,34,W-68,H-68);
+  if(T.k){const fg=c.createLinearGradient(0,0,W,H);fg.addColorStop(0,'#F7DE8E');fg.addColorStop(.35,'#C9972F');fg.addColorStop(.65,'#F2D27A');fg.addColorStop(1,'#9A6A12');
+    c.strokeStyle=fg;c.lineWidth=T.k===2?10:7;c.strokeRect(46,46,W-92,H-92);}
   c.strokeStyle=GOLD;c.lineWidth=3;c.strokeRect(56,56,W-112,H-112);c.lineWidth=1.4;c.strokeRect(64,64,W-128,H-128);
   /* 뇌문 띠 */
   const b0=72,b1=124,ks=34;
@@ -599,7 +606,7 @@ function drawCert(cv,o){
   /* 번호 */
   c.fillStyle=NAVY;c.font=`400 30px ${CERT_BF}`;certSpaced(c,`제 ${o.n} 호`,175,236,3,'left');
   /* 제목 */
-  c.fillStyle=NAVY;c.font=`800 88px ${CERT_TF}`;certSpaced(c,'말씀 암송 인증서',W/2,500,14);
+  c.fillStyle=T.ink;c.font=`800 ${T.fs}px ${CERT_TF}`;certSpaced(c,T.title,W/2,500,T.sp);
   c.strokeStyle=GOLD;c.lineWidth=2;c.beginPath();c.moveTo(W/2-330,540);c.lineTo(W/2-24,540);c.moveTo(W/2+24,540);c.lineTo(W/2+330,540);c.stroke();
   c.fillStyle=GOLD;c.save();c.translate(W/2,540);c.rotate(Math.PI/4);c.fillRect(-9,-9,18,18);c.restore();
   c.font=`700 30px ${CERT_BF}`;c.fillStyle='#7A5A1E';certSpaced(c,`${o.game} 금메달`,W/2,592,6);
@@ -609,8 +616,9 @@ function drawCert(cv,o){
   c.strokeStyle=GOLD;c.lineWidth=1.5;c.beginPath();c.moveTo(430,724);c.lineTo(W-250,724);c.stroke();
   /* 본문 */
   c.fillStyle=INK;c.font=`400 39px ${CERT_BF}`;
-  const body=`위 사람은 mybible365 「${o.game}」에서 쉬움·보통·어려움 세 단계의 말씀 ${o.verses}절을 끝까지 마치고 ${o.n}번째 금메달을 받았습니다. 날마다 말씀을 마음에 새긴 그 믿음과 수고를 기리어 이 인증서를 드립니다.`;
-  certWrap(c,body,W-2*230).forEach((ln,i)=>{c.textAlign='left';c.fillText(ln,230,812+i*66)});
+  const body=`위 사람은 mybible365 「${o.game}」에서 쉬움·보통·어려움 세 단계의 말씀 ${o.verses}절을 끝까지 마치고 ${o.n}번째 금메달을 받았습니다. ${T.k===2?'쉬지 않고 말씀을 새겨 온 그 믿음이 모두의 본이 되기에 이 으뜸 인증서를 드립니다.':T.k===1?'날마다 말씀을 새겨 온 그 꾸준한 믿음을 기리어 이 명예 인증서를 드립니다.':'날마다 말씀을 마음에 새긴 그 믿음과 수고를 기리어 이 인증서를 드립니다.'}`;
+  let bfs=39,lines=certWrap(c,body,W-2*230);while(lines.length>5&&bfs>32){bfs-=1;c.font=`400 ${bfs}px ${CERT_BF}`;lines=certWrap(c,body,W-2*230)}
+  const lh=lines.length>5?56:66;lines.forEach((ln,i)=>{c.textAlign='left';c.fillText(ln,230,812+i*lh)});
   /* 말씀 */
   const vy=1124;c.fillStyle='rgba(176,127,34,.08)';c.strokeStyle=GOLD;c.lineWidth=1.5;c.beginPath();c.roundRect?c.roundRect(230,vy,W-460,170,14):c.rect(230,vy,W-460,170);c.fill();c.stroke();
   c.fillStyle=NAVY;c.font=`400 37px ${CERT_BF}`;c.textAlign='center';c.fillText('내가 주께 범죄치 아니하려 하여',W/2,vy+62);c.fillText('주의 말씀을 내 마음에 두었나이다',W/2,vy+112);
@@ -624,7 +632,7 @@ function drawCert(cv,o){
   const mg=c.createRadialGradient(mx-24,my-30,10,mx,my,96);mg.addColorStop(0,'#FFF1BE');mg.addColorStop(.45,'#E8BE55');mg.addColorStop(1,'#9A6A12');
   c.fillStyle=mg;c.beginPath();for(let k=0;k<64;k++){const a=k/64*Math.PI*2,r=k%2?82:94;c.lineTo(mx+Math.cos(a)*r,my+Math.sin(a)*r)}c.closePath();c.fill();
   c.strokeStyle='#FFF4D2';c.lineWidth=2;c.beginPath();c.arc(mx,my,70,0,Math.PI*2);c.stroke();c.strokeStyle='#8E6416';c.lineWidth=1.5;c.beginPath();c.arc(mx,my,62,0,Math.PI*2);c.stroke();
-  c.fillStyle='#6E4A0C';c.font=`800 34px ${CERT_TF}`;c.textAlign='center';c.fillText('금메달',mx,my+2);c.font=`700 24px ${CERT_BF}`;c.fillText(`제 ${o.n} 호`,mx,my+36);
+  c.fillStyle='#6E4A0C';c.font=`800 34px ${CERT_TF}`;c.textAlign='center';c.fillText(T.k===2?'으 뜸':T.k===1?'명 예':'금메달',mx,my+2);c.font=`700 24px ${CERT_BF}`;c.fillText(`제 ${o.n} 호`,mx,my+36);
   c.fillRect(mx-4,my-52,8,26);c.fillRect(mx-12,my-45,24,7);
   /* 수여 */
   c.fillStyle=INK;c.textAlign='center';c.font=`700 38px ${CERT_TF}`;certSpaced(c,'mybible365 말씀 앱',W/2+40,1470,4);
