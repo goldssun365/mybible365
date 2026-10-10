@@ -284,7 +284,7 @@ h2.sec{font-family:var(--serif);font-size:24px;margin:28px 0 4px}
     컴퓨터 고장이나 브라우저 정리로 기록이 사라질 수 있으니 처음 화면 아래 ‘💾 기록 백업 받기’를 가끔 해 두세요.<br>
     함께 쓰면 좋은 말씀 앱: 말씀 순서 맞추기 → 말씀 타자 연습 → 성경필사노트<br>
     <span class="credit">오직 하나님께 영광 · 만든 이 김명구 집사</span><br>
-    <span style="font-size:13px">말씀 순서 맞추기 · 2026년 10월 9일 판</span>
+    <span style="font-size:13px">말씀 순서 맞추기 · 2026년 10월 10일 판</span>
   </footer>
 </div>
 <script>
@@ -325,7 +325,7 @@ const P={verse:10,clean:5,first:5,theme:30,pass:50};
 
 /* ---------- 저장 (이 기기 브라우저 안에만) ---------- */
 const SKEY='malsseumOrder:v1';
-const DEF=()=>({game:'order',bsolved:{},lvSolved:{},level:'easy',preview:true,fs:26,solved:{},days:{},score:0,dayScore:{},seen:[],bdone:{},queues:{},sound:true});
+const DEF=()=>({game:'order',bsolved:{},blvSolved:{},bscore:0,bdayScore:{},bseen:[],bdays:{},lvSolved:{},level:'easy',preview:true,fs:26,solved:{},days:{},score:0,dayScore:{},seen:[],bdone:{},queues:{},sound:true});
 let S=DEF();
 try{const raw=localStorage.getItem(SKEY);if(raw)S={...S,...JSON.parse(raw)}}catch(e){}
 function normalize(){
@@ -333,12 +333,26 @@ delete S.queue; // 예전 판의 순서표는 말씀 수가 달라져 버림
 if(!S.queues||typeof S.queues!=='object')S.queues={};
 if(!S.bsolved||typeof S.bsolved!=='object')S.bsolved={};
 if(S.game!=='blank')S.game='order';
+for(const [k,v] of [['blvSolved',{}],['bdayScore',{}],['bdays',{}],['lvSolved',{}],['dayScore',{}],['days',{}]])if(!S[k]||typeof S[k]!=='object')S[k]=v;
+if(!Array.isArray(S.bseen))S.bseen=[];if(!Array.isArray(S.seen))S.seen=[];if(typeof S.bscore!=='number')S.bscore=0;
+if(S.gsplit!==1){ /* 2026-10-10 전에는 두 놀이가 점수·선물을 함께 셌음 → 나눔.
+   선물: 빈칸 채우기에서만 맞춘 말씀은 빈칸 쪽, 순서 맞추기에서만 맞춘 말씀은 순서 쪽, 둘 다 맞춘 말씀은 빈칸 쪽(빈칸 채우기가 나중에 생겼으므로)
+   점수: 빈칸 채우기 점수를 맞춘 횟수로 어림해(한 번 10점 + 처음 5점 + 주제 완성 덤) 순서 맞추기 점수에서 떼어 옮김 */
+  const bs=S.bsolved||{},os=S.solved||{};
+  for(const lv in S.lvSolved){const o={},b={};for(const k in S.lvSolved[lv]){if(bs[k])b[k]=1;else o[k]=1}S.lvSolved[lv]=o;if(Object.keys(b).length)S.blvSolved[lv]=b}
+  let e=0;for(const k in bs)e+=(+bs[k]||1)*P.verse+P.first;
+  for(const id in (S.bdone||{}))if(id.startsWith('b:')){const b=BUN.find(x=>'b:'+x.id===id);if(b)e+=b.kind==='pass'?P.pass:P.theme}
+  e=Math.min(e,S.score||0);S.bscore=e;S.score=(S.score||0)-e;
+  S.bseen=MILESTONES.filter(m=>m<=S.bscore);
+  S.gsplit=1;
+}
 if(S.qv!==2){for(const k in S.queues)if(k!=='mixEasy')delete S.queues[k];S.qv=2} /* 2026-10-09 점점 어려워지는 순서로 바꿈 */
 }
 normalize();
 function save(){try{localStorage.setItem(SKEY,JSON.stringify(S))}catch(e){}}
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
-/* 두 놀이는 점수와 선물은 함께 모으고, 맞춘 말씀·주제 완료·순서표는 따로 셈 */
+/* 두 놀이는 모든 것을 따로 셈 (2026-10-10): 점수·오늘 점수·점수 축하·단계 선물·맞춘 말씀·주제 완료·순서표. 빈칸 채우기 쪽 저장 이름은 b를 붙임 */
+const GK=n=>isB()?'b'+n:n;
 const isB=()=>S.game==='blank';
 const SV=()=>isB()?S.bsolved:S.solved;
 const bdk=id=>isB()?'b:'+id:id;
@@ -348,7 +362,7 @@ const bProg=b=>b.r.reduce((n,i)=>n+(SV()[keyOf(V[i])]?1:0),0);
 const fmt=n=>n.toLocaleString('ko-KR');
 
 function renderStat(){
-  $('stat').innerHTML=`오늘 <b>${fmt(S.dayScore[today()]||0)}점</b> &nbsp;|&nbsp; 모은 점수 <b>${fmt(S.score)}점</b> &nbsp;|&nbsp; ${isB()?'빈칸 채운 말씀':'전체 맞춘 말씀'} <b>${solvedCount()}개</b> / ${isB()?BLANK_N:V.length}개`;
+  $('stat').innerHTML=`오늘 <b>${fmt(S[GK('dayScore')][today()]||0)}점</b> &nbsp;|&nbsp; ${isB()?'빈칸 채우기':'순서 맞추기'} 점수 <b>${fmt(S[GK('score')])}점</b> &nbsp;|&nbsp; ${isB()?'빈칸 채운 말씀':'전체 맞춘 말씀'} <b>${solvedCount()}개</b> / ${isB()?BLANK_N:V.length}개`;
 }
 const eulReul=w=>{const c=w.charCodeAt(w.length-1)-0xAC00;return c>=0&&c<11172&&c%28?'을':'를'};
 /* 주제·이어지는 말씀을 할 때만 보이는 진행 줄 */
@@ -375,7 +389,7 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 
 /* ---------- 단계마다 선물 (2026-10-09) ----------
    쉬움 = 야곱의 사다리(창 28:12, 별밤, 12칸), 보통 = 대제사장의 흉패 열두 보석(출 28:17~21 순서, 배경은 성소 안: 청색·자색·홍색 휘장과 금 등대), 어려움 = 새 예루살렘 열두 기초석(계 21:19~21 순서, 배경은 푸른 초원, 완성 때 생명수 강과 생명나무 계 22:1~2).
-   그 단계를 고르고 처음 맞춘 말씀만 그 단계 선물에 셈(S.lvSolved[단계][말씀]). 그 단계 말씀 수의 1/12마다 한 조각.
+   그 단계를 고르고 처음 맞춘 말씀만 그 단계 선물에 셈(순서 맞추기 S.lvSolved, 빈칸 채우기 S.blvSolved — 2026-10-10부터 따로). 그 단계 말씀 수의 1/12마다 한 조각.
    그림 GIFT_SVG(조각 data-k 0~11, 완성 .fin / 미리 흐리게 보이는 성벽 .fin2) */
 const GIFT={
  easy:{name:'야곱의 사다리',unit:'칸',svg:"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 420\" class=\"gift\" role=\"img\" aria-label=\"야곱의 사다리\">\n<defs><linearGradient id=\"gfSky\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#1F2A5A\"/><stop offset=\".7\" stop-color=\"#3A4E8C\"/><stop offset=\"1\" stop-color=\"#6A7FB8\"/></linearGradient>\n<linearGradient id=\"gfWood\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#8A5A2E\"/><stop offset=\".5\" stop-color=\"#C08A52\"/><stop offset=\"1\" stop-color=\"#7A4D27\"/></linearGradient>\n<radialGradient id=\"gfGate\" cx=\".5\" cy=\".5\" r=\".5\"><stop offset=\"0\" stop-color=\"#FFF7D6\"/><stop offset=\".55\" stop-color=\"#FFE08A\" stop-opacity=\".8\"/><stop offset=\"1\" stop-color=\"#FFE08A\" stop-opacity=\"0\"/></radialGradient></defs>\n<rect x=\"0\" y=\"0\" width=\"600\" height=\"420\" rx=\"16\" fill=\"url(#gfSky)\"/>\n<circle cx=\"253\" cy=\"286\" r=\"1\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"495\" cy=\"41\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"490\" cy=\"140\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"206\" cy=\"248\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"497\" cy=\"211\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"247\" cy=\"85\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"25\" cy=\"40\" r=\"1\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"53\" cy=\"162\" r=\"1\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"494\" cy=\"206\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"414\" cy=\"235\" r=\"1\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"109\" cy=\"26\" r=\"1\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"232\" cy=\"140\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"318\" cy=\"223\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"369\" cy=\"281\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"247\" cy=\"180\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"296\" cy=\"91\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"564\" cy=\"300\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"226\" cy=\"144\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"74\" cy=\"254\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"100\" cy=\"184\" r=\"1\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"164\" cy=\"18\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"435\" cy=\"68\" r=\"1\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"56\" cy=\"201\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"348\" cy=\"290\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"251\" cy=\"26\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"88\" cy=\"63\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"42\" cy=\"109\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"279\" cy=\"87\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"357\" cy=\"168\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"396\" cy=\"200\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"405\" cy=\"294\" r=\"1\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"529\" cy=\"146\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"253\" cy=\"162\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"543\" cy=\"163\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"21\" cy=\"220\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"30\" cy=\"200\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"146\" cy=\"38\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"350\" cy=\"246\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"371\" cy=\"150\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"32\" cy=\"39\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"388\" cy=\"136\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"315\" cy=\"171\" r=\"1\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"199\" cy=\"168\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"280\" cy=\"161\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"37\" cy=\"299\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"144\" cy=\"166\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"285\" cy=\"130\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"455\" cy=\"57\" r=\"1\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"339\" cy=\"178\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"458\" cy=\"94\" r=\"1\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"233\" cy=\"299\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"240\" cy=\"69\" r=\"1\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"205\" cy=\"169\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"295\" cy=\"182\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"363\" cy=\"74\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"540\" cy=\"146\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"0.8\"/><circle cx=\"436\" cy=\"156\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"429\" cy=\"26\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"0.6\"/><circle cx=\"214\" cy=\"10\" r=\"1.3\" fill=\"#FFF8D8\" opacity=\"1\"/><circle cx=\"532\" cy=\"230\" r=\"1.8\" fill=\"#FFF8D8\" opacity=\"1\"/>\n<path d=\"M0 380 Q300 360 600 384 L600 420 L0 420 Z\" fill=\"#3B4A3A\"/>\n<g><ellipse cx=\"150\" cy=\"384\" rx=\"20\" ry=\"10\" fill=\"#8C8C84\"/><ellipse cx=\"190\" cy=\"388\" rx=\"42\" ry=\"11\" fill=\"#A07A50\"/><circle cx=\"160\" cy=\"376\" r=\"9\" fill=\"#E6C19A\"/></g>\n<g class=\"u\" data-k=\"0\"><polygon points=\"228.0,372.0 240.0,372.0 242.8,344.8 233.8,344.8\" fill=\"url(#gfWood)\"/><polygon points=\"360.0,372.0 372.0,372.0 366.2,344.8 357.2,344.8\" fill=\"url(#gfWood)\"/><rect x=\"238.1\" y=\"352.6\" width=\"123.8\" height=\"9\" rx=\"4\" fill=\"#D9A867\" stroke=\"#6E4522\" stroke-width=\"1\"/></g>\n<g class=\"u\" data-k=\"1\"><polygon points=\"231.8,344.8 243.8,344.8 246.7,317.7 237.7,317.7\" fill=\"url(#gfWood)\"/><polygon points=\"356.2,344.8 368.2,344.8 362.3,317.7 353.3,317.7\" fill=\"url(#gfWood)\"/><rect x=\"241.9\" y=\"325.4\" width=\"116.1\" height=\"9\" rx=\"4\" fill=\"#D9A867\" stroke=\"#6E4522\" stroke-width=\"1\"/></g>\n<g class=\"u\" data-k=\"2\"><polygon points=\"235.7,317.7 247.7,317.7 250.5,290.5 241.5,290.5\" fill=\"url(#gfWood)\"/><polygon points=\"352.3,317.7 364.3,317.7 358.5,290.5 349.5,290.5\" fill=\"url(#gfWood)\"/><rect x=\"245.8\" y=\"298.2\" width=\"108.5\" height=\"9\" rx=\"4\" fill=\"#D9A867\" stroke=\"#6E4522\" stroke-width=\"1\"/></g>\n<g class=\"u\" data-k=\"3\"><polygon points=\"239.5,290.5 251.5,290.5 254.3,263.3 245.3,263.3\" fill=\"url(#gfWood)\"/><polygon points=\"348.5,290.5 360.5,290.5 354.7,263.3 345.7,263.3\" fill=\"url(#gfWood)\"/><rect x=\"249.6\" y=\"271.1\" width=\"100.8\" height=\"9\" rx=\"4\" fill=\"#D9A867\" stroke=\"#6E4522\" stroke-width=\"1\"/></g>\n<g class=\"u\" data-k=\"4\"><polygon points=\"243.3,263.3 255.3,263.3 258.2,236.2 249.2,236.2\" fill=\"url(#gfWood)\"/><polygon points=\"344.7,263.3 356.7,263.3 350.8,236.2 341.8,236.2\" fill=\"url(#gfWood)\"/><rect x=\"253.4\" y=\"243.9\" width=\"93.1\" height=\"9\" rx=\"4\" fill=\"#D9A867\" stroke=\"#6E4522\" stroke-width=\"1\"/></g>\n<g class=\"u\" data-k=\"5\"><polygon points=\"247.2,236.2 259.2,236.2 262.0,209.0 253.0,209.0\" fill=\"url(#gfWood)\"/><polygon points=\"340.8,236.2 352.8,236.2 347.0,209.0 338.0,209.0\" fill=\"url(#gfWood)\"/><rect x=\"257.3\" y=\"216.7\" width=\"85.5\" height=\"9\" rx=\"4\" fill=\"#D9A867\" stroke=\"#6E4522\" stroke-width=\"1\"/></g>\n<g class=\"u\" data-k=\"6\"><polygon points=\"251.0,209.0 263.0,209.0 265.8,181.8 256.8,181.8\" fill=\"url(#gfWood)\"/><polygon points=\"337.0,209.0 349.0,209.0 343.2,181.8 334.2,181.8\" fill=\"url(#gfWood)\"/><rect x=\"261.1\" y=\"189.6\" width=\"77.8\" height=\"9\" rx=\"4\" fill=\"#D9A867\" stroke=\"#6E4522\" stroke-width=\"1\"/></g>\n<g class=\"u\" data-k=\"7\"><polygon points=\"254.8,181.8 266.8,181.8 269.7,154.7 260.7,154.7\" fill=\"url(#gfWood)\"/><polygon points=\"333.2,181.8 345.2,181.8 339.3,154.7 330.3,154.7\" fill=\"url(#gfWood)\"/><rect x=\"264.9\" y=\"162.4\" width=\"70.1\" height=\"9\" rx=\"4\" fill=\"#D9A867\" stroke=\"#6E4522\" stroke-width=\"1\"/></g>\n<g class=\"u\" data-k=\"8\"><polygon points=\"258.7,154.7 270.7,154.7 273.5,127.5 264.5,127.5\" fill=\"url(#gfWood)\"/><polygon points=\"329.3,154.7 341.3,154.7 335.5,127.5 326.5,127.5\" fill=\"url(#gfWood)\"/><rect x=\"268.8\" y=\"135.2\" width=\"62.5\" height=\"9\" rx=\"4\" fill=\"#D9A867\" stroke=\"#6E4522\" stroke-width=\"1\"/></g>\n<g class=\"u\" data-k=\"9\"><polygon points=\"262.5,127.5 274.5,127.5 277.3,100.3 268.3,100.3\" fill=\"url(#gfWood)\"/><polygon points=\"325.5,127.5 337.5,127.5 331.7,100.3 322.7,100.3\" fill=\"url(#gfWood)\"/><rect x=\"272.6\" y=\"108.1\" width=\"54.8\" height=\"9\" rx=\"4\" fill=\"#D9A867\" stroke=\"#6E4522\" stroke-width=\"1\"/></g>\n<g class=\"u\" data-k=\"10\"><polygon points=\"266.3,100.3 278.3,100.3 281.2,73.2 272.2,73.2\" fill=\"url(#gfWood)\"/><polygon points=\"321.7,100.3 333.7,100.3 327.8,73.2 318.8,73.2\" fill=\"url(#gfWood)\"/><rect x=\"276.4\" y=\"80.9\" width=\"47.1\" height=\"9\" rx=\"4\" fill=\"#D9A867\" stroke=\"#6E4522\" stroke-width=\"1\"/></g>\n<g class=\"u\" data-k=\"11\"><polygon points=\"270.2,73.2 282.2,73.2 285.0,46.0 276.0,46.0\" fill=\"url(#gfWood)\"/><polygon points=\"317.8,73.2 329.8,73.2 324.0,46.0 315.0,46.0\" fill=\"url(#gfWood)\"/><rect x=\"280.3\" y=\"53.7\" width=\"39.5\" height=\"9\" rx=\"4\" fill=\"#D9A867\" stroke=\"#6E4522\" stroke-width=\"1\"/></g>\n<g class=\"fin\"><ellipse cx=\"300\" cy=\"40\" rx=\"150\" ry=\"64\" fill=\"url(#gfGate)\"/><path d=\"M262 64 V30 Q300 -6 338 30 V64\" fill=\"none\" stroke=\"#FFE9A3\" stroke-width=\"5\"/><text x=\"232\" y=\"170\" font-size=\"30\">👼</text><text x=\"330\" y=\"250\" font-size=\"30\">👼</text><text x=\"250\" y=\"320\" font-size=\"28\">👼</text></g>\n</svg>",
@@ -396,9 +410,13 @@ const GIFT_N=12;
 function giftPool(lv){const minW={easy:1,mid:5,hard:8}[lv]||1,L=LEVELS.find(l=>l.id===lv)||LEVELS[0],n=lv==='easy'?(D.N||V.length):V.length;
   let c=0;for(let i=0;i<n;i++)if(V[i][3].split(/\s+/).length>=minW&&V[i][3].length<=L.maxLen)c++;return c}
 const GIFT_POOL={easy:giftPool('easy'),mid:giftPool('mid'),hard:giftPool('hard')};
-const giftCnt=lv=>Math.min(GIFT_POOL[lv],Object.keys((S.lvSolved||{})[lv]||{}).length);
-const giftShown=(lv,c)=>Math.floor(Math.min(1,(c==null?giftCnt(lv):c)/GIFT_POOL[lv])*GIFT_N);
-const giftLeft=lv=>{const sh=giftShown(lv);return sh>=GIFT_N?0:Math.ceil((sh+1)*GIFT_POOL[lv]/GIFT_N)-giftCnt(lv)};
+/* 빈칸 채우기 선물: 그 단계에서 빈칸을 낼 수 있는 말씀 수를 넘지 않게 (어려움은 194절뿐이라 395절로는 완성할 수 없었음) */
+const GIFT_POOL_B={};for(const lv in GIFT_POOL){const m={easy:1,mid:2,hard:3}[lv];GIFT_POOL_B[lv]=Math.min(GIFT_POOL[lv],KB.filter(k=>k.length>=m).length)}
+const GP=lv=>(isB()?GIFT_POOL_B:GIFT_POOL)[lv];
+const LVS=()=>{const k=GK('lvSolved');if(!S[k]||typeof S[k]!=='object')S[k]={};return S[k]};
+const giftCnt=lv=>Math.min(GP(lv),Object.keys(LVS()[lv]||{}).length);
+const giftShown=(lv,c)=>Math.floor(Math.min(1,(c==null?giftCnt(lv):c)/GP(lv))*GIFT_N);
+const giftLeft=lv=>{const sh=giftShown(lv);return sh>=GIFT_N?0:Math.ceil((sh+1)*GP(lv)/GIFT_N)-giftCnt(lv)};
 let GIFT_I=0;
 function giftSvg(lv,newK){
   const pf='g'+(GIFT_I++)+'_',d=document.createElement('div');d.innerHTML=GIFT[lv].svg.replace(/\b(gf[A-Z][A-Za-z]*)/g,pf+'$1');
@@ -410,8 +428,8 @@ function giftSvg(lv,newK){
 function renderGiftHome(){
   const lv=S.level in GIFT?S.level:'easy',g=GIFT[lv],sh=giftShown(lv),left=giftLeft(lv);
   $('giftPic').innerHTML=giftSvg(lv,-1);
-  $('giftName').textContent=`${(LEVELS.find(l=>l.id===lv)||LEVELS[0]).name} 선물 · ${g.name}`;
-  $('giftTxt').innerHTML=sh>=GIFT_N?`${g.name}을 <b>완성</b>하셨어요! 🎉 다른 단계에도 선물이 있어요.`
+  $('giftName').textContent=`${isB()?'빈칸 채우기':'순서 맞추기'} ${(LEVELS.find(l=>l.id===lv)||LEVELS[0]).name} 선물 · ${g.name}`;
+  $('giftTxt').innerHTML=sh>=GIFT_N?`${g.name}${eulReul(g.name)} <b>완성</b>하셨어요! 🎉 다른 단계에도 선물이 있어요.<br><span style="font-size:16px">순서 맞추기와 빈칸 채우기는 선물을 따로 모아요.</span>`
     :`${g.how} <b style="white-space:nowrap">${sh} / ${GIFT_N}${g.unit}</b><br><span style="font-size:16px">다음 ${g.unit}까지 ${left}절 · 쉬움·보통·어려움마다 선물이 달라요</span>`;
 }
 function renderHome(){
@@ -450,8 +468,8 @@ $('preview').onchange=e=>{S.preview=e.target.checked;save()};
 $('sound').onchange=e=>{S.sound=e.target.checked;save()};
 $('homeBtn').onclick=renderHome;
 $('resetBtn').onclick=()=>{
-  if(!confirm(`모은 점수 ${fmt(S.score)}점과 맞춘 말씀 기록(순서 맞추기 ${V.filter(x=>S.solved[keyOf(x)]).length}개, 빈칸 채우기 ${V.filter(x=>S.bsolved[keyOf(x)]).length}개)이 모두 지워집니다.\n글씨 크기와 단계 같은 설정은 그대로 둡니다.\n\n정말 처음부터 하시겠어요?`))return;
-  S={level:S.level,preview:S.preview,fs:S.fs,sound:S.sound,face:S.face,game:S.game,solved:{},bsolved:{},lvSolved:{},days:{},score:0,dayScore:{},seen:[],bdone:{},queues:{}};
+  if(!confirm(`순서 맞추기(점수 ${fmt(S.score)}점, 맞춘 말씀 ${V.filter(x=>S.solved[keyOf(x)]).length}개)와 빈칸 채우기(점수 ${fmt(S.bscore||0)}점, 채운 말씀 ${V.filter(x=>S.bsolved[keyOf(x)]).length}개)의 기록과 선물이 모두 지워집니다.\n글씨 크기와 단계 같은 설정은 그대로 둡니다.\n\n정말 처음부터 하시겠어요?`))return;
+  S={level:S.level,preview:S.preview,fs:S.fs,sound:S.sound,face:S.face,game:S.game,solved:{},bsolved:{},lvSolved:{},blvSolved:{},days:{},bdays:{},score:0,bscore:0,dayScore:{},bdayScore:{},seen:[],bseen:[],gsplit:1,bdone:{},queues:{}};
   save();applyFace();renderHome();alert('기록을 지웠어요. 처음부터 시작하세요!');
 };
 
@@ -471,7 +489,7 @@ $('restoreFile').onchange=async e=>{
   let o=null;try{o=JSON.parse(await f.text())}catch(_){}
   if(!o||o.app!==SKEY||!o.data||typeof o.data!=='object'){alert(`이 파일은 ${APP_NAME} 백업 파일이 아니에요.\n다운로드 폴더에서 「${APP_NAME}_백업_날짜.json」 파일을 골라 주세요.`);return}
   const d=o.data,when=o.saved?(t=>`${t.getFullYear()}년 ${t.getMonth()+1}월 ${t.getDate()}일`)(new Date(o.saved)):'';
-  if(!confirm(`${when?when+'에 받은 ':''}백업: ${`점수 ${fmt(d.score||0)}점 · 맞춘 말씀 ${Object.keys(d.solved||{}).length}개`}\n지금 기록: ${`점수 ${fmt(S.score||0)}점 · 맞춘 말씀 ${Object.keys(S.solved||{}).length}개`}\n\n지금 기록을 백업 내용으로 바꿀까요?`))return;
+  if(!confirm(`${when?when+'에 받은 ':''}백업: ${`순서 맞추기 ${fmt(d.score||0)}점 · 빈칸 채우기 ${fmt(d.bscore||0)}점`}\n지금 기록: ${`순서 맞추기 ${fmt(S.score||0)}점 · 빈칸 채우기 ${fmt(S.bscore||0)}점`}\n\n지금 기록을 백업 내용으로 바꿀까요?`))return;
   S={...DEF(),...d};normalize();save();applyFs();applyFace();renderHome();alert('기록을 되살렸어요.');
 };
 $('startBtn').onclick=()=>{MODE={type:'mix'};next()};
@@ -649,16 +667,16 @@ $('peekBtn').onclick=()=>{$('msg').className='msg';$('msg').textContent=G.x[3]};
 $('skipBtn').onclick=()=>next();
 
 /* ---------- 다 맞췄을 때: 점수는 늘기만 합니다 ---------- */
-function addScore(n){S.score+=n;const t=today();S.dayScore[t]=(S.dayScore[t]||0)+n}
+function addScore(n){S[GK('score')]+=n;const t=today(),ds=S[GK('dayScore')];ds[t]=(ds[t]||0)+n}
 function finish(){
   const k=keyOf(G.x),sv=SV(),first=!sv[k];
-  sv[k]=(sv[k]||0)+1;const t=today();S.days[t]=(S.days[t]||0)+1;
-  const glv=S.level in GIFT?S.level:'easy';if(!S.lvSolved||typeof S.lvSolved!=='object')S.lvSolved={};if(!S.lvSolved[glv])S.lvSolved[glv]={};
-  let gift=null;if(!S.lvSolved[glv][k]){const b0=giftShown(glv);S.lvSolved[glv][k]=1;const b1=giftShown(glv);if(b1>b0)gift={lv:glv,k:b1-1,all:b1>=GIFT_N}}
+  sv[k]=(sv[k]||0)+1;const t=today(),dy=S[GK('days')];dy[t]=(dy[t]||0)+1;
+  const glv=S.level in GIFT?S.level:'easy',LS=LVS();if(!LS[glv])LS[glv]={};
+  let gift=null;if(!LS[glv][k]){const b0=giftShown(glv);LS[glv][k]=1;const b1=giftShown(glv);if(b1>b0)gift={lv:glv,k:b1-1,all:b1>=GIFT_N}}
   const parts=[`맞춤 ${P.verse}`];let pts=P.verse;
   if(!G.helped){pts+=P.clean;parts.push(`도움 없이 ${P.clean}`)}
   if(first){pts+=P.first;parts.push(`처음 맞춘 말씀 ${P.first}`)}
-  const before=S.score;addScore(pts);
+  const before=S[GK('score')];addScore(pts);
   const cheers=[];
   // 묶음을 처음으로 다 맞췄을 때
   let passDone=false,party=null;
@@ -670,8 +688,8 @@ function finish(){
         :`<b>‘${esc(MODE.b.name)}’ 말씀 ${MODE.b.r.length}절을 다 맞추셨어요!</b>덤으로 ${P.theme}점을 드립니다.`)}
   }
   let hit=0;
-  for(const m of MILESTONES)if(before<m&&S.score>=m&&!S.seen.includes(m)){S.seen.push(m);hit=m;
-    cheers.push(`<b>모은 점수가 ${fmt(m)}점을 넘었어요!</b>지금까지 말씀 ${solvedCount()}개를 맞추셨습니다. 꾸준히 해 오신 덕분이에요.`)}
+  const SEEN=S[GK('seen')];for(const m of MILESTONES)if(before<m&&S[GK('score')]>=m&&!SEEN.includes(m)){SEEN.push(m);hit=m;
+    cheers.push(`<b>${isB()?'빈칸 채우기':'순서 맞추기'} 점수가 ${fmt(m)}점을 넘었어요!</b>지금까지 말씀 ${solvedCount()}개를 맞추셨습니다. 꾸준히 해 오신 덕분이에요.`)}
   if(!gift&&giftShown(glv)<GIFT_N){const g=GIFT[glv],left=giftLeft(glv);
     cheers.push(`<span class="gm">${giftSvg(glv,-1)}</span><span><b>${g.name} ${giftShown(glv)} / ${GIFT_N}${g.unit}</b>${left===1?`한 절만 더 맞추시면 다음 ${g.unit}이 생겨요!`:`다음 ${g.unit}까지 ${left}절 남았어요.`}</span>`)}
   save();renderStat();renderBline(true);
@@ -708,7 +726,7 @@ function finish(){
   }else if(hit){
     celebrate({pal:'score',title:`${fmt(hit)}점 돌파!`,
       what:[`모은 점수가 <em>${fmt(hit)}점</em>을 넘었어요.`,`지금까지 말씀 <em>${solvedCount()}개</em>를 맞추셨습니다.`],
-      pill:`모은 점수 ${fmt(S.score)}점`,bless:BLESS_SCORE});
+      pill:`${isB()?'빈칸 채우기':'순서 맞추기'} 점수 ${fmt(S[GK('score')])}점`,bless:BLESS_SCORE});
   }
 }
 $('dSpeak').onclick=()=>speak(G.passDone?MODE.b.r.map(i=>V[i][3]).join(' '):G.x[3]);
