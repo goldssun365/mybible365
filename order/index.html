@@ -57,6 +57,11 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:2px}
 button.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:700}
 .stat{color:var(--soft);font-size:19px;margin:0 0 14px}
 .medals{display:flex;flex-wrap:wrap;gap:8px 16px;margin:-4px 0 10px}.medals .md{display:inline-flex;align-items:center;gap:2px;padding:3px 12px 3px 8px;border-radius:999px;background:#FFF6D8;border:1.5px solid #E2C46F;color:#5A3E00;font-size:17px}.medals svg.medal{width:24px;height:31px;flex:0 0 24px}.medals .nm{margin-left:6px}.medals .x{font-weight:700;margin-left:2px}
+button.md{font:inherit;cursor:pointer;min-height:44px;box-shadow:none}button.md:hover{filter:brightness(1.04)}
+.cert-wrap{text-align:center}.cert-wrap canvas{width:100%;max-width:620px;height:auto;border-radius:6px;box-shadow:0 10px 30px rgba(30,42,70,.28);background:#F6EEDA}
+.cert-pick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0 0 14px}.cert-pick button{min-height:44px;font-size:17px;padding:6px 14px}.cert-pick button.on{border-color:var(--gold);box-shadow:inset 0 0 0 2px var(--gold)}
+#certPrint{display:none}
+@media print{@page{size:A4 portrait;margin:0}body>*{display:none!important}#certPrint{display:block!important;position:fixed;inset:0}#certPrint img{width:100%;height:auto;display:block}}
 .bigmedal{text-align:center;margin:0 0 6px}.bigmedal svg{width:76px;height:99px;filter:drop-shadow(0 3px 4px rgba(120,80,0,.35))}.medals svg.medal{width:26px;height:34px;flex:0 0 26px}
 @media (prefers-color-scheme:dark){.medals .md{background:#3A3018;color:#FFE9A3;border-color:#8E6B1A}}
 .stat b{color:var(--ink)}
@@ -252,6 +257,23 @@ h2.sec{font-family:var(--serif);font-size:24px;margin:28px 0 4px}
     </div>
   </section>
 
+  <section class="card hide" id="cert">
+    <h2 class="sec" style="margin-top:0">📜 금메달 인증서</h2>
+    <p class="guide">금메달마다 인증서를 드려요. 사진으로 저장하거나 가족에게 보내 보세요.</p>
+    <div class="cert-pick" id="certPick"></div>
+    <div class="cert-wrap"><canvas id="certCv" width="1240" height="1754" aria-label="금메달 인증서"></canvas></div>
+    <div class="row">
+      <button class="primary" id="certSave">💾 사진으로 저장</button>
+      <button id="certShare">📤 카톡으로 보내기</button>
+      <button id="certPrintBtn">🖨 인쇄하기</button>
+    </div>
+    <div class="row">
+      <button id="certName">✏️ 이름 바꾸기</button>
+      <button id="certBack">처음 화면으로</button>
+    </div>
+  </section>
+  <div id="certPrint"><img id="certImg" alt="금메달 인증서"></div>
+
   <section class="card hide" id="done">
     <p class="done-title" id="dTitle"></p>
     <p class="ref" id="dRef"></p>
@@ -277,7 +299,7 @@ h2.sec{font-family:var(--serif);font-size:24px;margin:28px 0 4px}
       <p class="pts" id="pPts"></p>
       <p class="bless" id="pBless"></p>
       <p class="bene">여호와는 네게 복을 주시고 너를 지키시기를 원하며 여호와는 그 얼굴로 네게 비취사 은혜 베푸시기를 원하며 여호와는 그 얼굴을 네게로 향하여 드사 평강 주시기를 원하노라<small>민수기 6장 24~26절</small></p>
-      <button class="primary" id="pClose">아멘, 감사합니다</button>
+      <button class="hide" id="pCert" style="margin:0 6px 10px;font-weight:700">📜 금메달 인증서 받기</button><button class="primary" id="pClose">아멘, 감사합니다</button>
     </div>
   </div>
 
@@ -288,7 +310,7 @@ h2.sec{font-family:var(--serif);font-size:24px;margin:28px 0 4px}
     컴퓨터 고장이나 브라우저 정리로 기록이 사라질 수 있으니 처음 화면 아래 ‘💾 기록 백업 받기’를 가끔 해 두세요.<br>
     함께 쓰면 좋은 말씀 앱: 말씀 순서 맞추기 → 말씀 타자 연습 → 성경필사노트<br>
     <span class="credit">오직 하나님께 영광 · 만든 이 김명구 집사</span><br>
-    <span style="font-size:13px">말씀 순서 맞추기 · 2026년 10월 10일 판</span>
+    <span style="font-size:13px">말씀 순서 맞추기 · 2026년 10월 10일 저녁 판</span>
   </footer>
 </div>
 <script>
@@ -386,7 +408,7 @@ function applyFs(){document.documentElement.style.setProperty('--fs',S.fs+'px')}
 $('bigger').onclick=()=>{S.fs=Math.min(40,S.fs+3);applyFs();save()};
 $('smaller').onclick=()=>{S.fs=Math.max(18,S.fs-3);applyFs();save()};
 
-function show(id){for(const s of ['home','read','play','done'])$(s).classList.toggle('hide',s!==id);$('foot').classList.toggle('hide',id!=='home'); /* 맨 아래 안내는 처음 화면에만 (2026-10-07) */window.scrollTo(0,0)}
+function show(id){for(const s of ['home','read','play','done','cert'])$(s).classList.toggle('hide',s!==id);$('foot').classList.toggle('hide',id!=='home'); /* 맨 아래 안내는 처음 화면에만 (2026-10-07) */window.scrollTo(0,0)}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
 /* ---------- 처음 화면 ---------- */
@@ -435,14 +457,15 @@ const medals=(b=isB())=>+S[GKx('medals',b)]||0;
 function giveGifts(lv){const n=Math.min(giftBank(lv),todayLeft(lv));if(n<=0)return null;
   const g=GPS(),dd=GDAY(),from=g[lv]||0;g[lv]=from+n;dd[lv]=(dd[lv]||0)+n;return {lv,k:g[lv]-1,n,all:g[lv]>=GIFT_N}}
 function checkMedal(){const g=GPS();if(!Object.keys(GIFT).every(lv=>(g[lv]||0)>=GIFT_N))return 0;
-  const k=GKx('medals',isB());S[k]=medals()+1;S[GKx('lvSolved',isB())]={};S[GKx('gp',isB())]={easy:0,mid:0,hard:0};return S[k]}
+  const k=GKx('medals',isB());S[k]=medals()+1;const dk=GKx('mdates',isB());if(!Array.isArray(S[dk]))S[dk]=[];S[dk][S[k]-1]=today();S[GKx('lvSolved',isB())]={};S[GKx('gp',isB())]={easy:0,mid:0,hard:0};return S[k]}
 const MEDAL_SVG='<svg viewBox="0 0 40 52" class="medal" aria-hidden="true"><path d="M8 0h9l7 17h-9z" fill="#C0392B"/><path d="M32 0h-9l-7 17h9z" fill="#2E5AAC"/><circle cx="20" cy="33" r="16" fill="#B07F12"/><circle cx="20" cy="33" r="13.5" fill="#F2C24E"/><circle cx="20" cy="33" r="10.5" fill="none" stroke="#FFF1BF" stroke-width="1.2" opacity=".8"/><path d="M18.3 25h3.4v5.4h5.3v3.3h-5.3V42h-3.4v-8.3H13v-3.3h5.3z" fill="#FFF8DC" stroke="#B07F12" stroke-width=".6"/></svg>';
 const bigMedal=()=>`<div class="bigmedal">${MEDAL_SVG}</div>`;
 function renderMedals(){
   const el=$('medals');if(!el)return;
-  const row=(b,name)=>{const n=medals(b);if(!n)return '';const ic=n<=5?MEDAL_SVG.repeat(n):MEDAL_SVG+`<span class="x">×${n}</span>`;return `<span class="md" title="${name} 금메달 ${n}개">${ic}<span class="nm">${name} 금메달 <b>${n}</b>개</span></span>`};
+  const row=(b,name)=>{const n=medals(b);if(!n)return '';const ic=n<=5?MEDAL_SVG.repeat(n):MEDAL_SVG+`<span class="x">×${n}</span>`;return `<button class="md" data-b="${b?1:0}" title="${name} 금메달 ${n}개 · 인증서 보기">${ic}<span class="nm">${name} 금메달 <b>${n}</b>개 · 📜 인증서</span></button>`};
   const h=row(false,'순서 맞추기')+row(true,'빈칸 채우기');
   el.innerHTML=h;el.classList.toggle('hide',!h);
+  el.querySelectorAll('.md').forEach(x=>x.onclick=()=>openCert(x.dataset.b==='1',medals(x.dataset.b==='1')));
 }
 let GIFT_I=0;
 function giftSvg(lv,newK){
@@ -467,7 +490,7 @@ function renderGiftHome(){
 function giveBank(){let got=null;for(const lv of Object.keys(GIFT)){const r=giveGifts(lv);if(r&&!got)got={...r,svg:giftSvg(lv,r.k)}}
   if(!got)return null;const m=checkMedal();save();got.medal=m;return got}
 function showBanked(r){const g=GIFT[r.lv];PAL['__gift']=g.pal;
-  celebrate({pal:'__gift',title:r.medal?'금메달을 받으셨어요!':r.all?g.done.title:`${g.unit} ${r.n}개를 드려요!`,svg:r.medal?bigMedal()+r.svg:r.svg,
+  celebrate({cert:r.medal?{b:isB(),n:r.medal}:null,pal:'__gift',title:r.medal?'금메달을 받으셨어요!':r.all?g.done.title:`${g.unit} ${r.n}개를 드려요!`,svg:r.medal?bigMedal()+r.svg:r.svg,
     what:[`어제까지 열심히 맞추신 말씀으로 오늘 <em>${g.name}</em> ${g.unit} <em>${r.n}개</em>를 드려요. (${r.k+1} / ${GIFT_N})`].concat(r.medal?[medalLine(r.medal)]:[]),
     pill:r.medal?`금메달 ${r.medal}개`:`${g.name} ${r.k+1} / ${GIFT_N}`,bless:r.all?`“${g.done.v}” (${g.done.ref})`:g.bless});
   renderMedals();renderGiftHome()}
@@ -507,12 +530,145 @@ function guideToStart(){
   b.scrollIntoView({behavior:'smooth',block:'center'});
   setTimeout(()=>b.focus({preventScroll:true}),400);
 }
+
+/* ---------- 금메달 인증서 (2026-10-10) ----------
+   임명장처럼: 한지 바탕, 남색·금색 겹테두리와 뇌문 띠, 금빛 월계관과 펼친 성경, 금박 메달 장식, 붉은 인장.
+   국가 문장(봉황·무궁화)은 쓰지 않음. 캔버스에 직접 그려서 보이는 그대로 사진(PNG)으로 저장·카톡 보내기·인쇄.
+   글꼴은 인증서를 열 때만 구글 글꼴(나눔명조·고운바탕)을 불러옴(인터넷이 없으면 기기의 명조). 이름은 S.certName(이 기기에만) */
+const CERT_TF='"Nanum Myeongjo","Gowun Batang","Noto Serif KR","AppleMyungjo","Batang",serif',CERT_BF='"Gowun Batang","Nanum Myeongjo","Noto Serif KR","AppleMyungjo","Batang",serif';
+let certFontP=null,CERT={b:false,n:1};
+function certFonts(){
+  if(!certFontP){
+    certFontP=new Promise(res=>{
+      try{const l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Gowun+Batang:wght@400;700&display=swap';
+        l.onload=()=>Promise.all(['800 90px "Nanum Myeongjo"','700 60px "Nanum Myeongjo"','400 44px "Gowun Batang"','700 44px "Gowun Batang"'].map(f=>document.fonts.load(f,'말씀인증서')))
+          .then(res,res);l.onerror=res;document.head.appendChild(l)}catch(e){res()}
+      setTimeout(res,4000);
+    });
+  }
+  return certFontP;
+}
+function certSpaced(c,t,x,y,sp,align){ /* 글자 사이를 띄워 쓰기 */
+  const ch=[...t],w=ch.reduce((a,k)=>a+c.measureText(k).width,0)+sp*(ch.length-1);
+  let cx=align==='left'?x:align==='right'?x-w:x-w/2;c.textAlign='left';
+  for(const k of ch){c.fillText(k,cx,y);cx+=c.measureText(k).width+sp}return w;
+}
+function certWrap(c,t,maxW){const out=[];let line='';for(const w of t.split(' ')){const tt=line?line+' '+w:w;if(c.measureText(tt).width>maxW&&line){out.push(line);line=w}else line=tt}if(line)out.push(line);return out}
+function drawCert(cv,o){
+  const c=cv.getContext('2d'),W=cv.width,H=cv.height,NAVY='#1E2A46',GOLD='#B07F22',GOLD2='#D9B25A',INK='#2A2436';
+  let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  c.save();c.clearRect(0,0,W,H);
+  /* 한지 */
+  let g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,'#FCF8EC');g.addColorStop(.5,'#F8F0DC');g.addColorStop(1,'#F1E5C8');c.fillStyle=g;c.fillRect(0,0,W,H);
+  for(let i=0;i<1400;i++){const x=rnd()*W,y=rnd()*H,l=8+rnd()*34,a=rnd()*Math.PI;c.strokeStyle=`rgba(150,115,60,${.025+rnd()*.05})`;c.lineWidth=.6+rnd()*1.1;c.beginPath();c.moveTo(x,y);c.quadraticCurveTo(x+Math.cos(a)*l/2+rnd()*6,y+Math.sin(a)*l/2+rnd()*6,x+Math.cos(a)*l,y+Math.sin(a)*l);c.stroke()}
+  g=c.createRadialGradient(W/2,H/2,H*.25,W/2,H/2,H*.75);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(150,105,40,.16)');c.fillStyle=g;c.fillRect(0,0,W,H);
+  /* 겹테두리 */
+  c.strokeStyle=NAVY;c.lineWidth=12;c.strokeRect(34,34,W-68,H-68);
+  c.strokeStyle=GOLD;c.lineWidth=3;c.strokeRect(56,56,W-112,H-112);c.lineWidth=1.4;c.strokeRect(64,64,W-128,H-128);
+  /* 뇌문 띠 */
+  const b0=72,b1=124,ks=34;
+  const key=(x,y,s)=>{c.beginPath();c.moveTo(x,y+s);c.lineTo(x,y);c.lineTo(x+s,y);c.lineTo(x+s,y+s*.78);c.lineTo(x+s*.22,y+s*.78);c.lineTo(x+s*.22,y+s*.22);c.lineTo(x+s*.66,y+s*.22);c.lineTo(x+s*.66,y+s*.52);c.lineTo(x+s*.44,y+s*.52);c.stroke()};
+  const strip=(len)=>{const step=ks+10,n=Math.floor(len/step),off=(len-n*step+10)/2;for(let i=0;i<n;i++)key(off+i*step,(b1-b0-ks)/2,ks)};
+  c.strokeStyle=GOLD;c.lineWidth=3.2;c.lineJoin='miter';
+  for(const [tx,ty,rot,len] of [[b1,b0,0,W-2*b1],[W-b1,H-b0,Math.PI,W-2*b1],[b0,H-b1,-Math.PI/2,H-2*b1],[W-b0,b1,Math.PI/2,H-2*b1]]){c.save();c.translate(tx,ty);c.rotate(rot);strip(len);c.restore()}
+  for(const [x,y] of [[b0,b0],[W-b1,b0],[b0,H-b1],[W-b1,H-b1]]){const cx=x+(b1-b0)/2,cy=y+(b1-b0)/2;c.fillStyle=NAVY;c.fillRect(x+4,y+4,b1-b0-8,b1-b0-8);c.fillStyle=GOLD2;
+    for(let k=0;k<4;k++){c.save();c.translate(cx,cy);c.rotate(k*Math.PI/2);c.beginPath();c.ellipse(0,-10,6,11,0,0,Math.PI*2);c.fill();c.restore()}c.beginPath();c.arc(cx,cy,5,0,Math.PI*2);c.fillStyle='#FFF3D0';c.fill()}
+  c.strokeStyle=GOLD;c.lineWidth=1.4;c.strokeRect(b1+6,b1+6,W-2*b1-12,H-2*b1-12);c.strokeStyle=NAVY;c.lineWidth=2;c.strokeRect(b1+14,b1+14,W-2*b1-28,H-2*b1-28);
+  /* 안쪽 귀퉁이 덩굴 */
+  c.strokeStyle=GOLD;c.lineWidth=2.4;
+  for(const [x,y,sx,sy] of [[b1+14,b1+14,1,1],[W-b1-14,b1+14,-1,1],[b1+14,H-b1-14,1,-1],[W-b1-14,H-b1-14,-1,-1]]){
+    c.save();c.translate(x,y);c.scale(sx,sy);c.beginPath();c.moveTo(14,90);c.bezierCurveTo(14,40,40,14,90,14);c.stroke();
+    c.beginPath();c.moveTo(30,62);c.bezierCurveTo(30,40,40,30,62,30);c.stroke();
+    c.beginPath();c.arc(44,44,7,0,Math.PI*2);c.fillStyle=GOLD;c.fill();
+    for(const [px,py] of [[90,14],[14,90]]){c.beginPath();c.arc(px,py,4,0,Math.PI*2);c.fill()}c.restore()}
+  /* 문장: 월계관 + 펼친 성경 + 십자가 */
+  const ex=W/2,ey=272,er=82;
+  const gg=c.createLinearGradient(ex-er,ey-er,ex+er,ey+er);gg.addColorStop(0,'#F4D98A');gg.addColorStop(.5,'#C9972F');gg.addColorStop(1,'#8E6416');
+  for(const sd of [-1,1]){
+    c.strokeStyle='#9A6E1C';c.lineWidth=4;c.beginPath();c.arc(ex,ey,er,Math.PI/2+sd*0.25,Math.PI/2+sd*2.75,sd<0);c.stroke();
+    for(let k=0;k<11;k++){const a=Math.PI/2+sd*(0.38+k*0.22),lx=ex+Math.cos(a)*er,ly=ey+Math.sin(a)*er;
+      for(const side of [-1,1]){c.save();c.translate(lx,ly);c.rotate(a+sd*Math.PI/2+side*0.55);c.beginPath();c.ellipse(0,-15,7,17,0,0,Math.PI*2);c.fillStyle=gg;c.fill();c.strokeStyle='rgba(110,75,15,.5)';c.lineWidth=1;c.stroke();c.restore()}}}
+  c.fillStyle='#9E1B1B';c.beginPath();c.moveTo(ex-30,ey+er+6);c.lineTo(ex-58,ey+er+44);c.lineTo(ex-40,ey+er+40);c.lineTo(ex-32,ey+er+58);c.lineTo(ex-6,ey+er+12);c.fill();
+  c.beginPath();c.moveTo(ex+30,ey+er+6);c.lineTo(ex+58,ey+er+44);c.lineTo(ex+40,ey+er+40);c.lineTo(ex+32,ey+er+58);c.lineTo(ex+6,ey+er+12);c.fill();
+  c.beginPath();c.ellipse(ex,ey+er+8,16,11,0,0,Math.PI*2);c.fill();
+  c.fillStyle='#FFFBEF';c.strokeStyle='#8E6416';c.lineWidth=3;
+  c.beginPath();c.moveTo(ex,ey+44);c.quadraticCurveTo(ex-34,ey+30,ex-66,ey+40);c.lineTo(ex-66,ey-4);c.quadraticCurveTo(ex-34,ey-14,ex,ey);c.closePath();c.fill();c.stroke();
+  c.beginPath();c.moveTo(ex,ey+44);c.quadraticCurveTo(ex+34,ey+30,ex+66,ey+40);c.lineTo(ex+66,ey-4);c.quadraticCurveTo(ex+34,ey-14,ex,ey);c.closePath();c.fill();c.stroke();
+  c.strokeStyle='rgba(142,100,22,.5)';c.lineWidth=1.6;for(let k=0;k<3;k++){const yy=ey+8+k*10;c.beginPath();c.moveTo(ex-56,yy);c.quadraticCurveTo(ex-30,yy-8,ex-8,yy+2);c.stroke();c.beginPath();c.moveTo(ex+56,yy);c.quadraticCurveTo(ex+30,yy-8,ex+8,yy+2);c.stroke()}
+  c.fillStyle=gg;c.fillRect(ex-7,ey-74,14,62);c.fillRect(ex-26,ey-58,52,13);
+  /* 번호 */
+  c.fillStyle=NAVY;c.font=`400 30px ${CERT_BF}`;certSpaced(c,`제 ${o.n} 호`,175,236,3,'left');
+  /* 제목 */
+  c.fillStyle=NAVY;c.font=`800 88px ${CERT_TF}`;certSpaced(c,'말씀 암송 인증서',W/2,500,14);
+  c.strokeStyle=GOLD;c.lineWidth=2;c.beginPath();c.moveTo(W/2-330,540);c.lineTo(W/2-24,540);c.moveTo(W/2+24,540);c.lineTo(W/2+330,540);c.stroke();
+  c.fillStyle=GOLD;c.save();c.translate(W/2,540);c.rotate(Math.PI/4);c.fillRect(-9,-9,18,18);c.restore();
+  c.font=`700 30px ${CERT_BF}`;c.fillStyle='#7A5A1E';certSpaced(c,`${o.game} 금메달`,W/2,592,6);
+  /* 성명 */
+  c.fillStyle='#5A5266';c.font=`400 38px ${CERT_BF}`;certSpaced(c,'성 명',290,696,10,'left');
+  c.fillStyle=INK;c.font=`700 70px ${CERT_TF}`;certSpaced(c,o.name||'　　　',W/2+70,700,16);
+  c.strokeStyle=GOLD;c.lineWidth=1.5;c.beginPath();c.moveTo(430,724);c.lineTo(W-250,724);c.stroke();
+  /* 본문 */
+  c.fillStyle=INK;c.font=`400 39px ${CERT_BF}`;
+  const body=`위 사람은 mybible365 「${o.game}」에서 쉬움·보통·어려움 세 단계의 말씀 ${o.verses}절을 끝까지 마치고 ${o.n}번째 금메달을 받았습니다. 날마다 말씀을 마음에 새긴 그 믿음과 수고를 기리어 이 인증서를 드립니다.`;
+  certWrap(c,body,W-2*230).forEach((ln,i)=>{c.textAlign='left';c.fillText(ln,230,812+i*66)});
+  /* 말씀 */
+  const vy=1124;c.fillStyle='rgba(176,127,34,.08)';c.strokeStyle=GOLD;c.lineWidth=1.5;c.beginPath();c.roundRect?c.roundRect(230,vy,W-460,170,14):c.rect(230,vy,W-460,170);c.fill();c.stroke();
+  c.fillStyle=NAVY;c.font=`400 37px ${CERT_BF}`;c.textAlign='center';c.fillText('내가 주께 범죄치 아니하려 하여',W/2,vy+62);c.fillText('주의 말씀을 내 마음에 두었나이다',W/2,vy+112);
+  c.fillStyle='#7A6E5A';c.font=`400 26px ${CERT_BF}`;c.fillText('시편 119편 11절',W/2,vy+150);
+  /* 날짜 */
+  c.fillStyle=INK;c.font=`700 48px ${CERT_TF}`;certSpaced(c,o.date,W/2+60,1392,6);
+  /* 금박 메달 장식 */
+  const mx=318,my=1446;
+  c.fillStyle='#9E1B1B';c.beginPath();c.moveTo(mx-40,my+30);c.lineTo(mx-58,my+108);c.lineTo(mx-38,my+96);c.lineTo(mx-22,my+116);c.lineTo(mx-6,my+40);c.fill();
+  c.fillStyle=NAVY;c.beginPath();c.moveTo(mx+40,my+30);c.lineTo(mx+58,my+108);c.lineTo(mx+38,my+96);c.lineTo(mx+22,my+116);c.lineTo(mx+6,my+40);c.fill();
+  const mg=c.createRadialGradient(mx-24,my-30,10,mx,my,96);mg.addColorStop(0,'#FFF1BE');mg.addColorStop(.45,'#E8BE55');mg.addColorStop(1,'#9A6A12');
+  c.fillStyle=mg;c.beginPath();for(let k=0;k<64;k++){const a=k/64*Math.PI*2,r=k%2?82:94;c.lineTo(mx+Math.cos(a)*r,my+Math.sin(a)*r)}c.closePath();c.fill();
+  c.strokeStyle='#FFF4D2';c.lineWidth=2;c.beginPath();c.arc(mx,my,70,0,Math.PI*2);c.stroke();c.strokeStyle='#8E6416';c.lineWidth=1.5;c.beginPath();c.arc(mx,my,62,0,Math.PI*2);c.stroke();
+  c.fillStyle='#6E4A0C';c.font=`800 34px ${CERT_TF}`;c.textAlign='center';c.fillText('금메달',mx,my+2);c.font=`700 24px ${CERT_BF}`;c.fillText(`제 ${o.n} 호`,mx,my+36);
+  c.fillRect(mx-4,my-52,8,26);c.fillRect(mx-12,my-45,24,7);
+  /* 수여 */
+  c.fillStyle=INK;c.textAlign='center';c.font=`700 38px ${CERT_TF}`;certSpaced(c,'mybible365 말씀 앱',W/2+40,1470,4);
+  c.font=`400 36px ${CERT_BF}`;c.fillStyle='#4A4256';certSpaced(c,'만든 이  김 명 구',W/2+40,1522,6);
+  /* 붉은 인장 */
+  const sx=W-292,sy=1462,ss=112;c.save();c.translate(sx,sy);c.rotate(-0.04);
+  c.fillStyle='rgba(178,34,30,.9)';c.fillRect(-ss/2,-ss/2,ss,ss);c.strokeStyle='rgba(255,240,230,.85)';c.lineWidth=3;c.strokeRect(-ss/2+8,-ss/2+8,ss-16,ss-16);
+  c.fillStyle='#FFF4EC';c.font=`800 40px ${CERT_TF}`;c.textAlign='center';c.fillText('말씀',0,-6);c.fillText('인증',0,40);
+  for(let i=0;i<70;i++){c.fillStyle=`rgba(248,240,220,${.25+rnd()*.5})`;c.beginPath();c.arc(-ss/2+rnd()*ss,-ss/2+rnd()*ss,.6+rnd()*1.8,0,Math.PI*2);c.fill()}
+  c.restore();
+  /* 맺음 */
+  c.fillStyle=GOLD;c.font=`400 26px ${CERT_BF}`;c.textAlign='center';certSpaced(c,'✝  오직 하나님께 영광  ✝',W/2,1584,4);
+  c.restore();
+}
+function certData(b,n){
+  const pool=b?GIFT_POOL_B:GIFT_POOL,verses=Object.values(pool).reduce((a,x)=>a+x,0),ds=S[GKx('mdates',b)]||[],d=ds[n-1]||today(),[y,m,dd]=d.split('-');
+  return {b,n,game:b?'말씀 빈칸 채우기':'말씀 순서 맞추기',verses,name:S.certName||'',date:`${y}년 ${+m}월 ${+dd}일`,day:d};
+}
+async function openCert(b,n){
+  if(!medals(b))return;
+  if(!S.certName){const a=prompt('인증서에 넣을 이름을 써 주세요.\n(이름은 이 기기에만 저장돼요)','');if(a&&a.trim()){S.certName=a.trim().slice(0,10);save()}}
+  CERT={b,n:Math.min(Math.max(1,n),medals(b))};
+  const pick=[];for(const bb of [false,true])for(let k=1;k<=medals(bb);k++)pick.push([bb,k]);
+  $('certPick').innerHTML=pick.length>1?pick.map(([bb,k])=>`<button data-b="${bb?1:0}" data-n="${k}" class="${bb===CERT.b&&k===CERT.n?'on':''}">${bb?'빈칸 채우기':'순서 맞추기'} 제${k}호</button>`).join(''):'';
+  $('certPick').querySelectorAll('button').forEach(x=>x.onclick=()=>openCert(x.dataset.b==='1',+x.dataset.n));
+  show('cert');
+  const cv=$('certCv');drawCert(cv,certData(CERT.b,CERT.n));
+  await certFonts();drawCert(cv,certData(CERT.b,CERT.n));
+}
+function certFile(cb){const d=certData(CERT.b,CERT.n);$('certCv').toBlob(bl=>cb(bl,`말씀암송인증서_${d.name||'이름'}_${d.day}.png`),'image/png')}
+$('certSave').onclick=()=>certFile((bl,fn)=>{const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  alert(`인증서를 사진으로 저장했어요.\n휴대폰은 ‘다운로드’ 또는 ‘갤러리’에, 컴퓨터는 ‘다운로드’ 폴더에 「${fn}」로 들어 있어요.`)});
+$('certShare').onclick=()=>certFile(async(bl,fn)=>{const f=new File([bl],fn,{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:'말씀 암송 인증서',text:'말씀 암송 금메달 인증서를 받았어요!'});return}catch(e){if(e&&e.name==='AbortError')return}}
+  $('certSave').click()});
+$('certPrintBtn').onclick=()=>{$('certImg').src=$('certCv').toDataURL('image/png');setTimeout(()=>window.print(),300)};
+$('certName').onclick=()=>{const a=prompt('인증서에 넣을 이름을 써 주세요.\n(이름은 이 기기에만 저장돼요)',S.certName||'');if(a==null)return;S.certName=a.trim().slice(0,10);save();drawCert($('certCv'),certData(CERT.b,CERT.n))};
+$('certBack').onclick=renderHome;
 $('preview').onchange=e=>{S.preview=e.target.checked;save()};
 $('sound').onchange=e=>{S.sound=e.target.checked;save()};
 $('homeBtn').onclick=renderHome;
 $('resetBtn').onclick=()=>{
   if(!confirm(`순서 맞추기(점수 ${fmt(S.score)}점, 맞춘 말씀 ${V.filter(x=>S.solved[keyOf(x)]).length}개)와 빈칸 채우기(점수 ${fmt(S.bscore||0)}점, 채운 말씀 ${V.filter(x=>S.bsolved[keyOf(x)]).length}개)의 기록과 선물이 모두 지워집니다.\n받으신 금메달은 그대로 남습니다.\n글씨 크기와 단계 같은 설정은 그대로 둡니다.\n\n정말 처음부터 하시겠어요?`))return;
-  S={level:S.level,preview:S.preview,fs:S.fs,sound:S.sound,face:S.face,game:S.game,solved:{},bsolved:{},lvSolved:{},blvSolved:{},days:{},bdays:{},score:0,bscore:0,dayScore:{},bdayScore:{},seen:[],bseen:[],gsplit:1,gp:{},bgp:{},gday:{},bgday:{},medals:+S.medals||0,bmedals:+S.bmedals||0,bdone:{},queues:{}}; /* 금메달은 값진 선물이라 지우지 않음 (2026-10-10) */
+  S={level:S.level,preview:S.preview,fs:S.fs,sound:S.sound,face:S.face,game:S.game,solved:{},bsolved:{},lvSolved:{},blvSolved:{},days:{},bdays:{},score:0,bscore:0,dayScore:{},bdayScore:{},seen:[],bseen:[],gsplit:1,gp:{},bgp:{},gday:{},bgday:{},medals:+S.medals||0,bmedals:+S.bmedals||0,mdates:S.mdates,bmdates:S.bmdates,certName:S.certName,bdone:{},queues:{}}; /* 금메달은 값진 선물이라 지우지 않음 (2026-10-10) */
   save();applyFace();renderHome();alert('기록을 지웠어요. 처음부터 시작하세요!');
 };
 
@@ -760,7 +916,7 @@ function finish(){
     if(scoreLine)extra.push(scoreLine);
     PAL['__gift']=g.pal;
     if(gift.medal)extra.unshift(medalLine(gift.medal));
-    celebrate({pal:'__gift',title:gift.medal?'금메달을 받으셨어요!':gift.all?g.done.title:`${g.piece(gift.k)}!`,svg:gift.medal?bigMedal()+gift.svg:gift.svg,
+    celebrate({cert:gift.medal?{b:isB(),n:gift.medal}:null,pal:'__gift',title:gift.medal?'금메달을 받으셨어요!':gift.all?g.done.title:`${g.piece(gift.k)}!`,svg:gift.medal?bigMedal()+gift.svg:gift.svg,
       what:[gift.all?g.allWhat:`${g.added(gift.k)} (${gift.k+1} / ${GIFT_N})`].concat(extra),
       pill:gift.medal?`금메달 ${gift.medal}개`:party&&party.bonus?`덤 점수 +${party.bonus}점`:`+${pts}점`,bless:gift.all?`“${g.done.v}” (${g.done.ref})`:g.bless});
   }else if(party){
@@ -827,6 +983,7 @@ function celebrate(o){
   $('pWhat').innerHTML=o.what.join('<br>');
   $('pPts').textContent=o.pill;
   $('pBless').textContent=o.bless;
+  $('pCert').classList.toggle('hide',!o.cert);if(o.cert)$('pCert').onclick=()=>{closeParty();openCert(o.cert.b,o.cert.n)};
   $('party').classList.remove('hide');$('pClose').focus({preventScroll:true});box.scrollTop=0; /* 휴대폰에서 그림·제목부터 보이게 */
   if(S.sound!==false)fanfare();
   confetti(pal);
