@@ -315,6 +315,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
       <button data-face="gothic">고딕<small>태초에 하나님이</small></button>
       <button data-face="brush">붓글씨<small>태초에 하나님이</small></button>
     </div>
+    <div id="gradRow" class="row" style="flex-direction:column;align-items:center"></div>
     <div class="row"><button id="backupBtn">💾 기록 백업 받기</button><button id="restoreBtn">📂 백업 파일로 되살리기</button><button id="resetBtn">기록 지우고 처음부터 하기</button></div>
     <input type="file" id="restoreFile" accept=".json,application/json" hidden>
     <p class="note">손가락 자리: 왼손 검지는 <b>ㄹ</b>, 오른손 검지는 <b>ㅓ</b> 위에 올려 두세요. 두 글쇠에는 손끝으로 느껴지는 작은 돌기가 있습니다. 엄지는 띄어쓰기 글쇠 위에 둡니다.</p>
@@ -465,7 +466,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
       <div class="pArk" id="pArk"></div>
       <p class="what" id="pWhat"></p>
       <p class="bless" id="pBless"></p>
-      <button class="primary" id="pClose">아멘, 감사합니다</button>
+      <button class="hide" id="pCert" style="margin:0 6px 10px;font-weight:700">📜 수료증 받기</button><button class="primary" id="pClose">아멘, 감사합니다</button>
     </div>
   </div>
 
@@ -476,7 +477,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     컴퓨터 고장이나 브라우저 정리로 기록이 사라질 수 있으니 처음 화면 아래 ‘💾 기록 백업 받기’를 가끔 해 두세요.<br>
     함께 쓰면 좋은 말씀 앱: 말씀 순서 맞추기 → 말씀 타자 연습 → 성경필사노트<br>
     <span class="credit">오직 하나님께 영광 · 만든 이 김명구 집사</span><br>
-    <span style="font-size:13px">말씀 타자 연습 · 2026년 10월 9일 판</span>
+    <span style="font-size:13px">말씀 타자 연습 · 2026년 10월 11일 판</span>
   </footer>
 </div>
 <script>
@@ -726,6 +727,196 @@ let JM=null; // 예수님 말씀 묶음을 하는 중이면 {b,pos}
 const JDONE=b=>b.r.filter(i=>S.verses[keyOf(JW.V[i])]).length;
 const V_LEVELS=[{id:'easy',name:'짧은 말씀',desc:'8어절까지'},{id:'mid',name:'보통 말씀',desc:'9~14어절'},{id:'hard',name:'긴 말씀',desc:'15어절 넘게'}];
 
+/* ===== 인증서 공통 (2026-10-10): 순서 맞추기 금메달 인증서와 같은 틀(한지·뇌문 테두리·월계관 문장·금박 메달·붉은 인장) ===== */
+const CERT_TF='"Nanum Myeongjo","Gowun Batang","Noto Serif KR","AppleMyungjo","Batang",serif',CERT_BF='"Gowun Batang","Nanum Myeongjo","Noto Serif KR","AppleMyungjo","Batang",serif';
+let certFontP=null,CERT={b:false,n:1};
+function certFonts(){
+  if(!certFontP){
+    certFontP=new Promise(res=>{
+      try{const l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Gowun+Batang:wght@400;700&display=swap';
+        l.onload=()=>Promise.all(['800 90px "Nanum Myeongjo"','700 60px "Nanum Myeongjo"','400 44px "Gowun Batang"','700 44px "Gowun Batang"'].map(f=>document.fonts.load(f,'말씀인증서')))
+          .then(res,res);l.onerror=res;document.head.appendChild(l)}catch(e){res()}
+      setTimeout(res,4000);
+    });
+  }
+  return certFontP;
+}
+function certSpaced(c,t,x,y,sp,align){ /* 글자 사이를 띄워 쓰기 */
+  const ch=[...t],w=ch.reduce((a,k)=>a+c.measureText(k).width,0)+sp*(ch.length-1);
+  let cx=align==='left'?x:align==='right'?x-w:x-w/2;c.textAlign='left';
+  for(const k of ch){c.fillText(k,cx,y);cx+=c.measureText(k).width+sp}return w;
+}
+function certWrap(c,t,maxW){const out=[];let line='';for(const w of t.split(' ')){const tt=line?line+' '+w:w;if(c.measureText(tt).width>maxW&&line){out.push(line);line=w}else line=tt}if(line)out.push(line);return out}
+function drawCertG(cv,o){
+  const c=cv.getContext('2d'),W=cv.width,H=cv.height,GOLD='#B07F22',GOLD2='#D9B25A',INK='#2A2436';
+  /* o.T: {k:0|1|2 단계, title, fs, sp, frame, ink, paper:[3]} — 단계마다 테두리·제목 색 */
+  const T=o.T;
+  const NAVY=T.frame;
+  let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  c.save();c.clearRect(0,0,W,H);
+  /* 한지 */
+  let g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,T.paper[0]);g.addColorStop(.5,T.paper[1]);g.addColorStop(1,T.paper[2]);c.fillStyle=g;c.fillRect(0,0,W,H);
+  for(let i=0;i<1400;i++){const x=rnd()*W,y=rnd()*H,l=8+rnd()*34,a=rnd()*Math.PI;c.strokeStyle=`rgba(150,115,60,${.025+rnd()*.05})`;c.lineWidth=.6+rnd()*1.1;c.beginPath();c.moveTo(x,y);c.quadraticCurveTo(x+Math.cos(a)*l/2+rnd()*6,y+Math.sin(a)*l/2+rnd()*6,x+Math.cos(a)*l,y+Math.sin(a)*l);c.stroke()}
+  g=c.createRadialGradient(W/2,H/2,H*.25,W/2,H/2,H*.75);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(150,105,40,.16)');c.fillStyle=g;c.fillRect(0,0,W,H);
+  /* 겹테두리 */
+  c.strokeStyle=NAVY;c.lineWidth=12;c.strokeRect(34,34,W-68,H-68);
+  if(T.k){const fg=c.createLinearGradient(0,0,W,H);fg.addColorStop(0,'#F7DE8E');fg.addColorStop(.35,'#C9972F');fg.addColorStop(.65,'#F2D27A');fg.addColorStop(1,'#9A6A12');
+    c.strokeStyle=fg;c.lineWidth=T.k===2?10:7;c.strokeRect(46,46,W-92,H-92);}
+  c.strokeStyle=GOLD;c.lineWidth=3;c.strokeRect(56,56,W-112,H-112);c.lineWidth=1.4;c.strokeRect(64,64,W-128,H-128);
+  /* 뇌문 띠 */
+  const b0=72,b1=124,ks=34;
+  const key=(x,y,s)=>{c.beginPath();c.moveTo(x,y+s);c.lineTo(x,y);c.lineTo(x+s,y);c.lineTo(x+s,y+s*.78);c.lineTo(x+s*.22,y+s*.78);c.lineTo(x+s*.22,y+s*.22);c.lineTo(x+s*.66,y+s*.22);c.lineTo(x+s*.66,y+s*.52);c.lineTo(x+s*.44,y+s*.52);c.stroke()};
+  const strip=(len)=>{const step=ks+10,n=Math.floor(len/step),off=(len-n*step+10)/2;for(let i=0;i<n;i++)key(off+i*step,(b1-b0-ks)/2,ks)};
+  c.strokeStyle=GOLD;c.lineWidth=3.2;c.lineJoin='miter';
+  for(const [tx,ty,rot,len] of [[b1,b0,0,W-2*b1],[W-b1,H-b0,Math.PI,W-2*b1],[b0,H-b1,-Math.PI/2,H-2*b1],[W-b0,b1,Math.PI/2,H-2*b1]]){c.save();c.translate(tx,ty);c.rotate(rot);strip(len);c.restore()}
+  for(const [x,y] of [[b0,b0],[W-b1,b0],[b0,H-b1],[W-b1,H-b1]]){const cx=x+(b1-b0)/2,cy=y+(b1-b0)/2;c.fillStyle=NAVY;c.fillRect(x+4,y+4,b1-b0-8,b1-b0-8);c.fillStyle=GOLD2;
+    for(let k=0;k<4;k++){c.save();c.translate(cx,cy);c.rotate(k*Math.PI/2);c.beginPath();c.ellipse(0,-10,6,11,0,0,Math.PI*2);c.fill();c.restore()}c.beginPath();c.arc(cx,cy,5,0,Math.PI*2);c.fillStyle='#FFF3D0';c.fill()}
+  c.strokeStyle=GOLD;c.lineWidth=1.4;c.strokeRect(b1+6,b1+6,W-2*b1-12,H-2*b1-12);c.strokeStyle=NAVY;c.lineWidth=2;c.strokeRect(b1+14,b1+14,W-2*b1-28,H-2*b1-28);
+  /* 안쪽 귀퉁이 덩굴 */
+  c.strokeStyle=GOLD;c.lineWidth=2.4;
+  for(const [x,y,sx,sy] of [[b1+14,b1+14,1,1],[W-b1-14,b1+14,-1,1],[b1+14,H-b1-14,1,-1],[W-b1-14,H-b1-14,-1,-1]]){
+    c.save();c.translate(x,y);c.scale(sx,sy);c.beginPath();c.moveTo(14,90);c.bezierCurveTo(14,40,40,14,90,14);c.stroke();
+    c.beginPath();c.moveTo(30,62);c.bezierCurveTo(30,40,40,30,62,30);c.stroke();
+    c.beginPath();c.arc(44,44,7,0,Math.PI*2);c.fillStyle=GOLD;c.fill();
+    for(const [px,py] of [[90,14],[14,90]]){c.beginPath();c.arc(px,py,4,0,Math.PI*2);c.fill()}c.restore()}
+  /* 문장: 월계관 + 펼친 성경 + 십자가 */
+  const ex=W/2,ey=272,er=82;
+  const gg=c.createLinearGradient(ex-er,ey-er,ex+er,ey+er);gg.addColorStop(0,'#F4D98A');gg.addColorStop(.5,'#C9972F');gg.addColorStop(1,'#8E6416');
+  for(const sd of [-1,1]){
+    c.strokeStyle='#9A6E1C';c.lineWidth=4;c.beginPath();c.arc(ex,ey,er,Math.PI/2+sd*0.25,Math.PI/2+sd*2.75,sd<0);c.stroke();
+    for(let k=0;k<11;k++){const a=Math.PI/2+sd*(0.38+k*0.22),lx=ex+Math.cos(a)*er,ly=ey+Math.sin(a)*er;
+      for(const side of [-1,1]){c.save();c.translate(lx,ly);c.rotate(a+sd*Math.PI/2+side*0.55);c.beginPath();c.ellipse(0,-15,7,17,0,0,Math.PI*2);c.fillStyle=gg;c.fill();c.strokeStyle='rgba(110,75,15,.5)';c.lineWidth=1;c.stroke();c.restore()}}}
+  c.fillStyle='#9E1B1B';c.beginPath();c.moveTo(ex-30,ey+er+6);c.lineTo(ex-58,ey+er+44);c.lineTo(ex-40,ey+er+40);c.lineTo(ex-32,ey+er+58);c.lineTo(ex-6,ey+er+12);c.fill();
+  c.beginPath();c.moveTo(ex+30,ey+er+6);c.lineTo(ex+58,ey+er+44);c.lineTo(ex+40,ey+er+40);c.lineTo(ex+32,ey+er+58);c.lineTo(ex+6,ey+er+12);c.fill();
+  c.beginPath();c.ellipse(ex,ey+er+8,16,11,0,0,Math.PI*2);c.fill();
+  c.fillStyle='#FFFBEF';c.strokeStyle='#8E6416';c.lineWidth=3;
+  c.beginPath();c.moveTo(ex,ey+44);c.quadraticCurveTo(ex-34,ey+30,ex-66,ey+40);c.lineTo(ex-66,ey-4);c.quadraticCurveTo(ex-34,ey-14,ex,ey);c.closePath();c.fill();c.stroke();
+  c.beginPath();c.moveTo(ex,ey+44);c.quadraticCurveTo(ex+34,ey+30,ex+66,ey+40);c.lineTo(ex+66,ey-4);c.quadraticCurveTo(ex+34,ey-14,ex,ey);c.closePath();c.fill();c.stroke();
+  c.strokeStyle='rgba(142,100,22,.5)';c.lineWidth=1.6;for(let k=0;k<3;k++){const yy=ey+8+k*10;c.beginPath();c.moveTo(ex-56,yy);c.quadraticCurveTo(ex-30,yy-8,ex-8,yy+2);c.stroke();c.beginPath();c.moveTo(ex+56,yy);c.quadraticCurveTo(ex+30,yy-8,ex+8,yy+2);c.stroke()}
+  c.fillStyle=gg;c.fillRect(ex-7,ey-74,14,62);c.fillRect(ex-26,ey-58,52,13);
+  /* 번호 */
+  c.fillStyle=NAVY;c.font=`400 30px ${CERT_BF}`;certSpaced(c,`제 ${o.no} 호`,175,236,3,'left');
+  /* 제목 */
+  c.fillStyle=T.ink;c.font=`800 ${T.fs}px ${CERT_TF}`;certSpaced(c,T.title,W/2,500,T.sp);
+  c.strokeStyle=GOLD;c.lineWidth=2;c.beginPath();c.moveTo(W/2-330,540);c.lineTo(W/2-24,540);c.moveTo(W/2+24,540);c.lineTo(W/2+330,540);c.stroke();
+  c.fillStyle=GOLD;c.save();c.translate(W/2,540);c.rotate(Math.PI/4);c.fillRect(-9,-9,18,18);c.restore();
+  c.font=`700 30px ${CERT_BF}`;c.fillStyle='#7A5A1E';certSpaced(c,o.sub,W/2,592,6);
+  /* 성명 */
+  c.fillStyle='#5A5266';c.font=`400 38px ${CERT_BF}`;certSpaced(c,'성 명',290,696,10,'left');
+  c.fillStyle=INK;c.font=`700 70px ${CERT_TF}`;certSpaced(c,o.name||'　　　',W/2+70,700,16);
+  c.strokeStyle=GOLD;c.lineWidth=1.5;c.beginPath();c.moveTo(430,724);c.lineTo(W-250,724);c.stroke();
+  /* 본문 */
+  c.fillStyle=INK;c.font=`400 39px ${CERT_BF}`;
+  const body=o.body;
+  let bfs=39,lines=certWrap(c,body,W-2*230);while(lines.length>5&&bfs>32){bfs-=1;c.font=`400 ${bfs}px ${CERT_BF}`;lines=certWrap(c,body,W-2*230)}
+  const lh=lines.length>5?56:66;lines.forEach((ln,i)=>{c.textAlign='left';c.fillText(ln,230,812+i*lh)});
+  /* 말씀 */
+  const vy=1124;c.fillStyle='rgba(176,127,34,.08)';c.strokeStyle=GOLD;c.lineWidth=1.5;c.beginPath();c.roundRect?c.roundRect(230,vy,W-460,170,14):c.rect(230,vy,W-460,170);c.fill();c.stroke();
+  c.fillStyle=NAVY;c.font=`400 37px ${CERT_BF}`;c.textAlign='center';c.fillText(o.verse[0],W/2,vy+62);c.fillText(o.verse[1],W/2,vy+112);
+  c.fillStyle='#7A6E5A';c.font=`400 26px ${CERT_BF}`;c.fillText(o.verse[2],W/2,vy+150);
+  /* 날짜 */
+  c.fillStyle=INK;c.font=`700 48px ${CERT_TF}`;certSpaced(c,o.date,W/2+60,1392,6);
+  /* 금박 메달 장식 */
+  const mx=318,my=1446;
+  c.fillStyle='#9E1B1B';c.beginPath();c.moveTo(mx-40,my+30);c.lineTo(mx-58,my+108);c.lineTo(mx-38,my+96);c.lineTo(mx-22,my+116);c.lineTo(mx-6,my+40);c.fill();
+  c.fillStyle=NAVY;c.beginPath();c.moveTo(mx+40,my+30);c.lineTo(mx+58,my+108);c.lineTo(mx+38,my+96);c.lineTo(mx+22,my+116);c.lineTo(mx+6,my+40);c.fill();
+  const mg=c.createRadialGradient(mx-24,my-30,10,mx,my,96);mg.addColorStop(0,'#FFF1BE');mg.addColorStop(.45,'#E8BE55');mg.addColorStop(1,'#9A6A12');
+  c.fillStyle=mg;c.beginPath();for(let k=0;k<64;k++){const a=k/64*Math.PI*2,r=k%2?82:94;c.lineTo(mx+Math.cos(a)*r,my+Math.sin(a)*r)}c.closePath();c.fill();
+  c.strokeStyle='#FFF4D2';c.lineWidth=2;c.beginPath();c.arc(mx,my,70,0,Math.PI*2);c.stroke();c.strokeStyle='#8E6416';c.lineWidth=1.5;c.beginPath();c.arc(mx,my,62,0,Math.PI*2);c.stroke();
+  c.fillStyle='#6E4A0C';c.font=`800 34px ${CERT_TF}`;c.textAlign='center';c.fillText(o.rose[0],mx,my+2);c.font=`700 24px ${CERT_BF}`;c.fillText(o.rose[1],mx,my+36);
+  c.fillRect(mx-4,my-52,8,26);c.fillRect(mx-12,my-45,24,7);
+  /* 수여 */
+  c.fillStyle=INK;c.textAlign='center';c.font=`700 38px ${CERT_TF}`;certSpaced(c,'mybible365 말씀 앱',W/2+40,1470,4);
+  c.font=`400 36px ${CERT_BF}`;c.fillStyle='#4A4256';certSpaced(c,'섬김이  김명구 집사',W/2+40,1522,5);
+  /* 붉은 인장 */
+  const sx=W-292,sy=1462,ss=112;c.save();c.translate(sx,sy);c.rotate(-0.04);
+  c.fillStyle='rgba(178,34,30,.9)';c.fillRect(-ss/2,-ss/2,ss,ss);c.strokeStyle='rgba(255,240,230,.85)';c.lineWidth=3;c.strokeRect(-ss/2+8,-ss/2+8,ss-16,ss-16);
+  c.fillStyle='#FFF4EC';c.font=`800 40px ${CERT_TF}`;c.textAlign='center';c.fillText(o.seal[0],0,-6);c.fillText(o.seal[1],0,40);
+  for(let i=0;i<70;i++){c.fillStyle=`rgba(248,240,220,${.25+rnd()*.5})`;c.beginPath();c.arc(-ss/2+rnd()*ss,-ss/2+rnd()*ss,.6+rnd()*1.8,0,Math.PI*2);c.fill()}
+  c.restore();
+  /* 맺음 */
+  c.fillStyle=GOLD;c.font=`400 26px ${CERT_BF}`;c.textAlign='center';certSpaced(c,'✝  오직 하나님께 영광  ✝',W/2,1584,4);
+  c.restore();
+}
+
+/* 인증서 보기 창 (공통): openCertG({items:[{label,data}],idx,file:'이름 앞부분',onName}) */
+const CERT_TIERS=[
+  {k:0,fs:88,sp:14,frame:'#1E2A46',ink:'#1E2A46',paper:['#FCF8EC','#F8F0DC','#F1E5C8']},
+  {k:1,fs:74,sp:8,frame:'#9A6A12',ink:'#3A2A0C',paper:['#FEF9EA','#FAF0D6','#F2E2BC']},
+  {k:2,fs:74,sp:8,frame:'#7A1426',ink:'#5A0F1C',paper:['#FDF7EA','#F9EDD6','#F0DDB8']}];
+const certTier=(k,title,base)=>Object.assign({},CERT_TIERS[k],base&&k===0?base:{},{title,fs:title.length>9?74:CERT_TIERS[k].fs,sp:title.length>9?8:CERT_TIERS[k].sp});
+(function(){
+  const st=document.createElement('style');st.textContent=`
+#certG{position:fixed;inset:0;z-index:9000;background:rgba(20,24,34,.82);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:16px}
+#certG[hidden]{display:none}
+#certG .cg{background:#FBF7EE;color:#1E2A46;border-radius:18px;max-width:700px;width:100%;padding:16px 16px 20px;text-align:center;font:18px/1.6 "Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+#certG h2{margin:4px 0 10px;font-size:24px}
+#certG canvas{width:100%;max-width:620px;height:auto;border-radius:6px;box-shadow:0 10px 30px rgba(30,42,70,.3);background:#F6EEDA}
+#certG .pick,#certG .btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+#certG button{font:inherit;font-size:17px;cursor:pointer;border-radius:12px;border:2px solid #C9C2B0;background:#fff;color:#1E2A46;padding:8px 14px;min-height:46px}
+#certG button.p{background:#1E2A46;color:#fff;border-color:#1E2A46;font-weight:700}
+#certG .pick button.on{border-color:#B07F22;box-shadow:inset 0 0 0 2px #B07F22}
+#certPG{display:none}
+@media print{@page{size:A4 portrait;margin:0}body.certprint>*{display:none!important}body.certprint>#certPG{display:block!important}#certPG img{width:100%;height:auto;display:block}}`;
+  document.head.appendChild(st);
+})();
+let CG=null;
+async function openCertG(o){
+  CG=o;let v=document.getElementById('certG');
+  if(!v){v=document.createElement('div');v.id='certG';v.setAttribute('role','dialog');v.setAttribute('aria-modal','true');
+    v.innerHTML='<div class="cg"><h2>📜 인증서</h2><div class="pick" id="cgPick"></div><canvas id="cgCv" width="1240" height="1754" aria-label="인증서"></canvas><div class="btns"><button class="p" id="cgSave">💾 사진으로 저장</button><button id="cgShare">📤 카톡으로 보내기</button><button id="cgPrint">🖨 인쇄하기</button></div><div class="btns"><button id="cgName">✏️ 이름 바꾸기</button><button id="cgClose">닫기</button></div></div>';
+    document.body.appendChild(v);
+    const pg=document.createElement('div');pg.id='certPG';pg.innerHTML='<img alt="인증서">';document.body.appendChild(pg);
+    const file=cb=>{const it=CG.items[CG.idx];document.getElementById('cgCv').toBlob(bl=>cb(bl,`${it.file||'인증서'}.png`.replace(/[\\/:*?"<>|]/g,'')),'image/png')};
+    document.getElementById('cgSave').onclick=()=>file((bl,fn)=>{const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+      alert(`인증서를 사진으로 저장했어요.\n‘다운로드’ 폴더에 「${fn}」로 들어 있어요.`)});
+    document.getElementById('cgShare').onclick=()=>file(async(bl,fn)=>{const f=new File([bl],fn,{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:'인증서'});return}catch(e){if(e&&e.name==='AbortError')return}}
+      document.getElementById('cgSave').click()});
+    document.getElementById('cgPrint').onclick=()=>{document.querySelector('#certPG img').src=document.getElementById('cgCv').toDataURL('image/png');document.body.classList.add('certprint');
+      const done=()=>{document.body.classList.remove('certprint');window.removeEventListener('afterprint',done)};window.addEventListener('afterprint',done);setTimeout(()=>window.print(),300)};
+    document.getElementById('cgName').onclick=()=>{if(CG.onName&&CG.onName()!==false)drawCG()};
+    document.getElementById('cgClose').onclick=()=>{v.hidden=true};
+  }
+  v.hidden=false;v.scrollTop=0;drawCG();await certFonts();drawCG();
+}
+function drawCG(){
+  const p=document.getElementById('cgPick');
+  if(CG.items.length>8){ /* 인증서가 많으면 펼침 목록 */
+    p.innerHTML=`<select id="cgSel" style="font:inherit;font-size:18px;padding:8px 10px;border-radius:12px;border:2px solid #C9C2B0;max-width:100%">${CG.items.map((it,i)=>`<option value="${i}" ${i===CG.idx?'selected':''}>${it.label}</option>`).join('')}</select>`;
+    document.getElementById('cgSel').onchange=e=>{CG.idx=+e.target.value;drawCG()};
+  }else{
+    p.innerHTML=CG.items.length>1?CG.items.map((it,i)=>`<button data-i="${i}" class="${i===CG.idx?'on':''}">${it.label}</button>`).join(''):'';
+    p.querySelectorAll('button').forEach(b=>b.onclick=()=>{CG.idx=+b.dataset.i;drawCG()});
+  }
+  drawCertG(document.getElementById('cgCv'),CG.items[CG.idx].data());
+}
+
+/* ---------- 타자 연습 수료증 (2026-10-11) ----------
+   네 가지 선물(1단계 언약궤 · 2단계 노아의 방주 · 3단계 예루살렘 성전 · 4단계 예루살렘 성벽)을 모두 완성하면 수료증 한 장(초록 테두리).
+   받은 날 S.gradDate, 이름 S.certName(이 기기에만). 기록 지우기를 해도 두 값은 남김 */
+const TY_BASE={frame:'#1F4D3A',ink:'#1F4D3A'};
+function gradParts(){return [
+  ['언약궤',arkGot().every(Boolean)],
+  ['노아의 방주',[0,1,2].every(i=>noahShown(i)>=NOAH_U[i])],
+  ['예루살렘 성전',(S.baskets||0)>=TEMPLE_MAX],
+  ['예루살렘 성벽',wallN()>=WALL_N]]}
+function gradCheck(){if(S.gradDate)return false;if(!gradParts().every(x=>x[1]))return false;S.gradDate=today();save();return true}
+function askGradName(){const a=prompt('수료증에 넣을 이름을 써 주세요.\n(이름은 이 기기에만 저장돼요)',S.certName||'');if(a==null)return false;S.certName=a.trim().slice(0,10);save();return true}
+function showGrad(){
+  if(!S.gradDate)return;
+  if(!S.certName)askGradName();
+  const [y,m,dd]=S.gradDate.split('-');
+  openCertG({idx:0,onName:askGradName,items:[{key:'grad',label:'수료증',file:`말씀타자연습_수료증_${S.certName||'이름'}`,data:()=>({T:certTier(0,'말씀 타자 연습 수료증',TY_BASE),no:1,sub:'네 가지 선물 완성',name:S.certName||'',
+    body:'위 사람은 mybible365 「말씀 타자 연습」에서 언약궤, 노아의 방주, 예루살렘 성전, 예루살렘 성벽의 네 가지 선물을 모두 완성하여, 컴퓨터 자판으로 말씀을 쓰는 법을 끝까지 익혔기에 이 수료증을 드립니다.',
+    verse:['주의 말씀의 맛이 내게 어찌 그리 단지요','내 입에 꿀보다 더하니이다','시편 119편 103절'],date:`${y}년 ${+m}월 ${+dd}일`,rose:['수 료','제 1 호'],seal:['타자','수료']})}]});
+}
+function renderGrad(){
+  const el=$('gradRow');if(!el)return;
+  if(S.gradDate){el.innerHTML='<button class="primary" id="gradBtn">📜 말씀 타자 연습 수료증 보기</button>';$('gradBtn').onclick=showGrad;return}
+  const p=gradParts(),n=p.filter(x=>x[1]).length;
+  el.innerHTML=`<p class="note" style="margin:6px 0 0">📜 네 가지 선물(${p.map(x=>(x[1]?'✓':'·')+' '+x[0]).join(', ')})을 모두 완성하시면 <b>수료증</b>을 드려요. (${n} / 4)</p>`;
+}
 function renderHome(){
   const ld=LESSONS.filter(l=>S.lessons[l.id]).length,vd=V.filter(x=>S.verses[keyOf(x)]).length,jd=JW.V.filter(x=>S.verses[keyOf(x)]).length;
   const steps=[
@@ -737,6 +928,7 @@ function renderHome(){
   $('steps').querySelectorAll('button').forEach(b=>b.onclick=()=>({lessonHome:renderLessons,wordHome:renderWordHome,mannaHome:renderMannaHome,verseHome:renderVerseHome})[b.dataset.go]());
   $('hintOpt').checked=S.hint;$('handsOpt').checked=S.hands!==false;$('soundOpt').checked=S.sound!==false;
   renderStat();show('home');
+  try{renderGrad();if(gradCheck()){renderGrad();setTimeout(()=>{celebrate({title:'말씀 타자 연습 수료!',ark:'',what:['언약궤, 노아의 방주, 예루살렘 성전, 예루살렘 성벽.','<em>네 가지 선물</em>을 모두 완성하셨어요!','📜 <em>말씀 타자 연습 수료증</em>을 드립니다.'],bless:'자판으로 익히신 손끝이 이제 성경필사노트에서 말씀을 새기는 귀한 도구가 되길 기도합니다.',confetti:true});$('pCert').classList.remove('hide')},300)}}catch(e){}
 }
 $('hintOpt').onchange=e=>{S.hint=e.target.checked;save()};
 $('handsOpt').onchange=e=>{S.hands=e.target.checked;save();applyHands()};
@@ -749,7 +941,7 @@ $('soundOpt').onchange=e=>{S.sound=e.target.checked;save()};
 $('homeBtn').onclick=renderHome;
 $('resetBtn').onclick=()=>{
   if(!confirm(`모은 점수 ${fmt(S.score)}점과 연습 기록이 모두 지워집니다.\n글씨 크기와 소리 같은 설정은 그대로 둡니다.\n\n정말 처음부터 하시겠어요?`))return;
-  S={wSay:S.wSay,voice:S.voice,fs:S.fs,zoom:S.zoom,tx:S.tx,hint:S.hint,sound:S.sound,hands:S.hands,face:S.face,vAuto:S.vAuto,mLevel:S.mLevel,mSpeed:S.mSpeed,vLevel:S.vLevel,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{}};
+  S={wSay:S.wSay,voice:S.voice,fs:S.fs,zoom:S.zoom,tx:S.tx,hint:S.hint,sound:S.sound,hands:S.hands,face:S.face,vAuto:S.vAuto,mLevel:S.mLevel,mSpeed:S.mSpeed,vLevel:S.vLevel,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{},gradDate:S.gradDate,certName:S.certName}; /* 수료증은 남김 */
   save();renderHome();alert('기록을 지웠어요. 처음부터 시작하세요!');
 };
 
@@ -1447,6 +1639,7 @@ function showSession(){
 let PENDING_NEXT=false;
 /* ---------- 축하: 나팔 소리 + 꽃가루 ---------- */
 function celebrate(o){
+  $('pCert').classList.add('hide');
   $('pBig').textContent=o.title;$('pArk').innerHTML=o.ark||'';$('pWhat').innerHTML=o.what.join('<br>');$('pBless').textContent=o.bless;
   $('party').classList.remove('hide');$('pClose').focus();
   if(S.sound!==false)fanfare();
@@ -1454,6 +1647,7 @@ function celebrate(o){
 }
 function closeParty(){$('party').classList.add('hide');stopConfetti();if(PENDING_NEXT){PENDING_NEXT=false;if(SCREEN==='verse')nextVerse();return}$('rNext').focus()}
 $('pClose').onclick=closeParty;
+$('pCert').onclick=()=>{closeParty();showGrad()};
 let AC=null;
 function audio(){AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
 function chime(){if(S.sound===false)return;try{const a=audio(),t=a.currentTime,o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.setValueAtTime(880,t);o.frequency.setValueAtTime(1320,t+.07);
