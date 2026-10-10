@@ -56,6 +56,9 @@ button{font:inherit;cursor:pointer;border-radius:12px;border:2px solid var(--lin
 button:focus-visible{outline:4px solid var(--gold);outline-offset:2px}
 button.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:700}
 .stat{color:var(--soft);font-size:19px;margin:0 0 14px}
+.medals{display:flex;flex-wrap:wrap;gap:8px 16px;margin:-4px 0 10px}.medals .md{display:inline-flex;align-items:center;gap:2px;padding:3px 12px 3px 8px;border-radius:999px;background:#FFF6D8;border:1.5px solid #E2C46F;color:#5A3E00;font-size:17px}.medals svg.medal{width:24px;height:31px;flex:0 0 24px}.medals .nm{margin-left:6px}.medals .x{font-weight:700;margin-left:2px}
+.bigmedal{text-align:center;margin:0 0 6px}.bigmedal svg{width:76px;height:99px;filter:drop-shadow(0 3px 4px rgba(120,80,0,.35))}.medals svg.medal{width:26px;height:34px;flex:0 0 26px}
+@media (prefers-color-scheme:dark){.medals .md{background:#3A3018;color:#FFE9A3;border-color:#8E6B1A}}
 .stat b{color:var(--ink)}
 .card{background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:22px 22px 26px}
 .ref{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--soft);margin:0 0 4px}
@@ -181,6 +184,7 @@ h2.sec{font-family:var(--serif);font-size:24px;margin:28px 0 4px}
       <button id="homeBtn">처음 화면</button>
     </div>
   </header>
+  <div class="medals hide" id="medals" aria-label="받은 금메달"></div>
   <p class="stat" id="stat"></p>
   <div class="bline hide" id="bline" aria-live="polite"></div>
 
@@ -412,11 +416,34 @@ function giftPool(lv){const minW={easy:1,mid:5,hard:8}[lv]||1,L=LEVELS.find(l=>l
 const GIFT_POOL={easy:giftPool('easy'),mid:giftPool('mid'),hard:giftPool('hard')};
 /* 빈칸 채우기 선물: 그 단계에서 빈칸을 낼 수 있는 말씀 수를 넘지 않게 (어려움은 194절뿐이라 395절로는 완성할 수 없었음) */
 const GIFT_POOL_B={};for(const lv in GIFT_POOL){const m={easy:1,mid:2,hard:3}[lv];GIFT_POOL_B[lv]=Math.min(GIFT_POOL[lv],KB.filter(k=>k.length>=m).length)}
-const GP=lv=>(isB()?GIFT_POOL_B:GIFT_POOL)[lv];
-const LVS=()=>{const k=GK('lvSolved');if(!S[k]||typeof S[k]!=='object')S[k]={};return S[k]};
-const giftCnt=lv=>Math.min(GP(lv),Object.keys(LVS()[lv]||{}).length);
-const giftShown=(lv,c)=>Math.floor(Math.min(1,(c==null?giftCnt(lv):c)/GP(lv))*GIFT_N);
-const giftLeft=lv=>{const sh=giftShown(lv);return sh>=GIFT_N?0:Math.ceil((sh+1)*GP(lv)/GIFT_N)-giftCnt(lv)};
+/* 2026-10-10 하루에 단계마다 선물 3칸까지(DAY_CAP). 더 맞춘 말씀은 버리지 않고 쌓아 두었다가(giftBank) 다음 날 앱을 열면 드림.
+   받은 칸은 S.gp[단계](빈칸 채우기 S.bgp), 오늘 받은 칸은 S.gday(S.bgday)={d:날짜,단계:칸}.
+   한 놀이에서 쉬움·보통·어려움 선물을 다 받으면 금메달 1개(S.medals / S.bmedals), 그리고 세 선물을 처음부터 다시(두 번째 바퀴): lvSolved·gp를 비움 */
+const DAY_CAP=3;
+const GKx=(n,b)=>b?'b'+n:n;
+const GP=(lv,b=isB())=>(b?GIFT_POOL_B:GIFT_POOL)[lv];
+const LVS=(b=isB())=>{const k=GKx('lvSolved',b);if(!S[k]||typeof S[k]!=='object')S[k]={};return S[k]};
+const giftCnt=(lv,b=isB())=>Math.min(GP(lv,b),Object.keys(LVS(b)[lv]||{}).length);
+const giftEarned=(lv,b=isB())=>Math.floor(Math.min(1,giftCnt(lv,b)/GP(lv,b))*GIFT_N);
+const GPS=(b=isB())=>{const k=GKx('gp',b);if(!S[k]||typeof S[k]!=='object'){S[k]={};for(const lv in GIFT)S[k][lv]=giftEarned(lv,b)}return S[k]}; /* 이 판 전의 기록은 모은 만큼 그대로 */
+const GDAY=(b=isB())=>{const k=GKx('gday',b);if(!S[k]||S[k].d!==today())S[k]={d:today()};return S[k]};
+const giftShown=lv=>Math.min(GIFT_N,GPS()[lv]||0);
+const giftBank=lv=>Math.max(0,giftEarned(lv)-giftShown(lv));
+const todayLeft=lv=>Math.max(0,DAY_CAP-(GDAY()[lv]||0));
+const giftLeft=lv=>{const e=giftEarned(lv);return e>=GIFT_N?0:Math.ceil((e+1)*GP(lv)/GIFT_N)-giftCnt(lv)};
+const medals=(b=isB())=>+S[GKx('medals',b)]||0;
+function giveGifts(lv){const n=Math.min(giftBank(lv),todayLeft(lv));if(n<=0)return null;
+  const g=GPS(),dd=GDAY(),from=g[lv]||0;g[lv]=from+n;dd[lv]=(dd[lv]||0)+n;return {lv,k:g[lv]-1,n,all:g[lv]>=GIFT_N}}
+function checkMedal(){const g=GPS();if(!Object.keys(GIFT).every(lv=>(g[lv]||0)>=GIFT_N))return 0;
+  const k=GKx('medals',isB());S[k]=medals()+1;S[GKx('lvSolved',isB())]={};S[GKx('gp',isB())]={easy:0,mid:0,hard:0};return S[k]}
+const MEDAL_SVG='<svg viewBox="0 0 40 52" class="medal" aria-hidden="true"><path d="M8 0h9l7 17h-9z" fill="#C0392B"/><path d="M32 0h-9l-7 17h9z" fill="#2E5AAC"/><circle cx="20" cy="33" r="16" fill="#B07F12"/><circle cx="20" cy="33" r="13.5" fill="#F2C24E"/><circle cx="20" cy="33" r="10.5" fill="none" stroke="#FFF1BF" stroke-width="1.2" opacity=".8"/><path d="M18.3 25h3.4v5.4h5.3v3.3h-5.3V42h-3.4v-8.3H13v-3.3h5.3z" fill="#FFF8DC" stroke="#B07F12" stroke-width=".6"/></svg>';
+const bigMedal=()=>`<div class="bigmedal">${MEDAL_SVG}</div>`;
+function renderMedals(){
+  const el=$('medals');if(!el)return;
+  const row=(b,name)=>{const n=medals(b);if(!n)return '';const ic=n<=5?MEDAL_SVG.repeat(n):MEDAL_SVG+`<span class="x">×${n}</span>`;return `<span class="md" title="${name} 금메달 ${n}개">${ic}<span class="nm">${name} 금메달 <b>${n}</b>개</span></span>`};
+  const h=row(false,'순서 맞추기')+row(true,'빈칸 채우기');
+  el.innerHTML=h;el.classList.toggle('hide',!h);
+}
 let GIFT_I=0;
 function giftSvg(lv,newK){
   const pf='g'+(GIFT_I++)+'_',d=document.createElement('div');d.innerHTML=GIFT[lv].svg.replace(/\b(gf[A-Z][A-Za-z]*)/g,pf+'$1');
@@ -426,14 +453,30 @@ function giftSvg(lv,newK){
   return d.innerHTML;
 }
 function renderGiftHome(){
-  const lv=S.level in GIFT?S.level:'easy',g=GIFT[lv],sh=giftShown(lv),left=giftLeft(lv);
+  const lv=S.level in GIFT?S.level:'easy',g=GIFT[lv],sh=giftShown(lv),left=giftLeft(lv),bank=giftBank(lv),tl=todayLeft(lv),md=medals();
   $('giftPic').innerHTML=giftSvg(lv,-1);
-  $('giftName').textContent=`${isB()?'빈칸 채우기':'순서 맞추기'} ${(LEVELS.find(l=>l.id===lv)||LEVELS[0]).name} 선물 · ${g.name}`;
-  $('giftTxt').innerHTML=sh>=GIFT_N?`${g.name}${eulReul(g.name)} <b>완성</b>하셨어요! 🎉 다른 단계에도 선물이 있어요.<br><span style="font-size:16px">순서 맞추기와 빈칸 채우기는 선물을 따로 모아요.</span>`
-    :`${g.how} <b style="white-space:nowrap">${sh} / ${GIFT_N}${g.unit}</b><br><span style="font-size:16px">다음 ${g.unit}까지 ${left}절 · 쉬움·보통·어려움마다 선물이 달라요</span>`;
+  $('giftName').textContent=`${md?`${md+1}바퀴째 · `:''}${isB()?'빈칸 채우기':'순서 맞추기'} ${(LEVELS.find(l=>l.id===lv)||LEVELS[0]).name} 선물 · ${g.name}`;
+  const medalNote=`<br><span style="font-size:16px">쉬움·보통·어려움 선물을 다 모으시면 <b>금메달</b>을 드려요.</span>`;
+  let t;
+  if(sh>=GIFT_N)t=`${g.name}${eulReul(g.name)} <b>완성</b>하셨어요! 🎉 다른 단계에도 선물이 있어요.<br><span style="font-size:16px">순서 맞추기와 빈칸 채우기는 선물을 따로 모아요.</span>`+medalNote;
+  else if(tl<=0)t=`오늘 받으실 ${g.unit} <b>${DAY_CAP}개</b>를 다 받으셨어요. <b style="white-space:nowrap">${sh} / ${GIFT_N}${g.unit}</b><br><span style="font-size:16px">${bank?`더 맞추신 말씀으로 <b>${bank}${g.unit}</b>이 쌓여 있어요. 내일 앱을 여시면 드려요.`:`오늘 더 맞추시는 말씀은 쌓아 두었다가 내일 ${g.unit}으로 드려요.`}</span>`;
+  else t=`${g.how} <b style="white-space:nowrap">${sh} / ${GIFT_N}${g.unit}</b><br><span style="font-size:16px">${giftEarned(lv)>=GIFT_N?'':`다음 ${g.unit}까지 ${left}절 · `}오늘 받은 ${g.unit} ${DAY_CAP-tl} / ${DAY_CAP} · 선물은 하루에 ${DAY_CAP}${g.unit}까지</span>`+medalNote;
+  $('giftTxt').innerHTML=t;
 }
+/* 어제(또는 그 전에) 쌓아 둔 칸을 오늘 드림 — 지금 고른 놀이만, 단계마다 하루 3칸까지 */
+function giveBank(){let got=null;for(const lv of Object.keys(GIFT)){const r=giveGifts(lv);if(r&&!got)got={...r,svg:giftSvg(lv,r.k)}}
+  if(!got)return null;const m=checkMedal();save();got.medal=m;return got}
+function showBanked(r){const g=GIFT[r.lv];PAL['__gift']=g.pal;
+  celebrate({pal:'__gift',title:r.medal?'금메달을 받으셨어요!':r.all?g.done.title:`${g.unit} ${r.n}개를 드려요!`,svg:r.medal?bigMedal()+r.svg:r.svg,
+    what:[`어제까지 열심히 맞추신 말씀으로 오늘 <em>${g.name}</em> ${g.unit} <em>${r.n}개</em>를 드려요. (${r.k+1} / ${GIFT_N})`].concat(r.medal?[medalLine(r.medal)]:[]),
+    pill:r.medal?`금메달 ${r.medal}개`:`${g.name} ${r.k+1} / ${GIFT_N}`,bless:r.all?`“${g.done.v}” (${g.done.ref})`:g.bless});
+  renderMedals();renderGiftHome()}
+const medalLine=n=>`쉬움·보통·어려움 선물을 모두 모으셔서 <em>${isB()?'빈칸 채우기':'순서 맞추기'} 금메달</em>을 받으셨어요! (금메달 ${n}개)<br>이제 ${n+1}바퀴째 선물이 처음부터 다시 시작돼요.`;
 function renderHome(){
+  let banked=null;try{banked=giveBank()}catch(e){}
   try{renderGiftHome()}catch(e){}
+  try{renderMedals()}catch(e){}
+  if(banked)setTimeout(()=>showBanked(banked),350);
   $('lvlMsg').classList.add('hide');
   const gm=GAMES.find(g=>g.id===S.game)||GAMES[0];
   document.querySelector('h1').textContent=gm.title;document.title=gm.title;
@@ -468,8 +511,8 @@ $('preview').onchange=e=>{S.preview=e.target.checked;save()};
 $('sound').onchange=e=>{S.sound=e.target.checked;save()};
 $('homeBtn').onclick=renderHome;
 $('resetBtn').onclick=()=>{
-  if(!confirm(`순서 맞추기(점수 ${fmt(S.score)}점, 맞춘 말씀 ${V.filter(x=>S.solved[keyOf(x)]).length}개)와 빈칸 채우기(점수 ${fmt(S.bscore||0)}점, 채운 말씀 ${V.filter(x=>S.bsolved[keyOf(x)]).length}개)의 기록과 선물이 모두 지워집니다.\n글씨 크기와 단계 같은 설정은 그대로 둡니다.\n\n정말 처음부터 하시겠어요?`))return;
-  S={level:S.level,preview:S.preview,fs:S.fs,sound:S.sound,face:S.face,game:S.game,solved:{},bsolved:{},lvSolved:{},blvSolved:{},days:{},bdays:{},score:0,bscore:0,dayScore:{},bdayScore:{},seen:[],bseen:[],gsplit:1,bdone:{},queues:{}};
+  if(!confirm(`순서 맞추기(점수 ${fmt(S.score)}점, 맞춘 말씀 ${V.filter(x=>S.solved[keyOf(x)]).length}개)와 빈칸 채우기(점수 ${fmt(S.bscore||0)}점, 채운 말씀 ${V.filter(x=>S.bsolved[keyOf(x)]).length}개)의 기록과 선물이 모두 지워집니다.\n받으신 금메달은 그대로 남습니다.\n글씨 크기와 단계 같은 설정은 그대로 둡니다.\n\n정말 처음부터 하시겠어요?`))return;
+  S={level:S.level,preview:S.preview,fs:S.fs,sound:S.sound,face:S.face,game:S.game,solved:{},bsolved:{},lvSolved:{},blvSolved:{},days:{},bdays:{},score:0,bscore:0,dayScore:{},bdayScore:{},seen:[],bseen:[],gsplit:1,gp:{},bgp:{},gday:{},bgday:{},medals:+S.medals||0,bmedals:+S.bmedals||0,bdone:{},queues:{}}; /* 금메달은 값진 선물이라 지우지 않음 (2026-10-10) */
   save();applyFace();renderHome();alert('기록을 지웠어요. 처음부터 시작하세요!');
 };
 
@@ -672,7 +715,9 @@ function finish(){
   const k=keyOf(G.x),sv=SV(),first=!sv[k];
   sv[k]=(sv[k]||0)+1;const t=today(),dy=S[GK('days')];dy[t]=(dy[t]||0)+1;
   const glv=S.level in GIFT?S.level:'easy',LS=LVS();if(!LS[glv])LS[glv]={};
-  let gift=null;if(!LS[glv][k]){const b0=giftShown(glv);LS[glv][k]=1;const b1=giftShown(glv);if(b1>b0)gift={lv:glv,k:b1-1,all:b1>=GIFT_N}}
+  const bank0=giftBank(glv);if(!LS[glv][k])LS[glv][k]=1;
+  let gift=giveGifts(glv),capped=!gift&&giftBank(glv)>bank0; /* 오늘 칸을 다 받아 쌓아 둠 */
+  if(gift){gift.svg=giftSvg(glv,gift.k);gift.medal=checkMedal()}
   const parts=[`맞춤 ${P.verse}`];let pts=P.verse;
   if(!G.helped){pts+=P.clean;parts.push(`도움 없이 ${P.clean}`)}
   if(first){pts+=P.first;parts.push(`처음 맞춘 말씀 ${P.first}`)}
@@ -690,8 +735,8 @@ function finish(){
   let hit=0;
   const SEEN=S[GK('seen')];for(const m of MILESTONES)if(before<m&&S[GK('score')]>=m&&!SEEN.includes(m)){SEEN.push(m);hit=m;
     cheers.push(`<b>${isB()?'빈칸 채우기':'순서 맞추기'} 점수가 ${fmt(m)}점을 넘었어요!</b>지금까지 말씀 ${solvedCount()}개를 맞추셨습니다. 꾸준히 해 오신 덕분이에요.`)}
-  if(!gift&&giftShown(glv)<GIFT_N){const g=GIFT[glv],left=giftLeft(glv);
-    cheers.push(`<span class="gm">${giftSvg(glv,-1)}</span><span><b>${g.name} ${giftShown(glv)} / ${GIFT_N}${g.unit}</b>${left===1?`한 절만 더 맞추시면 다음 ${g.unit}이 생겨요!`:`다음 ${g.unit}까지 ${left}절 남았어요.`}</span>`)}
+  if(!gift&&giftShown(glv)<GIFT_N){const g=GIFT[glv],left=giftLeft(glv),bank=giftBank(glv);
+    cheers.push(`<span class="gm">${giftSvg(glv,-1)}</span><span><b>${g.name} ${giftShown(glv)} / ${GIFT_N}${g.unit}</b>${todayLeft(glv)<=0?`오늘 받으실 ${g.unit} ${DAY_CAP}개를 다 받으셨어요. ${bank?`쌓인 ${g.unit} <b>${bank}개</b>는 내일 앱을 여시면 드려요.`:'더 맞추시는 말씀은 쌓아 두었다가 내일 드려요.'}`:giftEarned(glv)>=GIFT_N?'':left===1?`한 절만 더 맞추시면 다음 ${g.unit}이 생겨요!`:`다음 ${g.unit}까지 ${left}절 남았어요.`}</span>`)}
   save();renderStat();renderBline(true);
 
   $('dTitle').textContent=(!G.helped&&G.miss===0)?'아멘! 한 번에 맞추셨어요.':'아멘! 잘 맞추셨어요.';
@@ -714,9 +759,10 @@ function finish(){
     if(party){const b=MODE.b;extra.push(b.kind==='pass'?`‘<em>${esc(b.name)}</em>’ 말씀도 처음부터 끝까지 맞추셨어요.`:`‘<em>${esc(b.name)}</em>’ 말씀 ${b.r.length}절도 모두 맞추셨어요.`)}
     if(scoreLine)extra.push(scoreLine);
     PAL['__gift']=g.pal;
-    celebrate({pal:'__gift',title:gift.all?g.done.title:`${g.piece(gift.k)}!`,svg:giftSvg(gift.lv,gift.k),
+    if(gift.medal)extra.unshift(medalLine(gift.medal));
+    celebrate({pal:'__gift',title:gift.medal?'금메달을 받으셨어요!':gift.all?g.done.title:`${g.piece(gift.k)}!`,svg:gift.medal?bigMedal()+gift.svg:gift.svg,
       what:[gift.all?g.allWhat:`${g.added(gift.k)} (${gift.k+1} / ${GIFT_N})`].concat(extra),
-      pill:party&&party.bonus?`덤 점수 +${party.bonus}점`:`+${pts}점`,bless:gift.all?`“${g.done.v}” (${g.done.ref})`:g.bless});
+      pill:gift.medal?`금메달 ${gift.medal}개`:party&&party.bonus?`덤 점수 +${party.bonus}점`:`+${pts}점`,bless:gift.all?`“${g.done.v}” (${g.done.ref})`:g.bless});
   }else if(party){
     const b=MODE.b,pass=b.kind==='pass';
     celebrate({pal:b.jw?'jesus':pass?'pass':b.name,title:'축하합니다!',
@@ -785,7 +831,7 @@ function celebrate(o){
   if(S.sound!==false)fanfare();
   confetti(pal);
 }
-function closeParty(){$('party').classList.add('hide');stopConfetti();$('dNext').focus()}
+function closeParty(){$('party').classList.add('hide');stopConfetti();renderMedals();if(!$('done').classList.contains('hide'))$('dNext').focus()}
 $('pClose').onclick=closeParty;
 
 let AC=null;
