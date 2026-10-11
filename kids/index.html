@@ -18,7 +18,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#7C4DFF">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cute+Font&family=Jua&family=Do+Hyeon&display=swap" rel="stylesheet">
 
 <title>주니어 말씀 놀이</title>
 <style>
@@ -126,7 +126,16 @@ h2.sec{font-family:var(--serif);font-size:24px;margin:28px 0 4px}
 @media (prefers-reduced-motion:reduce){.gift .u.new{animation:none}}
 .pArk:empty{display:none}.pArk{max-width:300px;margin:6px auto 0}@media (max-width:560px){.pArk{max-width:210px}}
 .cheer.giftmini{display:flex;align-items:center;gap:14px}.cheer.giftmini .gift{width:120px;flex:0 0 120px}
-.games{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 18px}
+.games{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 18px}
+.tray.sent.cho .ckw{white-space:nowrap}.tray.sent.cho{line-height:2.1}
+.tray.sent.cho .ck{display:inline-block;min-width:1.3em;text-align:center;border:2px solid var(--line);border-radius:8px;margin:0 1px;padding:0 3px;line-height:1.4;color:var(--soft);background:#fff}
+.tray.sent.cho .ck.cur{border:3px solid var(--gold);background:#FFF4C9;color:var(--ink)}
+.tray.sent.cho .ck.ok{background:var(--set);color:#fff;border-color:var(--set)}
+.pool.opts.cho .tile{min-width:2.4em}
+.games{grid-template-columns:repeat(3,minmax(0,1fr))}.games button{min-width:0}
+@media (max-width:420px){.games button{flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px 4px;gap:2px}.games .ic{font-size:26px}.games b{font-size:calc(16px * var(--kf));text-align:center}.games button>span{text-align:center}}
+.tray.sent.cho .ck{font-family:'Jua','Malgun Gothic',sans-serif;font-size:.62em;min-width:1.7em;padding:0 2px;line-height:1.7;vertical-align:middle}
+.tray.sent.cho .ck.ok{font-family:var(--serif);font-size:.9em;line-height:1.25;min-width:1.2em}
 .games button{text-align:left;padding:10px 12px;min-height:64px;display:flex;align-items:center;gap:10px;border-width:3px}
 .games .ic{font-size:30px;line-height:1}.games b{display:block;font-size:20px;font-family:var(--serif)}.games span.d{display:block;color:var(--soft);font-size:15px;line-height:1.4}
 .games button.on{border-color:var(--set);background:color-mix(in srgb,var(--set) 10%,var(--paper));box-shadow:inset 0 0 0 2px var(--set)}
@@ -177,7 +186,7 @@ h2.sec{font-family:var(--serif);font-size:24px;margin:28px 0 4px}
 
 /* ===== 주니어 디자인 (2026-10-10): 밝은 크림 바탕, 보라·초록·노랑, 둥근 글씨(Jua), 사탕 색 조각 ===== */
 :root,:root[data-theme="dark"]{
-  --serif:'Jua','Gowun Dodum','Malgun Gothic','Apple SD Gothic Neo',sans-serif;
+  --serif:'Cute Font','Jua','Gowun Dodum','Malgun Gothic','Apple SD Gothic Neo',sans-serif;
   --bg:#FFF6E5;--paper:#FFFFFF;--ink:#3A2D6B;--soft:#6E6690;--line:#E6DCF7;
   --wood:#FFE584;--woodEdge:#F2B705;--woodInk:#4A3200;
   --set:#1FA463;--setInk:#FFFFFF;--gold:#FF9F1C;--miss:#E5484D;--vbg:#FFF4C9;--fs:24px;--pop:#7C4DFF;
@@ -239,6 +248,18 @@ h2.step .sn{background:var(--pop)}
 .delkid{font-size:15px;min-height:40px;padding:6px 12px;color:var(--soft);box-shadow:none}
 .pbox .big{font-family:var(--serif)}
 .lambbig{width:120px;height:100px;display:block;margin:0 auto}
+/* 글씨체마다 크기 맞춤 (2026-10-11): 주아 크기를 1로 두고 --kf 배율(큐트 1.5, 주아 1, 도현 1.05) */
+:root{--kf:1.5}
+h1{font-size:calc(40px * var(--kf))}h2.sec{font-size:calc(27px * var(--kf))}.levels b{font-size:calc(27px * var(--kf))}.games b{font-size:calc(20px * var(--kf))}.games span.d{font-size:16px}
+.bundles b{font-size:calc(22px * var(--kf))}button{font-size:calc(19px * var(--kf))}.tools button{font-size:calc(21px * var(--kf))}button.big{font-size:calc(23px * var(--kf))}.done-title{font-size:calc(28px * var(--kf))}.ref{font-size:calc(22px * var(--kf))}
+.pbox .big{font-size:calc(43px * var(--kf))}.pbox button.primary{font-size:calc(21px * var(--kf))}.talbox b{font-size:calc(25px * var(--kf))}.kid b{font-size:calc(24px * var(--kf))}.newkid input{font-size:calc(23px * var(--kf))}
+.talbar .who{font-size:calc(20px * var(--kf))}.talbar .who button{font-size:calc(14px * var(--kf))}.talbar .coins{font-size:calc(21px * var(--kf))}.talbar .coins b{font-size:calc(24px * var(--kf))}.talchip{font-size:calc(20px * var(--kf))}
+.tile{font-size:calc(var(--fs) * var(--kf))}.tray{font-size:calc(var(--fs) * var(--kf))}.verse{font-size:calc(var(--fs) * var(--kf) + 6px)}.bline .bn{font-size:calc(21px * var(--kf))}
+.levels button{padding-top:10px;padding-bottom:10px}
+@media (max-width:600px){h1{font-size:calc(36px * var(--kf))}}
+@media (max-width:560px){.levels b{font-size:calc(25px * var(--kf))}}
+@media (max-width:420px){.games b{font-size:calc(18px * var(--kf))}}
+.facepick button{font-size:calc(19px * var(--kf))}.facepick button small{display:block;font-size:.8em;opacity:.8}
 </style>
 </head>
 <body>
@@ -295,10 +316,10 @@ h2.step .sn{background:var(--pop)}
     <h2 class="sec">보기 설정</h2>
     <label class="opt"><input type="checkbox" id="preview"> 맞추기 전에 말씀을 먼저 읽어 보기</label>
     <label class="opt"><input type="checkbox" id="sound"> 축하할 때 나팔 소리 내기</label>
-    <div class="facepick hide" role="group" aria-label="글씨 모양"><span class="fl">🔤 글씨 모양</span>
-      <button data-face="myeongjo">명조<small>태초에 하나님이</small></button>
-      <button data-face="gothic">고딕<small>태초에 하나님이</small></button>
-      <button data-face="brush">붓글씨<small>태초에 하나님이</small></button>
+    <div class="facepick" role="group" aria-label="글씨체 고르기"><span class="fl">🔤 글씨체 고르기</span>
+      <button data-face="cute">큐트<small>하나님은 사랑</small></button>
+      <button data-face="jua">주아<small>하나님은 사랑</small></button>
+      <button data-face="dohyeon">도현<small>하나님은 사랑</small></button>
     </div>
     <div class="row"><button id="backupBtn">💾 기록 백업 받기</button><button id="restoreBtn">📂 백업 파일로 되살리기</button><button id="resetBtn">기록 지우고 처음부터 하기</button></div>
     <input type="file" id="restoreFile" accept=".json,application/json" hidden>
@@ -364,7 +385,7 @@ h2.step .sn{background:var(--pop)}
     휴대폰을 바꾸기 전에는 처음 화면 아래 ‘💾 기록 백업 받기’를 해 두세요.<br>
     어른들을 위한 말씀 앱: <a href="../">mybible365</a><br>
     <span class="credit">오직 하나님께 영광 · 만든 이 김명구 집사</span><br>
-    <span style="font-size:13px">주니어 말씀 놀이 · 2026년 10월 10일 판</span>
+    <span style="font-size:13px">주니어 말씀 놀이 · 2026년 10월 11일 저녁 판</span>
   </footer>
 </div>
 <script>
@@ -379,7 +400,17 @@ for(const [c,ws] of Object.entries(D.L)){CATW[c]=ws.split(' ');for(const w of CA
 for(const g of D.Y){const m=g.split(' ');for(const w of m)(SYN[w]=SYN[w]||new Set(m))}
 const GAMES=[
   {id:'order',ic:'🧩',name:'순서 맞추기',title:'주니어 말씀 놀이',desc:'섞인 조각을 차례대로'},
-  {id:'blank',ic:'✏️',name:'빈칸 채우기',title:'주니어 말씀 놀이',desc:'빈 낱말을 골라 채우기'}];
+  {id:'blank',ic:'✏️',name:'빈칸 채우기',title:'주니어 말씀 놀이',desc:'빈 낱말을 골라 채우기'},
+  {id:'chosung',ic:'🔤',name:'초성 퀴즈',title:'주니어 말씀 놀이',desc:'초성 보고 글자 맞히기'}];
+/* 주니어 초성 퀴즈 (2026-10-11): 쉬움 낱말 하나, 보통 낱말 두세 개, 어려움 말씀 전체가 초성.
+   지금 칸에 들어갈 글자를 3개(정답 1 + 같은 초성의 다른 글자 2) 가운데 골라 앞에서부터 채움 */
+const LEVELS_C=[
+  {id:'easy',name:'쉬움',desc:'낱말 하나가 초성'},
+  {id:'mid',name:'보통',desc:'낱말 두세 개가 초성'},
+  {id:'hard',name:'어려움',desc:'말씀 전체가 초성!'}];
+const CHO='ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+const choOf=ch=>{const c=ch.charCodeAt(0)-0xAC00;return c>=0&&c<11172?CHO[Math.floor(c/588)]:ch};
+const isHan=ch=>{const c=ch.charCodeAt(0);return c>=0xAC00&&c<0xAC00+11172};
 const LEVELS_B=[
   {id:'easy',name:'쉬움',blanks:1,opts:3,desc:'빈칸 1개, 보기 3개'},
   {id:'mid',name:'보통',blanks:2,opts:4,desc:'빈칸 2개, 보기 4개'},
@@ -416,7 +447,8 @@ function normalize(){
 delete S.queue; // 예전 판의 순서표는 말씀 수가 달라져 버림
 if(!S.queues||typeof S.queues!=='object')S.queues={};
 if(!S.bsolved||typeof S.bsolved!=='object')S.bsolved={};
-if(S.game!=='blank')S.game='order';
+if(S.game!=='blank'&&S.game!=='chosung')S.game='order';
+for(const [k,v] of [['csolved',{}],['cdayScore',{}],['cdays',{}]])if(!S[k]||typeof S[k]!=='object')S[k]=v;if(!Array.isArray(S.cseen))S.cseen=[];if(typeof S.cscore!=='number')S.cscore=0;
 for(const [k,v] of [['blvSolved',{}],['bdayScore',{}],['bdays',{}],['lvSolved',{}],['dayScore',{}],['days',{}]])if(!S[k]||typeof S[k]!=='object')S[k]=v;
 if(!Array.isArray(S.bseen))S.bseen=[];if(!Array.isArray(S.seen))S.seen=[];if(typeof S.bscore!=='number')S.bscore=0;
 if(S.gsplit!==1){ /* 2026-10-10 전에는 두 놀이가 점수·선물을 함께 셌음 → 나눔.
@@ -436,17 +468,19 @@ normalize();
 function save(){try{localStorage.setItem(SKEY,JSON.stringify(S))}catch(e){}}
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 /* 두 놀이는 모든 것을 따로 셈 (2026-10-10): 점수·오늘 점수·점수 축하·단계 선물·맞춘 말씀·주제 완료·순서표. 빈칸 채우기 쪽 저장 이름은 b를 붙임 */
-const GK=n=>isB()?'b'+n:n;
+const GK=n=>isB()?'b'+n:isC()?'c'+n:n;
 const isB=()=>S.game==='blank';
-const SV=()=>isB()?S.bsolved:S.solved;
-const bdk=id=>isB()?'b:'+id:id;
-const qkey=k=>isB()?'b:'+k:k;
+const isC=()=>S.game==='chosung';
+const GN=()=>isB()?'빈칸 채우기':isC()?'초성 퀴즈':'순서 맞추기';
+const SV=()=>isB()?S.bsolved:isC()?S.csolved:S.solved;
+const bdk=id=>isB()?'b:'+id:isC()?'c:'+id:id;
+const qkey=k=>isB()?'b:'+k:isC()?'c:'+k:k;
 const solvedCount=()=>V.reduce((n,x)=>n+(SV()[keyOf(x)]?1:0),0);
 const bProg=b=>b.r.reduce((n,i)=>n+(SV()[keyOf(V[i])]?1:0),0);
 const fmt=n=>n.toLocaleString('ko-KR');
 
 function renderStat(){
-  $('stat').innerHTML=`오늘 <b>${fmt(S[GK('dayScore')][today()]||0)}점</b> &nbsp;|&nbsp; ${isB()?'빈칸 채우기':'순서 맞추기'} 점수 <b>${fmt(S[GK('score')])}점</b> &nbsp;|&nbsp; ${isB()?'빈칸 채운 말씀':'전체 맞춘 말씀'} <b>${solvedCount()}개</b> / ${isB()?BLANK_N:V.length}개`;
+  $('stat').innerHTML=`오늘 <b>${fmt(S[GK('dayScore')][today()]||0)}점</b> &nbsp;|&nbsp; ${GN()} 점수 <b>${fmt(S[GK('score')])}점</b> &nbsp;|&nbsp; ${isB()?'빈칸 채운 말씀':isC()?'초성으로 맞힌 말씀':'전체 맞춘 말씀'} <b>${solvedCount()}개</b> / ${isB()?BLANK_N:V.length}개`;
 }
 const eulReul=w=>{const c=w.charCodeAt(w.length-1)-0xAC00;return c>=0&&c<11172&&c%28?'을':'를'};
 /* 주제·이어지는 말씀을 할 때만 보이는 진행 줄 */
@@ -515,7 +549,7 @@ const talUsed=()=>TAL().settle.reduce((n,x)=>n+(+x.n||0),0);
 const talAvail=()=>Math.max(0,TAL().earned-talUsed());
 function dateOk(){const t=TAL(),d=today();if(t.maxDay&&d<t.maxDay)return false;if(d>t.maxDay)t.maxDay=d;return true}
 function earnVerse(k){const t=TAL();if(!dateOk())return {why:'date'};
-  const key=(isB()?'b:':'o:')+k,last=t.last[key];
+  const key=(isB()?'b:':isC()?'c:':'o:')+k,last=t.last[key];
   if(last){const gap=dnum(today())-dnum(last);if(gap<TAL_AGAIN)return {why:'again',left:TAL_AGAIN-gap}}
   if(talToday()>=TAL_DAY)return {why:'cap'};
   t.last[key]=today();t.earned++;t.day[today()]=talToday()+1;
@@ -576,7 +610,7 @@ function giftSvg(lv,newK){
 function renderGiftHome(){if(KIDS){renderTalHome();return}
   const lv=S.level in GIFT?S.level:'easy',g=GIFT[lv],sh=giftShown(lv),left=giftLeft(lv),bank=giftBank(lv),tl=todayLeft(lv),md=medals();
   $('giftPic').innerHTML=giftSvg(lv,-1);
-  $('giftName').textContent=`${md?`${md+1}바퀴째 · `:''}${isB()?'빈칸 채우기':'순서 맞추기'} ${(LEVELS.find(l=>l.id===lv)||LEVELS[0]).name} 선물 · ${g.name}`;
+  $('giftName').textContent=`${md?`${md+1}바퀴째 · `:''}${GN()} ${(LEVELS.find(l=>l.id===lv)||LEVELS[0]).name} 선물 · ${g.name}`;
   const medalNote=`<br><span style="font-size:16px">쉬움·보통·어려움 선물을 다 모으시면 <b>금메달</b>을 드려요.</span>`;
   let t;
   if(sh>=GIFT_N)t=`${g.name}${eulReul(g.name)} <b>완성</b>하셨어요! 🎉 다른 단계에도 선물이 있어요.<br><span style="font-size:16px">순서 맞추기와 빈칸 채우기는 선물을 따로 모아요.</span>`+medalNote;
@@ -592,7 +626,7 @@ function showBanked(r){const g=GIFT[r.lv];PAL['__gift']=g.pal;
     what:[`어제까지 열심히 맞추신 말씀으로 오늘 <em>${g.name}</em> ${g.unit} <em>${r.n}개</em>를 드려요. (${r.k+1} / ${GIFT_N})`].concat(r.medal?[medalLine(r.medal)]:[]),
     pill:r.medal?`금메달 ${r.medal}개`:`${g.name} ${r.k+1} / ${GIFT_N}`,bless:r.all?`“${g.done.v}” (${g.done.ref})`:g.bless});
   renderMedals();renderGiftHome()}
-const medalLine=n=>`쉬움·보통·어려움 선물을 모두 모으셔서 <em>${isB()?'빈칸 채우기':'순서 맞추기'} 금메달</em>을 받으셨어요! (금메달 ${n}개)<br>이제 ${n+1}바퀴째 선물이 처음부터 다시 시작돼요.`;
+const medalLine=n=>`쉬움·보통·어려움 선물을 모두 모으셔서 <em>${GN()} 금메달</em>을 받으셨어요! (금메달 ${n}개)<br>이제 ${n+1}바퀴째 선물이 처음부터 다시 시작돼요.`;
 function renderHome(){
   if(!KID()){showWho();return}
   let banked=null;try{banked=giveBank()}catch(e){}
@@ -604,17 +638,17 @@ function renderHome(){
   document.title=gm.title;
   $('games').innerHTML=GAMES.map(g=>`<button data-g="${g.id}" class="${S.game===g.id?'on':''}" aria-pressed="${S.game===g.id}"><span class="ic" aria-hidden="true">${g.ic}</span><span><b>${g.name}</b><span class="d">${g.desc}</span></span></button>`).join('');
   $('games').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.game=b.dataset.g;save();renderHome()});
-  $('levels').innerHTML=(isB()?LEVELS_B:LEVELS).map(l=>`<button data-l="${l.id}" class="${S.level===l.id?'on':''}" aria-pressed="${S.level===l.id}"><b>${l.name}</b><span>${l.desc}</span></button>`).join('');
-  $('levels').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(S.level!==b.dataset.l){delete S.queues.mix;delete S.queues['b:mix']}S.level=b.dataset.l;save();renderHome();guideToStart()});
+  $('levels').innerHTML=(isB()?LEVELS_B:isC()?LEVELS_C:LEVELS).map(l=>`<button data-l="${l.id}" class="${S.level===l.id?'on':''}" aria-pressed="${S.level===l.id}"><b>${l.name}</b><span>${l.desc}</span></button>`).join('');
+  $('levels').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(S.level!==b.dataset.l){delete S.queues.mix;delete S.queues['b:mix'];delete S.queues['c:mix']}S.level=b.dataset.l;save();renderHome();guideToStart()});
   const lv=LEVELS.find(l=>l.id===S.level)||LEVELS[0];
   const easy=S.level==='easy';
-  $('startBtn').textContent=isB()?`▶ ‘${lv.name}’ 빈칸 채우기 시작!`:easy?'▶ 짧은 말씀부터 시작!':`▶ ‘${lv.name}’ 말씀 섞어서 시작!`;
+  $('startBtn').textContent=isC()?`▶ ‘${lv.name}’ 초성 퀴즈 시작!`:isB()?`▶ ‘${lv.name}’ 빈칸 채우기 시작!`:easy?'▶ 짧은 말씀부터 시작!':`▶ ‘${lv.name}’ 말씀 섞어서 시작!`;
   $('bundleArea').classList.remove('hide');$('easyNote').classList.add('hide'); /* 주니어: 주제는 쉬움에서도 */
   $('step2guide').textContent='큰 단추를 누르면 말씀이 하나씩 나와요. 아래에서 주제를 골라도 돼요.';
   $('preview').checked=S.preview;$('sound').checked=S.sound!==false;
   const card=b=>{const n=bProg(b),full=n===b.r.length;
     return `<button data-b="${b.id}" class="${full?'full':''}"><b>${esc(b.name)}</b><span>${esc(b.desc)}</span><span class="prog">${full?'✓ 다 맞추셨어요':`${n} / ${b.r.length}절 맞춤`}</span></button>`};
-  const ok=b=>!isB()||bReady(b); /* 빈칸 채우기는 빈칸 낱말이 다 있는 묶음만 */
+  const ok=b=>!(isB()||isC())||bReady(b); /* 빈칸 채우기는 빈칸 낱말이 다 있는 묶음만 */
   $('themes').innerHTML=BUN.filter(b=>b.kind==='theme'&&ok(b)).map(card).join('');
   $('passages').innerHTML=BUN.filter(b=>b.kind==='pass'&&!b.jw&&ok(b)).map(card).join('');
   $('jesus').innerHTML=BUN.filter(b=>b.jw&&ok(b)).map(card).join('');
@@ -681,7 +715,7 @@ $('sound').onchange=e=>{S.sound=e.target.checked;save()};
 $('homeBtn').onclick=renderHome;
 $('resetBtn').onclick=()=>{
   if(!confirm(`순서 맞추기(점수 ${fmt(S.score)}점, 맞춘 말씀 ${V.filter(x=>S.solved[keyOf(x)]).length}개)와 빈칸 채우기(점수 ${fmt(S.bscore||0)}점, 채운 말씀 ${V.filter(x=>S.bsolved[keyOf(x)]).length}개)의 기록이 모두 지워져요.\n모은 달란트와 정산 기록은 그대로 남아요.\n글씨 크기와 단계 같은 설정은 그대로 둡니다.\n\n정말 처음부터 하시겠어요?`))return;
-  S={level:S.level,preview:S.preview,fs:S.fs,sound:S.sound,face:S.face,game:S.game,solved:{},bsolved:{},lvSolved:{},blvSolved:{},days:{},bdays:{},score:0,bscore:0,dayScore:{},bdayScore:{},seen:[],bseen:[],gsplit:1,gp:{},bgp:{},gday:{},bgday:{},medals:+S.medals||0,bmedals:+S.bmedals||0,tal:S.tal,bdone:{},queues:{}}; /* 달란트와 정산 기록은 남김 */ /* 금메달은 값진 선물이라 지우지 않음 (2026-10-10) */
+  S={level:S.level,preview:S.preview,fs:S.fs,sound:S.sound,face:S.face,game:S.game,solved:{},bsolved:{},csolved:{},cscore:0,cdayScore:{},cdays:{},cseen:[],lvSolved:{},blvSolved:{},days:{},bdays:{},score:0,bscore:0,dayScore:{},bdayScore:{},seen:[],bseen:[],gsplit:1,gp:{},bgp:{},gday:{},bgday:{},medals:+S.medals||0,bmedals:+S.bmedals||0,tal:S.tal,bdone:{},queues:{}}; /* 달란트와 정산 기록은 남김 */ /* 금메달은 값진 선물이라 지우지 않음 (2026-10-10) */
   save();applyFace();renderHome();alert('기록을 지웠어요. 처음부터 시작하세요!');
 };
 
@@ -727,6 +761,7 @@ function makeQueue(list,shortFirst,fixed){
 }
 let MODE={type:'mix'};
 function mixList(){
+  if(isC())return V.map((_,i)=>i).filter(i=>KB[i].length>=(S.level==='mid'?2:1));
   if(isB()){const minB={easy:1,mid:2,hard:3}[S.level]||1;return V.map((_,i)=>i).filter(i=>KB[i].length>=minB)}
   const minW={easy:1,mid:5,hard:8}[S.level]||1,lv=LEVELS.find(l=>l.id===S.level)||LEVELS[0];
   /* 쉬움은 처음 352절(D.N)만: 2026-10-08에 더한 주제 말씀(보혈·귀신·치유·천국)은 보통부터 섞여 나옴 */
@@ -735,11 +770,11 @@ function mixList(){
 }
 function next(){
   if(MODE.type==='pass'){start(MODE.b.r[MODE.pos]);return}
-  const qk=qkey(MODE.type==='mix'?(S.level==='easy'?'mixEasy':'mix'):MODE.b.id); /* 쉬움은 따로 정해진 순서표, 빈칸 채우기는 b: */
+  const qk=qkey(MODE.type==='mix'?(S.level==='easy'&&!isC()?'mixEasy':'mix'):MODE.b.id); /* 쉬움은 따로 정해진 순서표, 빈칸 채우기는 b: */
   let q=S.queues[qk];
   const valid=MODE.type==='mix'?mixList():MODE.b.r;
   if(Array.isArray(q)){const ok=new Set(valid);q=q.filter(i=>ok.has(i))} /* 예전 순서표에 남은 긴 말씀은 뺌 */
-  const easyMix=MODE.type==='mix'&&S.level==='easy';
+  const easyMix=!isC()&&MODE.type==='mix'&&S.level==='easy';
   if(easyMix&&!isB()&&!S.easyCleared&&valid.every(i=>S.solved[keyOf(V[i])])){
     S.easyCleared=true;save();
     if(confirm(`쉬움 말씀 ${valid.length}개를 모두 맞추셨어요! 정말 잘하셨습니다.\n\n이제 ‘보통’으로 올라가 볼까요?\n(‘취소’를 누르시면 쉬움 말씀을 처음부터 한 번 더 합니다.)`)){
@@ -771,6 +806,7 @@ function chunk(text,want){
 /* ---------- 놀이 ---------- */
 let G=null;
 function start(i){
+  if(isC())return startChoK(i);
   if(isB())return startBlank(i);
   $('rGuide').textContent='말씀을 소리 내어 읽어 봐요. 다 읽었으면 아래 단추를 눌러요.';
   const x=V[i],lv=LEVELS.find(l=>l.id===S.level)||LEVELS[0];
@@ -841,15 +877,53 @@ function chooseBlank(o,btn){
     if(G.streakMiss>=2){G.helped=true;glowNext()}
   }
 }
+
+/* ---------- 주니어 초성 퀴즈 놀이 ---------- */
+const JUNGS=[0,4,8,13,18,20,1,5,2,6];
+function fakeOf(ch,avoid){const c=ch.charCodeAt(0)-0xAC00;if(c<0||c>=11172)return null;const cho=Math.floor(c/588),jung=Math.floor(c%588/28),jong=c%28;
+  for(const j of shuffle(JUNGS)){if(j===jung)continue;const jo=Math.random()<.5?jong:0,t=String.fromCharCode(0xAC00+cho*588+j*28+jo);if(!avoid.has(t))return t}return null}
+function startChoK(i){
+  const x=V[i],words=x[3].split(/\s+/).filter(Boolean),lv=S.level;
+  /* 초성으로 바꿀 글자 고르기: 쉬움 낱말 하나, 보통 두세 개(빈칸 낱말에서), 어려움 모든 글자 */
+  const mask=words.map(w=>[...w].map(()=>false));
+  if(lv==='hard')words.forEach((w,wi)=>[...w].forEach((ch,ci)=>{if(isHan(ch))mask[wi][ci]=true}));
+  else{const picks=shuffle(KB[i]).slice(0,lv==='mid'?3:1);for(const [wi,L] of picks)for(let ci=0;ci<L;ci++)if(isHan(words[wi][ci]))mask[wi][ci]=true}
+  const seq=[];words.forEach((w,wi)=>[...w].forEach((ch,ci)=>{if(mask[wi][ci])seq.push(ch)}));
+  G={i,x,cho:true,words,mask,seq,pos:0,miss:0,helped:false,streakMiss:0,opts:[]};
+  renderBline(false);
+  $('rGuide').textContent='말씀을 소리 내어 읽어 봐요. 다 읽으면 몇 글자가 초성만 남아요.';
+  if(S.preview){$('rRef').textContent=refOf(x);$('rText').textContent=x[3];show('read');$('rGo').focus()}
+  else play();
+}
+function choOpts(){const want=G.seq[G.pos],avoid=new Set([want]),o=[want];for(let n=0;n<2;n++){const f=fakeOf(want,avoid);if(f){avoid.add(f);o.push(f)}}G.opts=shuffle(o)}
+function renderChoK(){
+  let k=0;
+  const html=G.words.map((w,wi)=>{let out='',box=false;[...w].forEach((ch,ci)=>{if(!G.mask[wi][ci]){out+=esc(ch);return}box=true;const n=k++;
+    out+=n<G.pos?`<span class="ck ok">${esc(ch)}</span>`:`<span class="ck${n===G.pos?' cur':''}">${choOf(ch)}</span>`});return box?`<span class="ckw">${out}</span>`:out}).join(' ');
+  $('tray').className='tray sent cho';$('tray').innerHTML=html;
+  $('pool').className='pool opts cho';$('pool').innerHTML='';
+  if(G.pos>=G.seq.length)return;
+  G.opts.forEach(t=>{const b=document.createElement('button');b.className='tile';b.textContent=t;b.onclick=()=>chooseChoK(t,b);$('pool').appendChild(b)});
+  const cur=$('tray').querySelector('.ck.cur');if(cur&&cur.scrollIntoView&&G.seq.length>12)cur.scrollIntoView({block:'nearest'});
+}
+function chooseChoK(t,btn){
+  const want=G.seq[G.pos];
+  if(t===want){G.pos++;G.streakMiss=0;$('msg').textContent='';$('msg').className='msg';
+    if(G.pos>=G.seq.length){renderChoK();return finish()}
+    choOpts();renderChoK();
+  }else{G.miss++;G.streakMiss++;btn.classList.remove('no');void btn.offsetWidth;btn.classList.add('no');
+    $('msg').className='msg miss';$('msg').textContent=G.streakMiss>=2?'괜찮아요! 노란 테두리 글자가 정답이에요.':'앗, 다른 글자예요. 말씀을 떠올려 봐요!';
+    if(G.streakMiss>=2){G.helped=true;glowNext()}}
+}
 function play(){
   $('pRef').textContent=refOf(G.x);
-  $('hintBtn').textContent=G.blank?'💡 알맞은 낱말 알려주기':'💡 다음 조각 알려주기';
-  $('pGuide').textContent=G.blank
+  $('hintBtn').textContent=G.cho?'💡 알맞은 글자 알려주기':G.blank?'💡 알맞은 낱말 알려주기':'💡 다음 조각 알려주기';
+  $('pGuide').textContent=G.cho?`노란 칸에 들어갈 글자를 골라요. (${G.seq.length}글자) 틀려도 괜찮아요!${where()}`:G.blank
     ?`${G.blanks.length>1?`빈칸 ${G.blanks.length}개를 앞에서부터 채워요. 노란 칸이 지금 채울 빈칸이에요.`:'빈칸에 들어갈 낱말을 골라요.'} 틀려도 괜찮아요!${where()}`
     :`조각 ${G.parts.length}개를 말씀 순서대로 눌러요. 틀려도 괜찮아요!${where()}`;
   $('msg').textContent='';$('msg').className='msg';
   $('skipBtn').classList.toggle('hide',MODE.type==='pass');
-  if(G.blank)renderBlank();else{$('tray').className='tray';$('pool').className='pool';renderPlay()}
+  if(G.cho){choOpts();renderChoK()}else if(G.blank)renderBlank();else{$('tray').className='tray';$('pool').className='pool';renderPlay()}
   show('play');
 }
 function renderPlay(){
@@ -873,8 +947,8 @@ function choose(k,btn){
     if(G.streakMiss>=2){G.helped=true;glowNext()}
   }
 }
-function glowNext(){const want=G.blank?G.blanks[G.pos].ans:G.parts[G.pos];for(const b of $('pool').querySelectorAll('.tile'))if(b.textContent===want){b.classList.add('glow');break}}
-$('hintBtn').onclick=()=>{G.helped=true;glowNext();$('msg').className='msg';$('msg').textContent=G.blank?'노란 테두리 낱말을 눌러 보세요.':'노란 테두리 조각을 눌러 보세요.'};
+function glowNext(){const want=G.cho?G.seq[G.pos]:G.blank?G.blanks[G.pos].ans:G.parts[G.pos];for(const b of $('pool').querySelectorAll('.tile'))if(b.textContent===want){b.classList.add('glow');break}}
+$('hintBtn').onclick=()=>{G.helped=true;glowNext();$('msg').className='msg';$('msg').textContent=G.cho?'노란 테두리 글자를 눌러 봐요.':G.blank?'노란 테두리 낱말을 눌러 보세요.':'노란 테두리 조각을 눌러 보세요.'};
 $('peekBtn').onclick=()=>{$('msg').className='msg';$('msg').textContent=G.x[3]};
 $('skipBtn').onclick=()=>next();
 
@@ -910,7 +984,7 @@ function finish(){
   }
   let hit=0;
   const SEEN=S[GK('seen')];for(const m of MILESTONES)if(before<m&&S[GK('score')]>=m&&!SEEN.includes(m)){SEEN.push(m);hit=m;
-    cheers.push(`<b>${isB()?'빈칸 채우기':'순서 맞추기'} 점수가 ${fmt(m)}점을 넘었어요!</b>지금까지 말씀 ${solvedCount()}개를 맞췄어요. 정말 대단해요!`)}
+    cheers.push(`<b>${GN()} 점수가 ${fmt(m)}점을 넘었어요!</b>지금까지 말씀 ${solvedCount()}개를 맞췄어요. 정말 대단해요!`)}
   if(!KIDS&&!gift&&giftShown(glv)<GIFT_N){const g=GIFT[glv],left=giftLeft(glv),bank=giftBank(glv);
     cheers.push(`<span class="gm">${giftSvg(glv,-1)}</span><span><b>${g.name} ${giftShown(glv)} / ${GIFT_N}${g.unit}</b>${todayLeft(glv)<=0?`오늘 받으실 ${g.unit} ${DAY_CAP}개를 다 받으셨어요. ${bank?`쌓인 ${g.unit} <b>${bank}개</b>는 내일 앱을 여시면 드려요.`:'더 맞추시는 말씀은 쌓아 두었다가 내일 드려요.'}`:giftEarned(glv)>=GIFT_N?'':left===1?`한 절만 더 맞추시면 다음 ${g.unit}이 생겨요!`:`다음 ${g.unit}까지 ${left}절 남았어요.`}</span>`)}
   save();renderStat();renderBline(true);
@@ -952,7 +1026,7 @@ function finish(){
   }else if(hit){
     celebrate({pal:'score',title:`${fmt(hit)}점 돌파!`,
       what:[`모은 점수가 <em>${fmt(hit)}점</em>을 넘었어요.`,`지금까지 말씀 <em>${solvedCount()}개</em>를 맞추셨습니다.`],
-      pill:`${isB()?'빈칸 채우기':'순서 맞추기'} 점수 ${fmt(S[GK('score')])}점`,bless:BLESS_SCORE});
+      pill:`${GN()} 점수 ${fmt(S[GK('score')])}점`,bless:BLESS_SCORE});
   }
 }
 $('dSpeak').onclick=()=>speak(G.passDone?MODE.b.r.map(i=>V[i][3]).join(' '):G.x[3]);
@@ -1086,9 +1160,11 @@ const FACES={
   gothic:"'NanumSquare','Nanum Gothic','Malgun Gothic','맑은 고딕','Apple SD Gothic Neo','Noto Sans KR',sans-serif",
   brush:"'Gungsuh','궁서','GungsuhChe','Nanum Brush Script','Nanum Myeongjo','AppleMyungjo','Batang',serif"};
 function applyFace(){
-  const f='kid';FACES.kid="'Jua','Gowun Dodum','Malgun Gothic','Apple SD Gothic Neo',sans-serif";
-  document.documentElement.style.setProperty('--serif',FACES[f]);
-  document.querySelectorAll('.facepick button').forEach(b=>{b.style.fontFamily=FACES[b.dataset.face];b.classList.toggle('on',f===b.dataset.face);b.setAttribute('aria-pressed',f===b.dataset.face)});
+  /* 주니어 글씨체 3가지 (2026-10-11): 아이마다 S.face로 저장, 기본 큐트. k = 크기 배율(--kf) */
+  const KF={cute:{f:"'Cute Font','Jua','Malgun Gothic','Apple SD Gothic Neo',sans-serif",k:1.5},jua:{f:"'Jua','Malgun Gothic','Apple SD Gothic Neo',sans-serif",k:1},dohyeon:{f:"'Do Hyeon','Jua','Malgun Gothic','Apple SD Gothic Neo',sans-serif",k:1.05}};
+  const f=KF[S.face]?S.face:'cute';
+  document.documentElement.style.setProperty('--serif',KF[f].f);document.documentElement.style.setProperty('--kf',KF[f].k);
+  document.querySelectorAll('.facepick button').forEach(b=>{b.style.fontFamily=(KF[b.dataset.face]||KF.cute).f;b.classList.toggle('on',f===b.dataset.face);b.setAttribute('aria-pressed',f===b.dataset.face)});
 }
 document.querySelectorAll('.facepick button').forEach(b=>b.onclick=()=>{S.face=b.dataset.face;save();applyFace();if(typeof fit==='function')fit()});
 applyFace();
