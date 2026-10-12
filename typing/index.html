@@ -478,7 +478,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     함께 쓰면 좋은 말씀 앱: 말씀 순서 맞추기 → 말씀 타자 연습 → 성경필사노트<br>
     <span class="credit">오직 하나님께 영광 · 섬김이 김명구 집사</span><br>
     <!-- 버전: 작은 고침 V1.1·V1.2…, 큰 기능 V2.0. 고칠 때마다 날짜도 함께 (2026-10-12부터) -->
-    <span style="font-size:13px" id="appVer">말씀 타자 연습 V1.2 · 2026.10.12</span>
+    <span style="font-size:13px" id="appVer">말씀 타자 연습 V1.3 · 2026.10.12</span>
   </footer>
 </div>
 <script>
@@ -572,6 +572,9 @@ function renderStat(){
 if(typeof S.zoom!=='number'||!(S.zoom>0))S.zoom=1;
 /* 2026-10-12 V1.2: V1.1 전에는 노트북에서 가 크게/가 작게가 화면에 안 보이고 숫자만 쌓였음 → 한 번만 기본 크기(1)로 되돌림 */
 if(S.zv!==2){S.zoom=1;S.zv=2}
+/* 2026-10-12 V1.3: 가 크게/가 작게를 화면마다 따로 기억(S.zooms[화면 id]). 화면마다 길이가 달라 한 값으로는 맞지 않음(집사님: 낱말 쓰기에서 맞추면 처음 화면이 바뀜). 예전 하나뿐이던 값은 처음 화면 것으로 */
+if(!S.zooms||typeof S.zooms!=='object'){S.zooms={};if(S.zoom!==1)S.zooms.home=S.zoom}
+const ZM=()=>+S.zooms[SCREEN]||1;
 /* 연습 글자 크기: 기본 28px × S.tx. 연습 화면에서 '가 크게/가 작게'는 이것만 바꿈 (자판·손 그림은 화면에 꼭 맞게 그대로) (2026-10-07) */
 function applyFs(){const t=Math.max(.6,Math.min(1.5,+S.tx||1));document.documentElement.style.setProperty('--fs',(28*t).toFixed(1)+'px')}
 /* 화면 맞춤: 연습 화면(글자 칸·자판·손 그림)을 한 장의 그림처럼 창에 꽉 차게 키우거나 줄임.
@@ -581,7 +584,7 @@ function fit(){
   if(innerWidth<700){w.classList.remove('fit');w.style.zoom='';return}
   w.classList.add('fit');w.style.zoom=1;
   { // 넓은 모니터에서는 고르는 화면을 두 칸으로 펼침
-    const zb=Math.min(innerWidth/1010,1.25,(innerHeight-12)/770)*S.zoom;
+    const zb=Math.min(innerWidth/1010,1.25,(innerHeight-12)/770)*ZM();
     document.body.classList.toggle('wide',['mannaHome','verseHome'].includes(SCREEN)&&innerWidth/zb>=1300);
   }
   let z;
@@ -616,7 +619,7 @@ function fit(){
        크게 하면 화면이 길어져 아래로 내려 보면 됨 */
     const b=$(SCREEN)?$(SCREEN).getBoundingClientRect().bottom:0;
     if(b>innerHeight-8)z=Math.max(.5,z*(innerHeight-8)/b);
-    w.style.zoom=Math.max(.4,Math.min(2.4,z*S.zoom));
+    w.style.zoom=Math.max(.4,Math.min(2.4,z*ZM()));
   }
 }
 let fitT=0;addEventListener('resize',()=>{clearTimeout(fitT);fitT=setTimeout(fit,120)});
@@ -624,7 +627,8 @@ function sizeStep(up){
   if(TYPING.includes(SCREEN)){ // 연습 화면: 글자만
     const t=+S.tx||1;S.tx=+Math.max(.6,Math.min(1.5,up?t*1.1:t/1.1)).toFixed(3);save();applyFs();fit();
     if(SCREEN==='word'&&WD)renderWord();return}
-  S.zoom=up?Math.min(1.8,+(S.zoom*1.1).toFixed(3)):Math.max(.6,+(S.zoom/1.1).toFixed(3));save();fit();
+  const zm=ZM(),nz=up?Math.min(1.8,+(zm*1.1).toFixed(3)):Math.max(.6,+(zm/1.1).toFixed(3));
+  if(Math.abs(nz-1)<.01)delete S.zooms[SCREEN];else S.zooms[SCREEN]=nz;save();fit();
 }
 $('bigger').onclick=()=>sizeStep(true);
 $('smaller').onclick=()=>sizeStep(false);
@@ -948,7 +952,7 @@ $('soundOpt').onchange=e=>{S.sound=e.target.checked;save()};
 $('homeBtn').onclick=renderHome;
 $('resetBtn').onclick=()=>{
   if(!confirm(`모은 점수 ${fmt(S.score)}점과 연습 기록이 모두 지워집니다.\n글씨 크기와 소리 같은 설정은 그대로 둡니다.\n\n정말 처음부터 하시겠어요?`))return;
-  S={wSay:S.wSay,voice:S.voice,fs:S.fs,zoom:S.zoom,zv:S.zv,tx:S.tx,hint:S.hint,sound:S.sound,hands:S.hands,face:S.face,vAuto:S.vAuto,mLevel:S.mLevel,mSpeed:S.mSpeed,vLevel:S.vLevel,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{},gradDate:S.gradDate,certName:S.certName}; /* 수료증은 남김 */
+  S={wSay:S.wSay,voice:S.voice,fs:S.fs,zoom:S.zoom,zv:S.zv,zooms:S.zooms,tx:S.tx,hint:S.hint,sound:S.sound,hands:S.hands,face:S.face,vAuto:S.vAuto,mLevel:S.mLevel,mSpeed:S.mSpeed,vLevel:S.vLevel,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{},gradDate:S.gradDate,certName:S.certName}; /* 수료증은 남김 */
   save();renderHome();alert('기록을 지웠어요. 처음부터 시작하세요!');
 };
 
@@ -958,7 +962,7 @@ $('resetBtn').onclick=()=>{
 const APP_NAME='말씀타자연습';
 $('backupBtn').onclick=()=>{
   const fn=`${APP_NAME}_백업_${today()}.json`;
-  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.2',saved:new Date().toISOString(),data:S})],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.3',saved:new Date().toISOString(),data:S})],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
   alert(`백업 파일을 저장했어요.\n‘다운로드’ 폴더에 「${fn}」 이름으로 들어 있습니다.\n\n컴퓨터를 바꾸거나 기록이 사라졌을 때 ‘📂 백업 파일로 되살리기’로 되돌릴 수 있어요.`);
 };
