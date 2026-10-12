@@ -385,7 +385,8 @@ h1{font-size:calc(40px * var(--kf))}h2.sec{font-size:calc(27px * var(--kf))}.lev
     휴대폰을 바꾸기 전에는 처음 화면 아래 ‘💾 기록 백업 받기’를 해 두세요.<br>
     👵👴 할머니·할아버지, 엄마·아빠께 알려 드려요: 어른용 말씀 앱 <a href="../">mybible365</a><br>
     <span class="credit">오직 하나님께 영광 · 섬김이 김명구 집사</span><br>
-    <span style="font-size:13px">주니어 말씀 놀이 · 2026년 10월 11일 저녁 판</span>
+    <!-- 버전: 작은 고침 V1.1·V1.2…, 큰 기능 V2.0. 고칠 때마다 날짜도 함께 (2026-10-12부터) -->
+    <span style="font-size:13px" id="appVer">주니어 말씀 놀이 V1.0 · 2026.10.12</span>
   </footer>
 </div>
 <script>
@@ -725,7 +726,7 @@ $('resetBtn').onclick=()=>{
 const APP_NAME='주니어말씀놀이';
 $('backupBtn').onclick=()=>{
   const fn=`${APP_NAME}_${(KID()||{}).name||''}_백업_${today()}.json`;
-  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,saved:new Date().toISOString(),data:S})],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.0',saved:new Date().toISOString(),data:S})],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
   alert(`백업 파일을 저장했어요.\n‘다운로드’ 폴더에 「${fn}」 이름으로 들어 있습니다.\n\n컴퓨터를 바꾸거나 기록이 사라졌을 때 ‘📂 백업 파일로 되살리기’로 되돌릴 수 있어요.`);
 };
