@@ -478,7 +478,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     함께 쓰면 좋은 말씀 앱: 말씀 순서 맞추기 → 말씀 타자 연습 → 성경필사노트<br>
     <span class="credit">오직 하나님께 영광 · 섬김이 김명구 집사</span><br>
     <!-- 버전: 작은 고침 V1.1·V1.2…, 큰 기능 V2.0. 고칠 때마다 날짜도 함께 (2026-10-12부터) -->
-    <span style="font-size:13px" id="appVer">말씀 타자 연습 V1.0 · 2026.10.12</span>
+    <span style="font-size:13px" id="appVer">말씀 타자 연습 V1.1 · 2026.10.12</span>
   </footer>
 </div>
 <script>
@@ -593,7 +593,7 @@ function fit(){
     z=Math.min(innerWidth/wd,1.25,(innerHeight-12)/770); // 770 = 처음 화면 높이. 모든 고르는 화면이 같은 글씨 크기
   }
   /* 연습 화면은 늘 화면에 꼭 맞춤. 크기 단추는 연습 글자 크기(S.tx)만 바꿈 */
-  z=Math.max(.45,Math.min(2.4,TYPING.includes(SCREEN)?z:z*S.zoom));
+  z=Math.max(.45,Math.min(2.4,z));
   w.style.zoom=z;
   if(TYPING.includes(SCREEN)){ // 실제로 그려진 높이를 재서 빈 곳 없이 꼭 맞게 두 번 고쳐 맞춤
     const last=S.hands===false?$('kb'):$('hands');
@@ -608,9 +608,13 @@ function fit(){
       $('sky').style.height=Math.round(340+Math.max(0,Math.min(220,extra)))+'px';
     }
   }
-  if(!TYPING.includes(SCREEN)&&$(SCREEN)){ // 그래도 넘치면 한 화면에 들어오도록 조금만 줄임
-    const b=$(SCREEN).getBoundingClientRect().bottom;
-    if(b>innerHeight-8)w.style.zoom=Math.max(.6,z*(innerHeight-8)/b);
+  if(!TYPING.includes(SCREEN)){
+    /* 그래도 넘치면 한 화면에 들어오도록 조금만 줄임 = 기본 크기. 그다음에 가 크게/가 작게(S.zoom)를 곱함.
+       2026-10-12 고침: 전에는 S.zoom을 먼저 곱하고 넘치면 다시 줄여서, 노트북처럼 처음 화면이 화면보다 긴 곳에서는 단추를 눌러도 크기가 그대로였음.
+       크게 하면 화면이 길어져 아래로 내려 보면 됨 */
+    const b=$(SCREEN)?$(SCREEN).getBoundingClientRect().bottom:0;
+    if(b>innerHeight-8)z=Math.max(.5,z*(innerHeight-8)/b);
+    w.style.zoom=Math.max(.4,Math.min(2.4,z*S.zoom));
   }
 }
 let fitT=0;addEventListener('resize',()=>{clearTimeout(fitT);fitT=setTimeout(fit,120)});
@@ -952,7 +956,7 @@ $('resetBtn').onclick=()=>{
 const APP_NAME='말씀타자연습';
 $('backupBtn').onclick=()=>{
   const fn=`${APP_NAME}_백업_${today()}.json`;
-  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.0',saved:new Date().toISOString(),data:S})],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.1',saved:new Date().toISOString(),data:S})],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
   alert(`백업 파일을 저장했어요.\n‘다운로드’ 폴더에 「${fn}」 이름으로 들어 있습니다.\n\n컴퓨터를 바꾸거나 기록이 사라졌을 때 ‘📂 백업 파일로 되살리기’로 되돌릴 수 있어요.`);
 };
