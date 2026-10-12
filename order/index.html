@@ -565,12 +565,12 @@ function lvProg(id){
   return `<span class="lp${sh>=GIFT_N?' done':''}" aria-label="${rd}선물 12조각 중 ${sh}조각, ${t}절 중 ${c}절 맞춤"><i>${rd||(LV_IC[id]||'')+' '}${sh}/12</i>${c}/${t}절</span>`}
 /* 단계를 고른 뒤 무엇을 할지 몰라 헤매지 않도록: 확인 문구를 띄우고 시작 버튼으로 데려감 (2026-10-06) */
 function guideToStart(){
-  const lv=LEVELS.find(l=>l.id===S.level)||LEVELS[0],m=$('lvlMsg'),b=$('startBtn');
-  if(isC()){m.textContent=`✓ ‘${(LEVELS_C.find(l=>l.id===S.clevel)||LEVELS_C[0]).name}’으로 정했어요. 아래 큰 버튼을 누르시면 시작합니다.`;m.classList.remove('hide');b.classList.remove('nudge');void b.offsetWidth;b.classList.add('nudge');b.scrollIntoView({behavior:'smooth',block:'center'});return}
-  m.textContent=S.level==='easy'?'✓ ‘쉬움’으로 정했어요. 바로 아래 큰 버튼을 누르시면 짧은 말씀부터 하나씩 나옵니다.':`✓ ‘${lv.name}’으로 정했어요. 이제 바로 아래 ‘2 무엇을 맞출까요?’에서 맞출 말씀을 고르세요. 처음이시면 큰 버튼을 누르시면 됩니다.`;m.classList.remove('hide');
+  /* 2026-10-12 단계를 고르면 나오던 큰 확인 상자(lvlMsg)는 시작 버튼을 화면 밖으로 밀어내서 없앰.
+     고른 단계는 단추의 ✓와 시작 버튼 글자('보통' 빈칸 채우기 시작하기)로 이미 보이므로, 시작 버튼만 반짝이고 화면 안으로 데려옴 */
+  const m=$('lvlMsg'),b=$('startBtn');m.classList.add('hide');
   b.classList.remove('nudge');void b.offsetWidth;b.classList.add('nudge');
-  b.scrollIntoView({behavior:'smooth',block:'center'});
-  setTimeout(()=>b.focus({preventScroll:true}),400);
+  const r=b.getBoundingClientRect();if(r.bottom>innerHeight-16)scrollBy({top:r.bottom-innerHeight+24,behavior:'smooth'});else if(r.top<0)scrollBy({top:r.top-24,behavior:'smooth'});
+  if(!isC())setTimeout(()=>b.focus({preventScroll:true}),400);
 }
 
 /* ---------- 금메달 인증서 (2026-10-10) ----------
