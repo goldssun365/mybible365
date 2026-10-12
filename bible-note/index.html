@@ -447,7 +447,8 @@ body.pw-on .modal{padding-bottom:92px}body.pw-on .modal-card{max-height:calc(100
     기기 고장이나 브라우저 정리로 기록이 사라질 수 있으니 ‘⚙ 더보기 → 백업’을 해 두세요.<br>
     함께 쓰면 좋은 말씀 앱: 말씀 순서 맞추기 → 말씀 타자 연습 → 성경필사노트<br>
     <span class="credit">오직 하나님께 영광 · 섬김이 김명구 집사</span><br>
-    <span style="font-size:13px">성경필사노트 · 2026년 10월 11일 판</span>
+    <!-- 버전: 작은 고침 V1.1·V1.2…, 큰 기능 V2.0. 고칠 때마다 날짜도 함께 (2026-10-12부터) -->
+    <span style="font-size:13px" id="appVer">성경필사노트 V1.0 · 2026.10.12</span>
   </footer>
 </div>
 
@@ -1525,7 +1526,7 @@ async function printForShop(){
 const BACKUP_FOLDER='성경필사 백업';
 const canFolder=()=>'showDirectoryPicker' in window&&Store.mode==='idb';
 const rawKey=(id,k)=>id?`@${id}:${k}`:k;
-function backupJson(id=Store.uid){const data={};for(const raw of Store.userKeys(id))data[Store.logical(raw)]=Store.mem.get(raw);return JSON.stringify({app:'goldsun-bible-note',version:9,person:userName(id),created:new Date().toISOString(),data})}
+function backupJson(id=Store.uid){const data={};for(const raw of Store.userKeys(id))data[Store.logical(raw)]=Store.mem.get(raw);return JSON.stringify({app:'goldsun-bible-note',version:9,appVer:'V1.0',person:userName(id),created:new Date().toISOString(),data})}
 const backupName=(id=Store.uid)=>{const n=baseName(Store.mem.get(rawKey(id,'sign'))||'').replace(/[\\/:*?"<>|\s]/g,'');return `성경필사_백업_${n?n+'_':''}${today()}.json`};
 async function getBackupDir(ask){
   const h=Store.get('backupDir',null);
