@@ -86,6 +86,7 @@ label.opt input{width:26px;height:26px}
 .choices button{text-align:left;padding:14px 16px;min-height:96px}
 .choices b{display:block;font-size:23px;font-family:var(--serif)}
 .choices span{color:var(--soft);font-size:17px}
+.choices .vpg{display:block;font-style:normal;font-weight:700;color:var(--ink);margin-top:6px}.choices .vpg.full{color:var(--set)}
 .choices button.on{border-color:var(--set);box-shadow:inset 0 0 0 2px var(--set)}
 h2.sec{font-family:var(--serif);font-size:24px;margin:18px 0 2px}
 
@@ -429,7 +430,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     <div class="lines" id="lines"></div>
     <p class="msg" id="vMsg" aria-live="polite"></p>
     <div class="row">
-      <button id="vSpeak">🔊 읽어주기</button>
+      <button class="sayAgain" id="vSpeak">🔊 다시 듣기</button><button class="sayAuto" data-k="vSay"></button>
       <button id="vSkip">다른 말씀으로</button>
       <button id="vScore">📊 점수 보기</button>
     </div>
@@ -478,7 +479,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     함께 쓰면 좋은 말씀 앱: 말씀 순서 맞추기 → 말씀 타자 연습 → 성경필사노트<br>
     <span class="credit">오직 하나님께 영광 · 섬김이 김명구 집사</span><br>
     <!-- 버전: 작은 고침 V1.1·V1.2…, 큰 기능 V2.0. 고칠 때마다 날짜도 함께 (2026-10-12부터) -->
-    <span style="font-size:13px" id="appVer">말씀 타자 연습 V1.3 · 2026.10.12</span>
+    <span style="font-size:13px" id="appVer">말씀 타자 연습 V1.4 · 2026.10.14</span>
   </footer>
 </div>
 <script>
@@ -952,7 +953,7 @@ $('soundOpt').onchange=e=>{S.sound=e.target.checked;save()};
 $('homeBtn').onclick=renderHome;
 $('resetBtn').onclick=()=>{
   if(!confirm(`모은 점수 ${fmt(S.score)}점과 연습 기록이 모두 지워집니다.\n글씨 크기와 소리 같은 설정은 그대로 둡니다.\n\n정말 처음부터 하시겠어요?`))return;
-  S={wSay:S.wSay,voice:S.voice,fs:S.fs,zoom:S.zoom,zv:S.zv,zooms:S.zooms,tx:S.tx,hint:S.hint,sound:S.sound,hands:S.hands,face:S.face,vAuto:S.vAuto,mLevel:S.mLevel,mSpeed:S.mSpeed,vLevel:S.vLevel,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{},gradDate:S.gradDate,certName:S.certName}; /* 수료증은 남김 */
+  S={wSay:S.wSay,voice:S.voice,fs:S.fs,zoom:S.zoom,zv:S.zv,zooms:S.zooms,tx:S.tx,vSay:S.vSay,hint:S.hint,sound:S.sound,hands:S.hands,face:S.face,vAuto:S.vAuto,mLevel:S.mLevel,mSpeed:S.mSpeed,vLevel:S.vLevel,score:0,dayScore:{},seen:[],lessons:{},best:{},verses:{},queues:{},manna:0,baskets:0,dayBaskets:{},chBest:{},flowBest:{},jdone:{},gradDate:S.gradDate,certName:S.certName}; /* 수료증은 남김 */
   save();renderHome();alert('기록을 지웠어요. 처음부터 시작하세요!');
 };
 
@@ -962,7 +963,7 @@ $('resetBtn').onclick=()=>{
 const APP_NAME='말씀타자연습';
 $('backupBtn').onclick=()=>{
   const fn=`${APP_NAME}_백업_${today()}.json`;
-  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.3',saved:new Date().toISOString(),data:S})],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.4',saved:new Date().toISOString(),data:S})],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
   alert(`백업 파일을 저장했어요.\n‘다운로드’ 폴더에 「${fn}」 이름으로 들어 있습니다.\n\n컴퓨터를 바꾸거나 기록이 사라졌을 때 ‘📂 백업 파일로 되살리기’로 되돌릴 수 있어요.`);
 };
@@ -1426,13 +1427,16 @@ function gather(w){
 /* ---------- 4단계: 한 절 따라 치기 ---------- */
 let VG=null;
 function wc(x){return x[3].split(/\s+/).length}
-function vList(){const lv=S.vLevel;return V.map((_,i)=>i).filter(i=>{const n=wc(V[i]);return lv==='easy'?n<=8:lv==='mid'?n>8&&n<=14:n>14})}
+function vListOf(lv){return V.map((_,i)=>i).filter(i=>{const n=wc(V[i]);return lv==='easy'?n<=8:lv==='mid'?n>8&&n<=14:n>14})}
+function vList(){return vListOf(S.vLevel)}
+/* 2026-10-14 V1.4: 단계 단추마다 따라 친 말씀 수 / 그 단계 말씀 수 (집사님 요청) */
+function vLevelsProg(){return V_LEVELS.map(l=>{const a=vListOf(l.id),n=a.filter(i=>S.verses[keyOf(V[i])]).length;return {...l,desc:`${l.desc}<em class="vpg${n>=a.length?' full':''}">${n>=a.length?'✓ ':''}따라 친 말씀 ${n} / ${a.length}절</em>`}})}
 function renderJBundles(){
   $('jBundles').innerHTML=JW.B.map(b=>{const n=JDONE(b),full=n===b.r.length;
     return `<button data-j="${b.id}" class="${full?'full':''}"><b>${esc(b.n)}</b><span>${esc(b.d)}</span><span class="pg">${full?'✓ 다 따라 치셨어요':`${n} / ${b.r.length}절`}</span></button>`}).join('');
   $('jBundles').querySelectorAll('button').forEach(el=>el.onclick=()=>{const b=JW.B.find(x=>x.id===el.dataset.j);JM={b,pos:0};VG=null;newSession();nextVerse()});
 }
-function renderVerseHome(){JM=null;renderWallHome();renderJBundles();$('vAutoOpt').checked=S.vAuto!==false;choiceRow($('vLevels'),V_LEVELS,S.vLevel,v=>{S.vLevel=v});renderStat();show('verseHome');$('vStart').focus()}
+function renderVerseHome(){JM=null;renderWallHome();renderJBundles();$('vAutoOpt').checked=S.vAuto!==false;choiceRow($('vLevels'),vLevelsProg(),S.vLevel,v=>{S.vLevel=v});renderStat();show('verseHome');$('vStart').focus()}
 $('vAutoOpt').onchange=e=>{S.vAuto=e.target.checked;save()};
 /* 이어서 치기: 이번에 앉아서 친 말씀을 모아 둠 */
 let VS=null;const newSession=()=>{VS={n:0,pts:0,m:Meter(),newBest:false}};
@@ -1483,8 +1487,11 @@ function startVerseX(x,i,jw){
   $('lines').classList.toggle('jw',!!jw);
   $('vSkip').textContent=jw?'다음 절로':'다른 말씀으로';
   $('vRef').textContent=jw?`✝️ ${JM.b.n} ${JM.pos+1}/${JM.b.r.length} · ${refOf(x)}`:refOf(x);$('vMsg').textContent='';$('vMsg').className='msg';
-  show('verse');renderVerse();fit();
+  show('verse');renderVerse();fit();renderSayBtns();
+  /* 2026-10-14 V1.4: 말씀이 나오면 저절로 읽어 줌(S.vSay, 기본 켬). 끄면 [🔊 다시 듣기]로만 */
+  clearTimeout(VSAY_T);if(S.vSay!==false)VSAY_T=setTimeout(()=>{if(SCREEN==='verse'&&VG&&VG.x===x)speak(x[3],0.85,true)},350);
 }
+let VSAY_T=0;
 function renderVerse(){
   const lo=VG.done?Math.max(0,VG.segs.length-3):Math.max(0,VG.si-1),hi=lo+3; // 긴 말씀은 지난 줄 하나, 지금 줄, 다음 줄만 보여 줌
   $('lines').innerHTML=VG.segs.map((s,k)=>{
@@ -1535,7 +1542,6 @@ function keyVerse(code,shift){
     if(VG.streak>=2)hint(want,true);
   }
 }
-$('vSpeak').onclick=()=>speak(VG.x[3]);
 $('vSkip').onclick=()=>{if(VG)VG.done=true;nextVerse()};
 
 /* ---------- 결과와 점수: 점수는 늘기만 합니다 ---------- */
@@ -1714,15 +1720,17 @@ function speak(t,rate,quiet){
   try{if(!('speechSynthesis'in window)){if(!quiet)alert('이 기기에서는 읽어주기를 쓸 수 없어요.');return}
     speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ko-KR';const v=koVoice();if(v)u.voice=v;u.rate=rate||0.85;speechSynthesis.speak(u)}catch(e){}
 }
+const sayKey=()=>SCREEN==='verse'?'vSay':'wSay';
 function sayNow(force){
-  if(!force&&S.wSay===false)return;
+  if(!force&&S[sayKey()]===false)return;
+  if(SCREEN==='verse'&&VG){speak(VG.x[3],0.85,true);return}
   if(SCREEN==='word'&&WD){const w=WD.words[WD.k];if(w)speak(w,0.75,true)}
   else if(SCREEN==='lesson'&&L){const j=L.seq[L.pos];if(j)speak(JNAME[j]||j,0.85,true)}
 }
 const sayWord=f=>sayNow(f);
 function renderSayBtns(){
-  const auto=S.wSay!==false,vs=koVoices(),loaded='speechSynthesis'in window&&speechSynthesis.getVoices().length>0;
-  document.querySelectorAll('.sayAuto').forEach(b=>{b.textContent=auto?'자동 소리 켬 ✓':'자동 소리 끔';b.classList.toggle('primary',auto)});
+  const vs=koVoices(),loaded='speechSynthesis'in window&&speechSynthesis.getVoices().length>0;
+  document.querySelectorAll('.sayAuto').forEach(b=>{const auto=S[b.dataset.k||'wSay']!==false;b.textContent=auto?'자동 소리 켬 ✓':'자동 소리 끔';b.classList.toggle('primary',auto)});
   let note='';
   if(!('speechSynthesis'in window)||(loaded&&!vs.length))note='이 컴퓨터에서는 한국어 목소리를 찾지 못했어요. 크롬이나 엣지에서 인터넷에 연결된 상태로 열면 대부분 소리가 납니다.';
   document.querySelectorAll('.sayNote').forEach(n=>{n.textContent=note;n.classList.toggle('hide',!note)});
@@ -1730,7 +1738,7 @@ function renderSayBtns(){
 if('speechSynthesis'in window){try{speechSynthesis.onvoiceschanged=()=>renderSayBtns()}catch(e){}}
 document.addEventListener('click',e=>{
   const b=e.target.closest('.sayAgain,.sayAuto');
-  if(b){if(b.classList.contains('sayAuto')){S.wSay=S.wSay===false;save();renderSayBtns();if(S.wSay)sayNow(true)}
+  if(b){if(b.classList.contains('sayAuto')){const k=b.dataset.k||'wSay';S[k]=S[k]===false;save();renderSayBtns();if(S[k])sayNow(true);else try{speechSynthesis.cancel()}catch(e){}}
     else sayNow(true);
     b.blur();return}
   /* 화면 자판 글쇠를 누르면 그 글자 이름을 읽어 줌 (배우는 분이 자판을 둘러볼 때) */
