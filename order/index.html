@@ -186,6 +186,18 @@ h2.sec{font-family:var(--serif);font-size:24px;margin:28px 0 4px}
 .facepick button small{font-size:14px;opacity:.85}
 .facepick button.on{border-color:var(--set);box-shadow:inset 0 0 0 2px var(--set);font-weight:700}
 .pv a{color:inherit;text-decoration:underline}
+
+/* 2026-10-14 선물 그림 크게 보기 (타자 연습·순서 맞추기 공통) */
+.pzable{position:relative;cursor:zoom-in}
+.pzable .pzhint{position:absolute;right:4px;bottom:4px;background:rgba(30,43,69,.78);color:#fff;font:700 13px/1 "Malgun Gothic","Apple SD Gothic Neo",sans-serif;padding:5px 8px;border-radius:999px;pointer-events:none}
+#pz{position:fixed;inset:0;z-index:1000;background:rgba(12,16,24,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
+#pz.hide{display:none}
+#pz .pzpic{width:min(96vw,calc((100vh - 190px)*1.5));max-width:1200px;background:#FFFDF6;border-radius:18px;padding:10px;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+#pz .pzpic svg{display:block;width:100%;height:auto}
+#pz .pzcap{color:#fff;text-align:center;margin:14px 8px 0;max-width:900px;font:20px/1.5 "Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+#pz .pzcap b{font-size:24px;display:block}
+#pz .pzcap .pzv{display:block;margin-top:6px;color:#FFE7A3;font-size:18px}
+#pz button{margin-top:14px;font-size:20px;padding:10px 34px;border-radius:12px;border:2px solid #fff;background:#fff;color:#1E2B45;font-weight:700;cursor:pointer}
 </style>
 </head>
 <body>
@@ -320,7 +332,7 @@ h2.sec{font-family:var(--serif);font-size:24px;margin:28px 0 4px}
     함께 쓰면 좋은 말씀 앱: 말씀 순서 맞추기 → 말씀 타자 연습 → 성경필사노트<br>
     <span class="credit">오직 하나님께 영광 · 섬김이 김명구 집사</span><br>
     <!-- 버전: 작은 고침 V1.1·V1.2…, 큰 기능 V2.0. 고칠 때마다 날짜도 함께 (2026-10-12부터) -->
-    <span style="font-size:13px" id="appVer">말씀 순서 맞추기 V1.0 · 2026.10.12</span>
+    <span style="font-size:13px" id="appVer">말씀 순서 맞추기 V1.1 · 2026.10.14</span>
   </footer>
 </div>
 <script>
@@ -729,7 +741,7 @@ $('resetBtn').onclick=()=>{
 const APP_NAME='말씀순서맞추기';
 $('backupBtn').onclick=()=>{
   const fn=`${APP_NAME}_백업_${today()}.json`;
-  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.0',saved:new Date().toISOString(),data:S})],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.1',saved:new Date().toISOString(),data:S})],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
   alert(`백업 파일을 저장했어요.\n‘다운로드’ 폴더에 「${fn}」 이름으로 들어 있습니다.\n\n컴퓨터를 바꾸거나 기록이 사라졌을 때 ‘📂 백업 파일로 되살리기’로 되돌릴 수 있어요.`);
 };
@@ -1250,6 +1262,36 @@ applyFace();
     document.getElementById('pwLater').onclick=function(){box.remove();try{localStorage.setItem('pw-later:'+location.pathname,Date.now())}catch(e){}};
   }
   window.addEventListener('appinstalled',function(){if(box)box.remove()});
+})();
+</script>
+
+<script>
+const PZ_SEL='#giftPic';
+const pzH=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function pzInfo(el){const lv=S.level in GIFT?S.level:'easy',done=giftShown(lv)>=GIFT_N;
+  const sh=giftShown(lv),g=GIFT[lv];
+  return {title:pzH($('giftName').textContent),cap:done?`<span>${g.done.title}</span>`:`${sh} / ${GIFT_N}${g.unit}`,verse:done?g.done:null}}
+
+/* 2026-10-14 선물 그림 크게 보기: 그림을 누르면 화면 가득. 아무 곳이나 누르기·[닫기]·Esc로 닫음.
+   PZ_SEL = 그림 칸 선택자, pzInfo(그림 칸) = {title, cap, verse} */
+(function(){
+  const box=document.createElement('div');box.id='pz';box.className='hide';box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label','선물 그림 크게 보기');
+  box.innerHTML='<div class="pzpic"></div><p class="pzcap"></p><button type="button">닫기</button>';
+  document.body.appendChild(box);
+  const close=()=>{box.classList.add('hide');box.querySelector('.pzpic').innerHTML=''};
+  box.onclick=close;
+  document.addEventListener('keydown',e=>{if(!box.classList.contains('hide')&&(e.key==='Escape'||e.key==='Enter'||e.key===' ')){e.preventDefault();e.stopImmediatePropagation();close()}},true);
+  window.pzOpen=function(el){
+    const svg=el.querySelector('svg');if(!svg)return;
+    const inf=pzInfo(el)||{};
+    box.querySelector('.pzpic').innerHTML=svg.outerHTML;
+    box.querySelector('.pzcap').innerHTML=`<b>${inf.title||''}</b>${inf.cap||''}${inf.verse?`<span class="pzv">“${inf.verse.v}” (${inf.verse.ref})</span>`:''}`;
+    box.classList.remove('hide');box.querySelector('button').focus({preventScroll:true});
+  };
+  document.addEventListener('click',e=>{const el=e.target.closest(PZ_SEL);if(el&&el.querySelector('svg')){e.preventDefault();e.stopPropagation();pzOpen(el)}},true);
+  /* 그림 칸마다 '🔍 크게 보기' 표시 */
+  const mark=()=>document.querySelectorAll(PZ_SEL).forEach(el=>{el.classList.add('pzable');el.title='누르면 그림을 크게 봅니다';if(!el.querySelector('.pzhint')&&el.querySelector('svg')){const h=document.createElement('span');h.className='pzhint';h.textContent='🔍 크게 보기';el.appendChild(h)}});
+  let pzT=0;new MutationObserver(()=>{if(!pzT)pzT=requestAnimationFrame(()=>{pzT=0;mark()})}).observe(document.body,{childList:true,subtree:true});mark();
 })();
 </script>
 </body>
