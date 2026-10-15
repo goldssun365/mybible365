@@ -491,7 +491,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     함께 쓰면 좋은 말씀 앱: 말씀 순서 맞추기 → 말씀 타자 연습 → 성경필사노트<br>
     <span class="credit">오직 하나님께 영광 · 섬김이 김명구 집사</span><br>
     <!-- 버전: 작은 고침 V1.1·V1.2…, 큰 기능 V2.0. 고칠 때마다 날짜도 함께 (2026-10-12부터) -->
-    <span style="font-size:13px" id="appVer">말씀 타자 연습 V1.9 · 2026.10.15</span>
+    <span style="font-size:13px" id="appVer">말씀 타자 연습 V1.10 · 2026.10.15</span>
   </footer>
 </div>
 <script>
@@ -976,7 +976,7 @@ $('resetBtn').onclick=()=>{
 const APP_NAME='말씀타자연습';
 $('backupBtn').onclick=()=>{
   const fn=`${APP_NAME}_백업_${today()}.json`;
-  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.9',saved:new Date().toISOString(),data:S})],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.10',saved:new Date().toISOString(),data:S})],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
   alert(`백업 파일을 저장했어요.\n‘다운로드’ 폴더에 「${fn}」 이름으로 들어 있습니다.\n\n컴퓨터를 바꾸거나 기록이 사라졌을 때 ‘📂 백업 파일로 되살리기’로 되돌릴 수 있어요.`);
 };
@@ -1205,6 +1205,10 @@ function finishWords(){
     onAgain:allDone?renderHome:againWords,
     onNext:allDone?(nextLv?()=>{S.wLevel=nextLv;save();startWords()}:renderMannaHome):startWords});
 }
+/* 2026-10-15 V1.10: 낱말 길이 단추마다 만난 낱말 수 / 그 길이 낱말 수 (집사님 요청, 4단계와 같은 모양). 읽기만 하고 순서표는 건드리지 않음 */
+function mLevelsProg(){return M_LEVELS.map(l=>{const n=(M_POOL[l.id]||[]).length,q=S.mSeq&&S.mSeq[l.id],ok=q&&Array.isArray(q.o)&&q.o.length===n&&typeof q.p==='number',
+  p=ok?Math.min(q.p,n):0,r=ok?(q.r||1):1;
+  return {...l,desc:`${l.desc}<em class="vpg">${r>1?`${r}바퀴째 · `:''}만난 낱말 ${fmt(p)} / ${fmt(n)}개</em>`}})}
 /* 꾸러미 이어 쓰기: 끝까지 다 쓴 뒤에야 다시 섞음. 첫 바퀴는 익숙한 낱말부터 */
 function seqOf(lv){
   const pool=M_POOL[lv]||M_POOL.easy,n=pool.length;
@@ -1289,7 +1293,7 @@ function wallToday(){
 }
 function renderMannaHome(){
   renderTempleHome();
-  choiceRow($('mLevels'),M_LEVELS,S.mLevel,v=>{S.mLevel=v;save();renderMannaHome()});
+  choiceRow($('mLevels'),mLevelsProg(),S.mLevel,v=>{S.mLevel=v;save();renderMannaHome()});
   choiceRow($('mSpeeds'),M_SPEEDS,S.mSpeed,v=>S.mSpeed=v);
   const sq=seqOf(S.mLevel),lvName=(M_LEVELS.find(l=>l.id===S.mLevel)||M_LEVELS[0]).name;
   $('mBask').innerHTML=`오늘 채운 바구니 <b>${todayBaskets()}개</b> &nbsp;|&nbsp; 지금까지 <b>${fmt(S.baskets||0)}개</b> &nbsp;|&nbsp; 다음 축하까지 <b>${nextMile(S.baskets||0)-(S.baskets||0)}바구니</b><br>${lvName} ${sq.n}개 가운데 <b>${sq.q.p}개</b>를 만나셨어요${sq.q.r>1?` (${sq.q.r}바퀴째)`:''}. 다 만나기 전에는 같은 낱말이 다시 나오지 않습니다.`;
