@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1"><!-- 2026-10-16: viewport-fit=cover 뺌 — 안드로이드 설치 앱에서 아래 단추 줄(III ○ <)이 투명해져 안 보였음 -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="말씀 앱">
 <meta property="og:title" content="말씀 순서 맞추기">
@@ -332,7 +332,7 @@ h2.sec{font-family:var(--serif);font-size:24px;margin:28px 0 4px}
     함께 쓰면 좋은 말씀 앱: 말씀 순서 맞추기 → 말씀 타자 연습 → 성경필사노트<br>
     <span class="credit">오직 하나님께 영광 · 섬김이 김명구 집사</span><br>
     <!-- 버전: 작은 고침 V1.1·V1.2…, 큰 기능 V2.0. 고칠 때마다 날짜도 함께 (2026-10-12부터) -->
-    <span style="font-size:13px" id="appVer">말씀 순서 맞추기 V1.7 · 2026.10.14</span>
+    <span style="font-size:13px" id="appVer">말씀 순서 맞추기 V1.8 · 2026.10.16</span>
   </footer>
 </div>
 <script>
@@ -796,7 +796,7 @@ $('resetBtn').onclick=()=>{
 const APP_NAME='말씀순서맞추기';
 $('backupBtn').onclick=()=>{
   const fn=`${APP_NAME}_백업_${today()}.json`;
-  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.7',saved:new Date().toISOString(),data:S})],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.8',saved:new Date().toISOString(),data:S})],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
   alert(`백업 파일을 저장했어요.\n‘다운로드’ 폴더에 「${fn}」 이름으로 들어 있습니다.\n\n컴퓨터를 바꾸거나 기록이 사라졌을 때 ‘📂 백업 파일로 되살리기’로 되돌릴 수 있어요.`);
 };
