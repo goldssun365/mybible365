@@ -492,7 +492,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     <a href="https://www.youtube.com/@%EB%A7%88%EC%9D%B4%EB%B0%94%EC%9D%B4%EB%B8%94365" target="_blank" rel="noopener" style="font-weight:700">📺 사용법 영상 · 유튜브 마이바이블365</a><br>
     <span class="credit">오직 하나님께 영광 · 섬김이 김명구 집사</span><br>
     <!-- 버전: 작은 고침 V1.1·V1.2…, 큰 기능 V2.0. 고칠 때마다 날짜도 함께 (2026-10-12부터) -->
-    <span style="font-size:13px" id="appVer">말씀 타자 연습 V1.11 · 2026.10.17</span>
+    <span style="font-size:13px" id="appVer">말씀 타자 연습 V1.12 · 2026.10.22</span>
   </footer>
 </div>
 <script>
@@ -949,7 +949,7 @@ function renderHome(){
     {id:'lessonHome',no:'1단계',name:'자리 익히기',d:'손가락마다 맡은 글쇠를 하나씩 익힙니다.',p:`${ld} / ${LESSONS.length} 마침`},
     {id:'wordHome',no:'2단계',name:'낱말 쓰기',d:'말씀 낱말을 두 글자부터 하나씩 써 봅니다. 익숙하시면 건너뛰셔도 됩니다.',p:`쓴 낱말 ${fmt(wordsDone())} / ${fmt(WL_TOTAL())}개`},
     {id:'mannaHome',no:'3단계',name:'만나 줍기',d:'하늘에서 내려오는 말씀 낱말을 쳐서 바구니에 담습니다.',p:`지금까지 채운 바구니 ${fmt(S.baskets||0)}개 · 담은 만나 ${fmt(S.manna||0)}개`},
-    {id:'verseHome',no:'4단계',name:'한 절 따라 치기',d:'말씀 한 절을 보고 그대로 칩니다. 성경필사로 가는 다리입니다.',p:`따라 친 말씀 ${vd}개 / ${V.length}개 · 예수님 말씀 ${jd} / ${JW.V.length}`}];
+    {id:'verseHome',no:'4단계',name:'한 절 따라 치기',d:'말씀 한 절을 보고 그대로 칩니다. 성경필사로 가는 다리입니다.',p:`따라 친 말씀 ${vd} / ${V.length}절<br>✝️ 예수님의 말씀 묶음 ${jd} / ${JW.V.length}절`} /* 2026-10-22 두 숫자가 다른 것을 세는 줄 알 수 있게 두 줄로 */];
   $('steps').innerHTML=steps.map(s=>`<button data-go="${s.id}"><span class="no">${s.no}</span><b>${s.name}</b><span class="d">${s.d}</span><span class="prog">${s.p}</span></button>`).join('');
   $('steps').querySelectorAll('button').forEach(b=>b.onclick=()=>({lessonHome:renderLessons,wordHome:renderWordHome,mannaHome:renderMannaHome,verseHome:renderVerseHome})[b.dataset.go]());
   $('hintOpt').checked=S.hint;$('handsOpt').checked=S.hands!==false;$('soundOpt').checked=S.sound!==false;
@@ -977,7 +977,7 @@ $('resetBtn').onclick=()=>{
 const APP_NAME='말씀타자연습';
 $('backupBtn').onclick=()=>{
   const fn=`${APP_NAME}_백업_${today()}.json`;
-  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.11',saved:new Date().toISOString(),data:S})],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.12',saved:new Date().toISOString(),data:S})],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
   alert(`백업 파일을 저장했어요.\n‘다운로드’ 폴더에 「${fn}」 이름으로 들어 있습니다.\n\n컴퓨터를 바꾸거나 기록이 사라졌을 때 ‘📂 백업 파일로 되살리기’로 되돌릴 수 있어요.`);
 };
