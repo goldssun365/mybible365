@@ -209,9 +209,9 @@ button.primary:active{transform:translateY(3px);box-shadow:0 2px 0 #5A2FD0}
 .pool .tile:nth-child(4n+2){background:#D6EDFF;border-color:#72B8F0;color:#123E66}
 .pool .tile:nth-child(4n+3){background:#D8F6E6;border-color:#5CC995;color:#0F4D33}
 .verse{font-family:var(--serif);font-weight:400;border-left-color:var(--gold)}
-.levels button[data-l="easy"]{border-color:#9EDDBB}.levels button[data-l="mid"]{border-color:#FFD08A}.levels button[data-l="hard"]{border-color:#F7A8C4}
-.levels button.on{background:#F4EEFF;border-color:var(--pop);box-shadow:inset 0 0 0 2px var(--pop)}
-.levels button.on b::after{color:var(--pop)}
+
+
+
 h2.step .sn{background:var(--pop)}
 .games button.on{border-color:var(--pop);background:#F4EEFF;box-shadow:inset 0 0 0 2px var(--pop)}
 .bundles button{border-radius:20px}
@@ -260,6 +260,29 @@ h1{font-size:calc(40px * var(--kf))}h2.sec{font-size:calc(27px * var(--kf))}.lev
 @media (max-width:560px){.levels b{font-size:calc(25px * var(--kf))}}
 @media (max-width:420px){.games b{font-size:calc(18px * var(--kf))}}
 .facepick button{font-size:calc(19px * var(--kf))}.facepick button small{display:block;font-size:.8em;opacity:.8}
+
+/* 2026-10-23 단계 단추 색 (목사님 아이디어, 집사님 결정): 쉬움 초록 → 보통 파랑 → 어려움 보라.
+   노랑(필사노트의 틀린 글자·힌트)과 빨강(틀린 조각)은 '틀림'의 뜻이라 쓰지 않음. 초성 퀴즈 5단계는 연두→초록→하늘→파랑→보라.
+   고른 단계는 같은 색이 진해지고 테두리가 두꺼워짐(✓도 그 색) */
+.levels button[data-l="easy"],.levels button[data-l="c2"]{--lc:#3F8F3A;--lb:#F3FAF2}
+.levels button[data-l="mid"],.levels button[data-l="c4"]{--lc:#2F68B5;--lb:#F2F6FD}
+.levels button[data-l="hard"],.levels button[data-l="c5"]{--lc:#7450AE;--lb:#F7F3FC}
+.levels button[data-l="c1"]{--lc:#6E9A2A;--lb:#F7FBEE}
+.levels button[data-l="c3"]{--lc:#2A8AAE;--lb:#F0F8FB}
+@media (prefers-color-scheme: dark){
+ /* 어두운 화면: 단추는 밝은 화면 색과 어두운 바탕을 30%만 섞은 밝은 색 + 진한 글씨 (2026-10-23 집사님: 어둡고 무거움 → 어두움 30으로) */
+ .levels button[data-l="easy"],.levels button[data-l="c2"]{--lc:#1F5A1B;--lb:#B7CAB7}
+ .levels button[data-l="mid"],.levels button[data-l="c4"]{--lc:#173F78;--lb:#B5C2D6}
+ .levels button[data-l="hard"],.levels button[data-l="c5"]{--lc:#43287A;--lb:#C2BAD3}
+ .levels button[data-l="c1"]{--lc:#3D5A12;--lb:#C4CEB2}
+ .levels button[data-l="c3"]{--lc:#12536B;--lb:#B2C9D3}
+ .levels button[data-l] .lp{color:#2A3340}
+ .levels button[data-l].on{background:color-mix(in srgb,#FFFFFF 18%,var(--lb))}}
+.levels button[data-l]{background:var(--lb);border:2px solid color-mix(in srgb,var(--lc) 40%,transparent);box-shadow:none}
+.levels button[data-l] b{color:var(--lc)}
+.levels button[data-l].on{background:color-mix(in srgb,var(--lc) 11%,var(--lb));border:3px solid var(--lc);box-shadow:0 0 0 2px color-mix(in srgb,var(--lc) 35%,transparent)}
+.levels button[data-l].on b::after{color:var(--lc)}
+.levels button[data-l] .lp i{color:var(--lc)}
 </style>
 </head>
 <body>
@@ -388,7 +411,7 @@ h1{font-size:calc(40px * var(--kf))}h2.sec{font-size:calc(27px * var(--kf))}.lev
     <a href="https://www.youtube.com/@%EB%A7%88%EC%9D%B4%EB%B0%94%EC%9D%B4%EB%B8%94365" target="_blank" rel="noopener" style="font-weight:700">📺 사용법 영상 · 유튜브 마이바이블365</a><br>
     <span class="credit">오직 하나님께 영광 · 섬김이 김명구 집사</span><br>
     <!-- 버전: 작은 고침 V1.1·V1.2…, 큰 기능 V2.0. 고칠 때마다 날짜도 함께 (2026-10-12부터) -->
-    <span style="font-size:13px" id="appVer">주니어 말씀 놀이 V1.5 · 2026.10.17</span>
+    <span style="font-size:13px" id="appVer">주니어 말씀 놀이 V1.6 · 2026.10.23</span>
   </footer>
 </div>
 <script>
@@ -733,7 +756,7 @@ $('resetBtn').onclick=()=>{
 const APP_NAME='주니어말씀놀이';
 $('backupBtn').onclick=()=>{
   const fn=`${APP_NAME}_${(KID()||{}).name||''}_백업_${today()}.json`;
-  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.5',saved:new Date().toISOString(),data:S})],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.6',saved:new Date().toISOString(),data:S})],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
   alert(`백업 파일을 저장했어요.\n‘다운로드’ 폴더에 「${fn}」 이름으로 들어 있습니다.\n\n컴퓨터를 바꾸거나 기록이 사라졌을 때 ‘📂 백업 파일로 되살리기’로 되돌릴 수 있어요.`);
 };
