@@ -492,7 +492,7 @@ body.wide #verseHome .jbs{grid-template-columns:repeat(5,1fr)}
     <a href="https://www.youtube.com/@%EB%A7%88%EC%9D%B4%EB%B0%94%EC%9D%B4%EB%B8%94365" target="_blank" rel="noopener" style="font-weight:700">📺 사용법 영상 · 유튜브 마이바이블365</a><br>
     <span class="credit">오직 하나님께 영광 · 섬김이 김명구 집사</span><br>
     <!-- 버전: 작은 고침 V1.1·V1.2…, 큰 기능 V2.0. 고칠 때마다 날짜도 함께 (2026-10-12부터) -->
-    <span style="font-size:13px" id="appVer">말씀 타자 연습 V1.12 · 2026.10.22</span>
+    <span style="font-size:13px" id="appVer">말씀 타자 연습 V1.13 · 2026.10.25</span>
   </footer>
 </div>
 <script>
@@ -977,7 +977,7 @@ $('resetBtn').onclick=()=>{
 const APP_NAME='말씀타자연습';
 $('backupBtn').onclick=()=>{
   const fn=`${APP_NAME}_백업_${today()}.json`;
-  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.12',saved:new Date().toISOString(),data:S})],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:SKEY,name:APP_NAME,appVer:'V1.13',saved:new Date().toISOString(),data:S})],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
   alert(`백업 파일을 저장했어요.\n‘다운로드’ 폴더에 「${fn}」 이름으로 들어 있습니다.\n\n컴퓨터를 바꾸거나 기록이 사라졌을 때 ‘📂 백업 파일로 되살리기’로 되돌릴 수 있어요.`);
 };
@@ -1812,6 +1812,18 @@ document.addEventListener('keydown',e=>{
 /* 휴대폰처럼 자판이 없는 기기에서는 안내를 띄움 */
 try{if(matchMedia('(pointer: coarse)').matches&&!matchMedia('(pointer: fine)').matches)$('pcNote').classList.remove('hide')}catch(e){}
 document.body.appendChild($('party'));applyFs();applyHands();renderHome();
+/* 2026-10-25 V1.13 (fix79): 주소로 말씀 고르기 — 쇼츠 녹화용. 예) typing/?v=시편23:1  (띄어쓰기·'편/장/절'은 있어도 됨: ?v=시편 23편 1절)
+   4단계 389절 가운데에서 찾아 바로 '한 절 따라 치기'로 엶. 기록·점수·성벽은 평소와 똑같이 셈. 없는 말씀이면 알려 주고 처음 화면 */
+(function(){
+  let raw='';try{raw=new URLSearchParams(location.search).get('v')||''}catch(e){return}
+  if(!raw)return;
+  const t=raw.replace(/\s+/g,'').replace(/절$/,'');
+  const m=t.match(/^(.+?)(\d+)(?:[:.]|편|장)(\d+)$/);
+  const i=m?V.findIndex(x=>x[0]===m[1]&&x[1]===+m[2]&&x[2]===+m[3]):-1;
+  if(i<0){setTimeout(()=>alert(`"${raw}" 말씀은 아직 타자 연습에 없어요.\n4단계 '한 절 따라 치기'의 389절 가운데에서 골라 주세요.\n(예: ?v=시편23:1)`),300);return}
+  const n=wc(V[i]);S.vLevel=n<=8?'easy':n<=14?'mid':'hard';save();
+  JM=null;newSession();startVerse(i);
+})();
 
 /* 글씨 모양: 컴퓨터에 깔린 글꼴만 씀 (파일 크기·인터넷 그대로). 나눔글꼴이 깔려 있으면 그것을 먼저 씀 */
 const FACES={
