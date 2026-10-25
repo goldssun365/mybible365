@@ -49,12 +49,16 @@ footer{margin-top:34px;text-align:center;color:var(--soft);font-size:15px;line-h
 footer b{color:var(--ink)}
 @media (max-width:560px){h1{font-size:28px}.card{grid-template-columns:56px 1fr;padding:16px}.card img{width:56px;height:56px}.go{display:none}.card h3{font-size:21px}}
 .pv a{color:inherit;text-decoration:underline}
+/* 2026-10-25 (fix81): 설치 안 해도 된다는 안내 — 시니어에게 "설치"가 문턱이 되지 않게 (집사님 요청) */
+.easy{display:inline-block;word-break:keep-all;margin:-10px 0 22px;padding:8px 16px;border-radius:12px;font-weight:700;font-size:17px;background:color-mix(in srgb,#2f7a55 13%,transparent);color:#2f7a55}
+@media (prefers-color-scheme:dark){.easy{color:#7fd1a6;background:color-mix(in srgb,#7fd1a6 14%,transparent)}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>mybible365 <small>마이바이블 365</small></h1>
   <p class="lead">가입도 비용도 없이 쓰는 말씀 앱 세 가지와 어린이 말씀 놀이를 모았습니다. 기록은 각자의 기기에만 저장됩니다.</p>
+  <p class="easy">✅ 주소만 누르면 바로 됩니다. 설치는 원하시면 하세요.</p>
 
   <div class="q">
     <h2>어디서 시작할까요?</h2>
