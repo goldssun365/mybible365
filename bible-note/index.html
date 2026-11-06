@@ -449,7 +449,7 @@ body.pw-on .modal{padding-bottom:92px}body.pw-on .modal-card{max-height:calc(100
     <a href="https://www.youtube.com/@%EB%A7%88%EC%9D%B4%EB%B0%94%EC%9D%B4%EB%B8%94365" target="_blank" rel="noopener" style="font-weight:700">📺 사용법 영상 · 유튜브 마이바이블365</a><br>
     <span class="credit">오직 하나님께 영광 · 섬김이 김명구 집사</span><br>
     <!-- 버전: 작은 고침 V1.1·V1.2…, 큰 기능 V2.0. 고칠 때마다 날짜도 함께 (2026-10-12부터) -->
-    <span style="font-size:13px" id="appVer">성경필사노트 V1.1 · 2026.10.17</span>
+    <span style="font-size:13px" id="appVer">성경필사노트 V1.2 · 2026.11.07</span>
   </footer>
 </div>
 
@@ -1527,7 +1527,7 @@ async function printForShop(){
 const BACKUP_FOLDER='성경필사 백업';
 const canFolder=()=>'showDirectoryPicker' in window&&Store.mode==='idb';
 const rawKey=(id,k)=>id?`@${id}:${k}`:k;
-function backupJson(id=Store.uid){const data={};for(const raw of Store.userKeys(id))data[Store.logical(raw)]=Store.mem.get(raw);return JSON.stringify({app:'goldsun-bible-note',version:9,appVer:'V1.1',person:userName(id),created:new Date().toISOString(),data})}
+function backupJson(id=Store.uid){const data={};for(const raw of Store.userKeys(id))data[Store.logical(raw)]=Store.mem.get(raw);return JSON.stringify({app:'goldsun-bible-note',version:9,appVer:'V1.2',person:userName(id),created:new Date().toISOString(),data})}
 const backupName=(id=Store.uid)=>{const n=baseName(Store.mem.get(rawKey(id,'sign'))||'').replace(/[\\/:*?"<>|\s]/g,'');return `성경필사_백업_${n?n+'_':''}${today()}.json`};
 async function getBackupDir(ask){
   const h=Store.get('backupDir',null);
@@ -1949,6 +1949,42 @@ boot();
     document.getElementById('pwLater').onclick=function(){box.remove();document.body.classList.remove('pw-on');if(window.PW&&PW.onLater)PW.onLater();try{localStorage.setItem('pw-later:'+location.pathname,Date.now())}catch(e){}};
   }
   window.addEventListener('appinstalled',function(){if(box)box.remove();document.body.classList.remove('pw-on')});
+})();
+</script>
+<!-- 2026-11-07 V1.2: 영어로 쳐질 때 안내 (집사님 요청). 웹 앱은 한/영 상태를 바꿀 수 없어서, 필사 칸에 영어 글자가 들어오면 큰 안내를 띄움.
+     감사일기·이름 칸은 영어를 써도 되므로 제외. 한글을 치기 시작하면 저절로 사라짐 -->
+<style>
+#engTip{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:9998;
+  max-width:calc(100vw - 32px);box-sizing:border-box;display:flex;gap:12px;align-items:center;
+  background:var(--gold-soft);color:var(--ink);border:3px solid var(--miss-line);border-radius:16px;
+  padding:14px 16px 14px 20px;font:700 22px/1.45 var(--sans);box-shadow:0 8px 28px rgba(0,0,0,.25);word-break:keep-all}
+#engTip kbd{display:inline-block;font:800 22px var(--sans);background:var(--sheet);color:var(--ink);border:2px solid var(--ink);border-bottom-width:4px;border-radius:8px;padding:0 9px;margin:0 2px}
+#engTip small{display:block;font:500 17px/1.4 var(--sans);color:var(--sub);margin-top:2px}
+#engTip button{flex:none;font:700 17px var(--sans);background:var(--act);color:var(--act-ink);border:0;border-radius:10px;padding:10px 14px;cursor:pointer}
+#engTip[hidden]{display:none}
+@media print{#engTip{display:none!important}}
+</style>
+<div id="engTip" role="status" aria-live="polite" hidden>
+  <span>⌨️ 영어로 쳐지고 있어요. 자판의 <kbd>한/영</kbd> 키를 한 번 눌러 주세요.
+  <small>영어로 쳐진 글자는 지우고 다시 쳐 주세요.</small></span>
+  <button type="button" id="engTipX">알겠어요</button>
+</div>
+<script>
+(function(){
+  const tip=document.getElementById('engTip');if(!tip)return;
+  let quietUntil=0,hideT=0;
+  const isWriteBox=t=>t&&t.tagName==='TEXTAREA'&&(t.id==='typing'||t.classList.contains('rin'));
+  const show=()=>{if(Date.now()<quietUntil)return;tip.hidden=false;clearTimeout(hideT);hideT=setTimeout(()=>{tip.hidden=true},12000)};
+  const hide=()=>{tip.hidden=true;clearTimeout(hideT)};
+  document.addEventListener('input',e=>{
+    if(!isWriteBox(e.target))return;
+    const d=e.data||'';
+    if(/[A-Za-z]/.test(d))show();
+    else if(e.isComposing||/[\uAC00-\uD7A3\u3131-\u318E]/.test(d))hide();
+  },true);
+  document.addEventListener('compositionstart',e=>{if(isWriteBox(e.target))hide()},true);
+  document.getElementById('engTipX').onclick=()=>{hide();quietUntil=Date.now()+60000;
+    const a=document.activeElement;if(!isWriteBox(a)){const t=document.getElementById('typing');if(t&&t.offsetParent)t.focus()}};
 })();
 </script>
 </body>
